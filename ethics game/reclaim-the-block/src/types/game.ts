@@ -59,20 +59,27 @@ export type CommunityCardEffectType =
   | 'draw-cards-swap'
   | 'none';
 
-export interface IncidentCard {
-  id: string;
-  type: 'incident';
-  name: string;
-  effect: string;          // human-readable rules text shown on the card
-  educationalNote: string; // flavor / real-world description
-  // ── Data-driven resolution ──
-  // Devices added when the incident resolves (omit for none).
+export interface IncidentOutcome {
+  text: string;            // what happens, shown on the card for this branch
+  // Devices added when this outcome resolves (omit for none).
   // 'all' = every neighborhood. deviceCount defaults to 1 per target.
   deviceTarget?: NeighborhoodId | 'all';
   deviceCount?: number;
   // Explicit meter change applied on top of any per-device penalties.
   // Negative moves the meter toward zero (worse for the players).
   meterDelta?: number;
+}
+
+export interface IncidentCard {
+  id: string;
+  type: 'incident';
+  name: string;
+  effect: string;          // prompt shown on the card, e.g. "Does your community support it?"
+  educationalNote: string; // flavor / real-world description of the situation
+  // ── Data-driven resolution ──
+  // The group must choose one of these two branches; each resolves independently.
+  support: IncidentOutcome;
+  pushBack: IncidentOutcome;
 }
 
 export type Card = CommunityCard | IncidentCard;
@@ -123,6 +130,14 @@ export interface PendingIncident {
   voteTally?: { comply: number; refuse: number };
 }
 
+// The community's choice on the last incident, revealed during the following Board Phase.
+export interface ResolvedIncident {
+  name: string;
+  choice: 'support' | 'pushback';
+  text: string;
+  effectSummary: string;
+}
+
 export interface GameState {
   phase: GamePhase;
   round: number;
@@ -144,6 +159,7 @@ export interface GameState {
 
   pendingIncident: PendingIncident | null;
   pendingDeferredIncident: PendingIncident | null;
+  resolvedIncident: ResolvedIncident | null;
   pendingDrawnCards: { playerId: number; cards: CommunityCard[] } | null;
   pendingDiscard: { playerId: number; count: number; advanceAfter: boolean } | null;
 

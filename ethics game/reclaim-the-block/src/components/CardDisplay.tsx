@@ -1,6 +1,7 @@
 import type { CommunityCard } from '../types/game';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { asset } from '../utils/asset';
 
 interface Props {
   card: CommunityCard;
@@ -33,6 +34,20 @@ const CATEGORY_ICONS: Record<string, string> = {
   purple: '🏘️',
 };
 
+// Categories with a dedicated pixel-art image instead of an emoji.
+const CATEGORY_ICON_IMAGES: Partial<Record<string, string>> = {
+  blue: 'law.png',
+  green: 'news.png',
+  red: 'civil.png',
+  yellow: 'community.png',
+};
+
+function CategoryIcon({ category, className }: { category: string; className: string }) {
+  const image = CATEGORY_ICON_IMAGES[category];
+  if (image) return <img src={asset(`/${image}`)} alt="" className={className} />;
+  return <span className={className}>{CATEGORY_ICONS[category]}</span>;
+}
+
 export default function CardDisplay({ card, isSelected, onClick, disabled }: Props) {
   const [showModal, setShowModal] = useState(false);
   const color = CATEGORY_COLORS[card.category];
@@ -50,7 +65,7 @@ export default function CardDisplay({ card, isSelected, onClick, disabled }: Pro
       </div>
       {/* Art zone */}
       <div className="card-art">
-        <span className="card-art-icon">{CATEGORY_ICONS[card.category]}</span>
+        <CategoryIcon category={card.category} className="card-art-icon" />
       </div>
       {/* Body */}
       <div className="card-name" style={{ color }}>{card.name}</div>
@@ -75,11 +90,11 @@ export default function CardDisplay({ card, isSelected, onClick, disabled }: Pro
               </div>
               {/* Art zone */}
               <div className="card-modal-art">
-                <span className="card-modal-art-icon">{CATEGORY_ICONS[card.category]}</span>
+                <CategoryIcon category={card.category} className="card-modal-art-icon" />
               </div>
               {/* Body */}
               <div className="card-modal-body">
-                <div className="card-modal-name">{card.name}</div>
+                <div className="card-modal-name" style={{ color }}>{card.name}</div>
                 <div className="card-modal-edu">{card.educationalContent}</div>
                 <div className="card-modal-effect">{card.effect}</div>
               </div>

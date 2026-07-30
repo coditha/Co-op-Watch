@@ -53,16 +53,16 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
         {/* Compact badge — always shows current level; tap to toggle the in-place panel */}
         <button
           className="density-inline-badge"
-          onClick={() => setExpanded((e) => !e)}
-          title={expanded ? 'Collapse tracker' : 'Expand full tracker'}
+          onClick={round === undefined ? () => setExpanded((e) => !e) : undefined}
+          title={round === undefined ? (expanded ? 'Collapse tracker' : 'Expand full tracker') : undefined}
         >
           {round === undefined && <span className="density-inline-badge-emoji">{DEVICE_EMOJIS[idx]}</span>}
           <span className="density-inline-badge-lv">{round !== undefined ? `Round ${round}` : `${value}`}</span>
-          <span className="density-inline-chevron">{expanded ? '◂' : '▸'}</span>
+          {round === undefined && <span className="density-inline-chevron">{expanded ? '◂' : '▸'}</span>}
         </button>
 
         {/* In-place expansion — full tracker unfolds beneath the badge */}
-        {expanded && (
+        {expanded && round === undefined && (
           <div className="density-inline-track">
             {DEVICE_LABELS.map((_label, i) => (
               <div

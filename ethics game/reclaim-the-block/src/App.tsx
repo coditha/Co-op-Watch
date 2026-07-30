@@ -1,8 +1,9 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { gameReducer, buildInitialState, getReachablePositions } from './store/gameReducer';
+import { asset } from './utils/asset';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
-import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState } from './types/game';
+import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState, ResolvedIncident } from './types/game';
 import GameSetup from './components/GameSetup';
 import GameOver from './components/GameOver';
 import PrivacyMeter from './components/PrivacyMeter';
@@ -21,6 +22,13 @@ const DRAWN_CARD_LABELS: Record<string, string> = {
 };
 const DRAWN_CARD_ICONS: Record<string, string> = {
   blue: '⚖️', yellow: '🤝', green: '📰', red: '🏛️', purple: '🏘️',
+};
+// Categories with a dedicated pixel-art image instead of an emoji.
+const DRAWN_CARD_ICON_IMAGES: Partial<Record<string, string>> = {
+  blue: 'law.png',
+  green: 'news.png',
+  red: 'civil.png',
+  yellow: 'community.png',
 };
 const DRAWN_CARD_COLORS: Record<string, string> = {
   blue: '#3b82f6', yellow: '#f59e0b', green: '#22c55e', red: '#ef4444', purple: '#a855f7',
@@ -46,17 +54,6 @@ function CornerPanel({
   onCardClick: (card: CommunityCard) => void;
 }) {
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
-
-  const POSITION_SHORT: Record<string, string> = {
-    'city-hall': 'Town Square',
-    suburb: 'Neighborhood', courthouse: 'Courthouse', media: 'Downtown', politics: 'Civic Center',
-    'suburb-n1': 'Nbhd N1', 'suburb-n2': 'Nbhd N2', 'suburb-n3': 'Nbhd N3', 'suburb-n4': 'Nbhd N4',
-    'courthouse-n1': 'Court N1', 'courthouse-n2': 'Court N2', 'courthouse-n3': 'Court N3', 'courthouse-n4': 'Court N4',
-    'media-n1': 'DT N1', 'media-n2': 'DT N2', 'media-n3': 'DT N3', 'media-n4': 'DT N4',
-    'politics-n1': 'CC N1', 'politics-n2': 'CC N2', 'politics-n3': 'CC N3', 'politics-n4': 'CC N4',
-    'suburb-road-1': 'Nbhd Road', 'courthouse-road-1': 'Court Road',
-    'media-road-1': 'DT Road', 'politics-road-1': 'CC Road',
-  };
 
   // Horizontal overlap layout: cards spread evenly, overlap increases with hand size
   const n = player.hand.length;
@@ -114,6 +111,23 @@ function CornerPanel({
   );
 }
 
+// ── Board phase action button — reflects the incident's resolved effect ────
+
+function boardPhaseActionLabel(resolved: ResolvedIncident | null): string {
+  if (!resolved || !resolved.effectSummary) return 'Place Device';
+  const deviceMatch = resolved.effectSummary.match(/\+(\d+) device/);
+  if (deviceMatch) {
+    const n = parseInt(deviceMatch[1], 10);
+    return `Place ${n} Device${n > 1 ? 's' : ''}`;
+  }
+  const trustMatch = resolved.effectSummary.match(/([+-])(\d+) trust/);
+  if (trustMatch) {
+    const [, sign, amount] = trustMatch;
+    return sign === '+' ? `Raise Trust Meter by ${amount}` : `Decrease Trust Meter by ${amount}`;
+  }
+  return 'Continue';
+}
+
 // ── Surveillance incident overlay ──────────────────────────────────────────
 
 function IncidentOverlay({
@@ -137,7 +151,7 @@ function IncidentOverlay({
 
         {/* Art zone */}
         <div className="incident-card-art">
-          <span className="incident-card-art-icon">📡</span>
+          <img src={asset('/warning.png')} alt="" className="incident-card-art-icon" />
         </div>
 
         {/* Inner frame body */}
@@ -145,13 +159,18 @@ function IncidentOverlay({
           <div className="incident-card-name">{incident.card.name}</div>
           <div className="incident-card-flavor">{incident.card.educationalNote}</div>
           <div className="incident-card-rule">{incident.card.effect}</div>
+
         </div>
 
         {/* Action footer */}
         <div className="incident-card-footer">
-          <button className="btn btn-danger incident-card-btn"
-            onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'refuse' })}>
-            Acknowledge
+          <button className="btn incident-card-btn incident-btn-support"
+            onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'support' })}>
+            Support
+          </button>
+          <button className="btn incident-card-btn incident-btn-pushback"
+            onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'pushback' })}>
+            Push Back
           </button>
         </div>
       </div>
@@ -696,10 +715,29 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
         <div className="board-phase-overlay">
           <div className="board-phase-border">
           <div className="board-phase-card">
+            <div className="board-phase-header">
+              <span className="board-phase-header-label">BOARD PHASE</span>
+            </div>
+            <div className="board-phase-art">
+              <img src={asset('/caution.png')} alt="" className="board-phase-art-icon" />
+            </div>
             <div className="board-phase-body">
-              <div className="board-phase-icon">⚠️</div>
-              <div className="board-phase-title">Board Phase</div>
-              <p className="board-phase-text">{getBoardPhaseEvent(state.round)}</p>
+              {state.resolvedIncident && (
+                <div className="board-phase-incident-reveal">
+                  <div className="board-phase-incident-choice">
+                    <div className="board-phase-incident-choice-label">Your community chose to:</div>
+                    <div className="board-phase-incident-choice-value">
+                      {state.resolvedIncident.choice === 'support' ? 'Support' : 'Push Back'}
+                    </div>
+                  </div>
+                  <div className="board-phase-incident-text">
+                    {state.resolvedIncident.text}
+                  </div>
+                </div>
+              )}
+              {!state.resolvedIncident && (
+                <p className="board-phase-text">{getBoardPhaseEvent(state.round)}</p>
+              )}
             </div>
             <div className="board-phase-footer">
               <button
@@ -719,7 +757,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   }
                 }}
               >
-                {flashTarget ? 'Placing...' : 'Place Device'}
+                {flashTarget ? 'Placing...' : boardPhaseActionLabel(state.resolvedIncident)}
               </button>
             </div>
           </div>
@@ -745,34 +783,40 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
         return (
         <div className="drawn-cards-overlay">
           <div className={`drawn-cards-modal${facesTop ? ' drawn-cards-modal-rotated' : ''}`}>
-            <div className="drawn-cards-title">
-              {state.pendingDrawnCards.cards.length} card{state.pendingDrawnCards.cards.length !== 1 ? 's' : ''} drawn
+            <div className="drawn-cards-header">
+              <span className="drawn-cards-header-label">Cards Drawn</span>
             </div>
-            <div className="drawn-cards-list">
-              {state.pendingDrawnCards.cards.map((card) => (
-                <div key={card.id} className={`drawn-card-wrap cat-wrap-${card.category}${card.isPowerUp ? ' drawn-card-powerup' : ''}`}>
-                <div className={`drawn-card`}>
-                  <div className="drawn-card-header" style={{ background: DRAWN_CARD_COLORS[card.category] }}>
-                    <span className="drawn-card-category">{DRAWN_CARD_LABELS[card.category]}</span>
+            <div className="drawn-cards-body">
+              <div className="drawn-cards-list">
+                {state.pendingDrawnCards.cards.map((card) => (
+                  <div key={card.id} className={`drawn-card-wrap cat-wrap-${card.category}${card.isPowerUp ? ' drawn-card-powerup' : ''}`}>
+                  <div className={`drawn-card`}>
+                    <div className="drawn-card-header" style={{ background: DRAWN_CARD_COLORS[card.category] }}>
+                      <span className="drawn-card-category">{DRAWN_CARD_LABELS[card.category]}</span>
+                    </div>
+                    <div className="drawn-card-art">
+                      {DRAWN_CARD_ICON_IMAGES[card.category] ? (
+                        <img src={asset(`/${DRAWN_CARD_ICON_IMAGES[card.category]}`)} alt="" className="drawn-card-art-icon" />
+                      ) : (
+                        <span className="drawn-card-art-icon">{DRAWN_CARD_ICONS[card.category]}</span>
+                      )}
+                    </div>
+                    <div className="drawn-card-body">
+                      <div className="drawn-card-name" style={{ color: DRAWN_CARD_COLORS[card.category] }}>{card.name}</div>
+                      <div className="drawn-card-edu">{card.educationalContent}</div>
+                      <div className="drawn-card-effect">{card.effect}</div>
+                    </div>
                   </div>
-                  <div className="drawn-card-art">
-                    <span className="drawn-card-art-icon">{DRAWN_CARD_ICONS[card.category]}</span>
                   </div>
-                  <div className="drawn-card-body">
-                    <div className="drawn-card-name" style={{ color: DRAWN_CARD_COLORS[card.category] }}>{card.name}</div>
-                    <div className="drawn-card-edu">{card.educationalContent}</div>
-                    <div className="drawn-card-effect">{card.effect}</div>
-                  </div>
-                </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <button
+                className="btn btn-primary drawn-cards-confirm"
+                onClick={() => dispatch({ type: 'ACKNOWLEDGE_DRAWN_CARDS' })}
+              >
+                Add to Hand
+              </button>
             </div>
-            <button
-              className="btn btn-primary drawn-cards-confirm"
-              onClick={() => dispatch({ type: 'ACKNOWLEDGE_DRAWN_CARDS' })}
-            >
-              Add to Hand
-            </button>
           </div>
         </div>
         );
@@ -782,17 +826,16 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {showIntro && (
         <div className="intro-overlay">
           <div className="intro-panel">
-            <h1 className="intro-title">THE CITY IS WATCHING</h1>
+            <img src={asset('/letter.png')} alt="" className="intro-icon" />
+            <p className="intro-salutation">Dear Maplewood,</p>
             <p className="intro-body">
-              Your city's local government has begun rapidly installing surveillance cameras,
-              license plate readers, and monitoring devices across every neighborhood. Officials
-              claim it is for public safety, but residents know the truth. Privacy is disappearing,
-              community trust is eroding, and certain neighborhoods are bearing the burden more than
-              others. You and your neighbors have had enough. Work together to organize, advocate,
-              and push back before surveillance overwhelms your city entirely.
+              Something is changing in our neighborhood. You've seen the news. You've heard the
+              debates. Each week brings a new proposal, a new device, a new reason to feel watched.
+              As a parent, lawyer, council member, and advocate, we have a responsibility to get this
+              right. Together.
             </p>
             <button className="intro-btn" onClick={() => setShowIntro(false)}>
-              Begin Game
+              Start
             </button>
           </div>
         </div>

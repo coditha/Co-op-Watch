@@ -578,7 +578,7 @@ input, select { font-family: inherit; }
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
   width: 40px; height: 40px;
-  background: url('../pebble.png') center/cover no-repeat;
+  background: url('/pebble.png') center/cover no-repeat;
   border: none;
   border-radius: 50%;
   box-shadow: none;
@@ -601,7 +601,7 @@ input, select { font-family: inherit; }
 
 /* Town Square — central deposit plaza (building sprite) */
 .city-hall {
-  background: url('../town-square.png') no-repeat center top;
+  background: url('/town-square.png') no-repeat center top;
   background-size: contain;
   border: none;
   box-shadow: none;
@@ -707,7 +707,7 @@ input, select { font-family: inherit; }
 /* Courthouse uses a real building sprite (save to public/courthouse.png).
    font-size:0 hides the emoji fallback; enlarged so the building reads. */
 .district-landmark.lm-courthouse {
-  background-image: url('../courthouse.png');
+  background-image: url('/courthouse.png');
   width: 96px; height: 96px;
   font-size: 0;
   /* Rise up so the base overlaps the back of the road → reads as standing
@@ -718,7 +718,7 @@ input, select { font-family: inherit; }
 .tv-game .district-landmark.lm-courthouse { width: 84px; height: 84px; }
 /* Suburb uses the community-center building sprite */
 .district-landmark.lm-suburb {
-  background-image: url('../community-center.png');
+  background-image: url('/community-center.png');
   width: 96px; height: 96px;
   font-size: 0;
   transform: translate(-50%, -56%);
@@ -727,7 +727,7 @@ input, select { font-family: inherit; }
 .tv-game .district-landmark.lm-suburb { width: 84px; height: 84px; }
 /* Politics Row uses the city-hall building sprite (government building) */
 .district-landmark.lm-politics {
-  background-image: url('../cityhall.png');
+  background-image: url('/cityhall.png');
   width: 96px; height: 96px;
   font-size: 0;
   transform: translate(-50%, -56%);
@@ -736,7 +736,7 @@ input, select { font-family: inherit; }
 .tv-game .district-landmark.lm-politics { width: 84px; height: 84px; }
 /* Media District uses the news-agency building sprite */
 .district-landmark.lm-media {
-  background-image: url('../news-agency.png');
+  background-image: url('/news-agency.png');
   width: 96px; height: 96px;
   font-size: 0;
   transform: translate(-50%, -56%);
@@ -775,7 +775,7 @@ input, select { font-family: inherit; }
 .int-waypoint {
   width: 32px; height: 32px; flex-shrink: 0; position: relative; z-index: 1;
   border-radius: 50%;
-  background: url('../pebble.png') center/cover no-repeat;
+  background: url('/pebble.png') center/cover no-repeat;
   border: none; box-shadow: none;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 0.6rem;
   image-rendering: pixelated;
@@ -1130,8 +1130,8 @@ input, select { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 140px;
-  height: 100px;
+  width: 250px;
+  height: 181px;
   overflow: visible;
   position: relative;
 }
@@ -1144,8 +1144,8 @@ input, select { font-family: inherit; }
   bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 48px;
-  height: 10px;
+  width: 89px;
+  height: 17px;
   background: rgba(0,0,0,0.35);
   border-radius: 50%;
   pointer-events: none;
@@ -1158,38 +1158,47 @@ input, select { font-family: inherit; }
   user-select: none;
   transform-origin: center center;
   transform-style: preserve-3d;
-  width: 48px;
-  height: 48px;
+  width: 100px;
+  height: 100px;
   image-rendering: pixelated;
 }
 .ap-die-wrap:active:not(.jitter):not(.land) { transform: scale(0.9); }
 /* Rolling: JS controls 3D rotation via inline style */
 .ap-die-wrap.jitter { cursor: default; }
 /* Landing: dice stays static — only sparkle particles animate */
-/* 3D cube */
-.die3d-cube {
-  width: 48px;
-  height: 48px;
+/* 3D octahedron (d8) — square bipyramid, 4 upper + 4 lower triangular faces */
+.die3d-octa {
+  width: 100px;
+  height: 100px;
   position: relative;
   transform-style: preserve-3d;
 }
 .die3d-face {
   position: absolute;
-  width: 48px;
-  height: 48px;
-  background: #e8d4a0;
-  border: 2px solid #3a2410;
-  border-radius: 3px;
+  left: 17px;
+  top: 21px;
+  width: 67px;
+  height: 58px;
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 6px;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
   image-rendering: pixelated;
+  backface-visibility: hidden;
 }
-.die3d-dot {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 0;
-  background: #3a2410;
-  image-rendering: pixelated;
+.die3d-face-top {
+  background: #f0dfb0;
+}
+.die3d-face-bottom {
+  background: #d9c088;
+}
+.die3d-face-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: #3a2410;
+  line-height: 1;
 }
 /* Pixel-art sparkle particles — square pixel stars fan out on landing */
 .px-sparkle {
@@ -1436,7 +1445,7 @@ input, select { font-family: inherit; }
 .powerup-star { font-size: 0.75rem; }
 /* Art zone */
 .card-art { background: #f5f0e8; border-top: 1px solid rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; padding: 6px 0; }
-.card-art-icon { font-size: 1.6rem; line-height: 1; }
+.card-art-icon { font-size: 1.6rem; line-height: 1; width: 1.6rem; height: 1.6rem; image-rendering: pixelated; }
 
 .card-name { padding: 2px 5px 1px; font-family: 'Press Start 2P', monospace; font-size: 0.1rem; line-height: 1.5; color: var(--px-dark); }
 .card-desc {
@@ -1505,12 +1514,12 @@ input, select { font-family: inherit; }
 }
 /* Art zone */
 .card-modal-art { background: transparent; display: flex; align-items: center; justify-content: center; padding: 0.6rem 0; }
-.card-modal-art-icon { font-size: 3.5rem; line-height: 1; }
+.card-modal-art-icon { font-size: 5rem; line-height: 1; width: 5rem; height: 5rem; image-rendering: pixelated; }
 /* Body */
-.card-modal-body { padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; flex: 1; text-align: center; }
-.card-modal-name { font-family: 'Press Start 2P', monospace; font-size: 0.75rem; color: var(--px-dark); line-height: 1.6; text-align: center; }
+.card-modal-body { padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.85rem; flex: 1; text-align: center; }
+.card-modal-name { font-family: 'Press Start 2P', monospace; font-size: 0.75rem; color: var(--px-dark); line-height: 1.6; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
 .card-modal-edu { font-size: 0.75rem; line-height: 1.5; color: var(--text-muted); font-style: italic; text-align: center; }
-.card-modal-effect { font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 0.35rem; }
+.card-modal-effect { font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.5; }
 .card-modal-ok {
   margin: auto 0.9rem 0.9rem;
   background: #5a7a3a; color: #fff;
@@ -1601,19 +1610,50 @@ input, select { font-family: inherit; }
     8px 100%, 4px calc(100% - 3px), 3px calc(100% - 4px), 0 calc(100% - 8px)
   );
 }
-.board-phase-body {
-  padding: 1.25rem 0.75rem 0.75rem; display: flex; flex-direction: column;
-  align-items: center; gap: 0.55rem; text-align: center;
+.board-phase-header {
+  background: #d97706;
+  padding: 0.65rem 0.75rem;
+  display: flex; align-items: center; justify-content: center;
 }
-.board-phase-icon { font-size: 2.8rem; line-height: 1; }
-.board-phase-title {
-  font-family: 'Press Start 2P', monospace; font-size: 0.85rem;
-  color: #d97706; line-height: 1.5;
+.board-phase-header-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem; color: #fff;
+  letter-spacing: 1px; text-align: center; line-height: 1.6;
+}
+.board-phase-art {
+  background: #f5f0e8;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem 0 0.3rem;
+}
+.board-phase-art-icon { width: 4.75rem; height: 4.75rem; image-rendering: pixelated; }
+.board-phase-body {
+  padding: 0.4rem 0.75rem 0.75rem; display: flex; flex-direction: column;
+  align-items: center; gap: 1rem; text-align: center;
 }
 .board-phase-text { font-size: 1rem; color: var(--text-muted); line-height: 1.55; }
+.board-phase-incident-reveal {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 0.9rem;
+}
+.board-phase-incident-choice {
+  display: flex; flex-direction: column; gap: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.9rem;
+}
+.board-phase-incident-choice-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem; letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+.board-phase-incident-choice-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.95rem; letter-spacing: 0.5px;
+  color: #d97706;
+}
+.board-phase-incident-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; font-style: italic; }
 .board-phase-footer { padding: 0 0.75rem 0.75rem; }
-.board-phase-btn { width: 100%; background: #2d2d2d; color: #fff; border-color: #1a1a1a; }
-.board-phase-btn:hover { background: #3d3d3d; }
+.board-phase-btn { width: 100%; background: var(--yellow); color: #fff; }
+.board-phase-btn:hover { background: #b06e00; }
 
 .incident-overlay {
   position: fixed; inset: 0; z-index: 300;
@@ -1629,13 +1669,13 @@ input, select { font-family: inherit; }
 /* ── Incident card — playing-card layout ─────────────────── */
 .incident-card {
   position: relative; z-index: 1;
-  width: min(300px, 88vw);
+  width: min(360px, 90vw);
   background: #f5f0e8;
-  border: 3px solid #ef4444;
+  border: 5px solid #ef4444;
   clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
   display: flex; flex-direction: column;
   animation: incident-card-in 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
-  filter: drop-shadow(0 0 24px rgba(239,68,68,0.5)) drop-shadow(6px 6px 0 var(--px-dark));
+  filter: drop-shadow(0 0 24px rgba(239,68,68,0.5)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(6px 6px 0 var(--px-dark));
 }
 .incident-card-rotated { transform: rotate(180deg); }
 /* Red header band */
@@ -1654,17 +1694,17 @@ input, select { font-family: inherit; }
   background: #f5f0e8;
   border-top: 2px solid var(--border);
   display: flex; align-items: center; justify-content: center;
-  padding: 1.1rem 0;
+  padding: 1rem 0 0.3rem;
 }
-.incident-card-art-icon { font-size: 3rem; line-height: 1; }
+.incident-card-art-icon { width: 4.75rem; height: 4.75rem; image-rendering: pixelated; }
 /* Inner rule body */
 .incident-card-body {
-  padding: 0.85rem 1rem 0.6rem;
+  padding: 0.4rem 1rem 0.6rem;
   display: flex; flex-direction: column; gap: 0.5rem;
 }
 .incident-card-name {
   font-family: 'Press Start 2P', monospace;
-  font-size: 0.72rem; color: var(--red);
+  font-size: 0.95rem; color: var(--red);
   text-align: center; letter-spacing: 0.5px; line-height: 1.6;
 }
 .incident-card-flavor {
@@ -1686,6 +1726,9 @@ input, select { font-family: inherit; }
 }
 .incident-card-discard-options { display: flex; flex-direction: column; gap: 0.35rem; }
 .incident-card-btn { width: 100%; font-size: 1rem; padding: 0.65rem 1rem; }
+/* Support / Push Back share the same neutral tone — neither choice should
+   read as "correct" or "safe" via color alone. */
+.incident-btn-support, .incident-btn-pushback { background: var(--yellow); color: #fff; }
 
 /* ── Drawn Cards Overlay ─────────────────────────────────── */
 .drawn-cards-overlay {
@@ -1694,22 +1737,31 @@ input, select { font-family: inherit; }
   display: flex; align-items: center; justify-content: center;
 }
 .drawn-cards-modal {
+  position: relative;
   background: var(--surface);
-  border: 3px solid var(--border);
-  box-shadow: 6px 6px 0 var(--px-dark);
-  padding: 1.5rem;
+  border: 5px solid var(--blue);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
   max-width: 90vw; width: fit-content;
-  max-height: 80vh; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 1rem;
+  max-height: 80vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  filter: drop-shadow(0 0 24px rgba(30,90,176,0.5)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(6px 6px 0 var(--px-dark));
 }
 /* Flip the draw popup for top-corner players so it faces them */
 .drawn-cards-modal-rotated { transform: rotate(180deg); }
-.drawn-cards-title {
+.drawn-cards-header {
+  background: var(--blue);
+  padding: 0.65rem 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.drawn-cards-header-label {
   font-family: 'Press Start 2P', monospace;
-  font-size: 0.75rem; color: var(--text);
-  text-align: center; text-transform: uppercase; letter-spacing: 1px; line-height: 1.6;
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 0.5rem;
+  font-size: 0.75rem; color: #fff;
+  letter-spacing: 1px; text-align: center; line-height: 1.6;
+}
+.drawn-cards-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 1rem;
 }
 .drawn-cards-list {
   display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.75rem; justify-content: center;
@@ -1754,13 +1806,14 @@ input, select { font-family: inherit; }
 .drawn-card-star { font-size: 0.85rem; }
 /* Art zone — transparent background */
 .drawn-card-art { background: transparent; display: flex; align-items: center; justify-content: center; padding: 0.6rem 0; }
-.drawn-card-art-icon { font-size: 3.5rem; line-height: 1; }
+.drawn-card-art-icon { font-size: 5rem; line-height: 1; width: 5rem; height: 5rem; image-rendering: pixelated; }
 /* Body */
-.drawn-card-body { padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; flex: 1; overflow: hidden; }
+.drawn-card-body { padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.85rem; flex: 1; overflow: hidden; }
 .drawn-card-name {
   font-family: 'Press Start 2P', monospace;
   font-size: 0.75rem; color: var(--px-dark); line-height: 1.6;
   text-align: center;
+  border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
   overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
 }
 .drawn-card-edu {
@@ -1770,7 +1823,6 @@ input, select { font-family: inherit; }
 }
 .drawn-card-effect {
   font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.5;
-  border-top: 1px solid var(--border); padding-top: 0.35rem;
   overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
 }
 .drawn-cards-confirm {
@@ -1816,7 +1868,7 @@ input, select { font-family: inherit; }
     "corner-tl  top-center  corner-tr"
     "pm         board-zone  dt"
     "corner-bl  board-zone  corner-br";
-  background-image: url('../grass-bg.png');
+  background-image: url('/grass-bg.png');
   background-size: auto;
   background-repeat: repeat;
   image-rendering: pixelated;
@@ -2245,7 +2297,7 @@ input, select { font-family: inherit; }
 .center-dice-bg {
   position: absolute;
   width: 460px; height: 460px;
-  background: url('../diceroll.png') 52% center / contain no-repeat;
+  background: url('/diceroll.png') 52% center / contain no-repeat;
   image-rendering: pixelated;
   pointer-events: none;
 }
@@ -2418,19 +2470,38 @@ input, select { font-family: inherit; }
   text-shadow: 3px 3px 0 var(--px-dark);
   line-height: 1.5; letter-spacing: 1px;
 }
-.intro-body {
+.intro-icon {
+  align-self: center;
+  width: min(120px, 30%);
+  aspect-ratio: 1 / 1;
+  image-rendering: pixelated;
+}
+.intro-salutation {
+  align-self: stretch;
+  text-align: left;
+  font-family: 'Pixelify Sans', monospace;
+  font-weight: 600;
   font-size: clamp(1.05rem, 1.55vw, 1.45rem);
-  line-height: 1.7;
-  color: var(--text);
+  color: var(--px-dark);
+  margin-bottom: -0.75rem;
+}
+.intro-body {
+  align-self: stretch;
+  text-align: left;
+  font-family: 'Pixelify Sans', monospace;
+  font-weight: 600;
+  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  line-height: 1.8;
+  color: var(--px-dark);
   max-width: 62ch;
 }
 .intro-btn {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
   background: var(--yellow); color: #fff;
   border: 3px solid var(--px-dark);
-  box-shadow: 5px 5px 0 var(--px-dark);
-  padding: 1rem 2.75rem;
+  box-shadow: 4px 4px 0 var(--px-dark);
+  padding: 0.6rem 1.5rem;
   letter-spacing: 1px; cursor: pointer;
   margin-top: 0.5rem;
   transition: transform 0.1s, box-shadow 0.1s;

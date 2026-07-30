@@ -2,6 +2,7 @@ import type {
   GameState,
   CommunityCard,
   IncidentCard,
+  IncidentOutcome,
   Card,
   NeighborhoodId,
   DeviceType,
@@ -184,6 +185,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
 
     pendingIncident: null,
     pendingDeferredIncident: null,
+    resolvedIncident: null,
     pendingDrawnCards: null,
     pendingDiscard: null,
 
@@ -221,7 +223,7 @@ export type GameAction =
   | { type: 'ACKNOWLEDGE_DRAWN_CARDS' }
   | { type: 'DISCARD_TO_HAND_LIMIT'; cardIds: string[] }
   | { type: 'BOARD_PHASE' }
-  | { type: 'INCIDENT_VOTE'; choice: 'comply' | 'refuse'; discardCardId?: string }
+  | { type: 'INCIDENT_VOTE'; choice: 'support' | 'pushback'; discardCardId?: string }
   | { type: 'DISCARD_CARD'; cardId: string };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -428,17 +430,39 @@ function placeDevice(
 
 // ── Incident Resolution ───────────────────────────────────────────────────
 
-function resolveIncident(state: GameState, incident: IncidentCard): GameState {
+function summarizeIncidentOutcome(outcome: IncidentOutcome): string {
+  const parts: string[] = [];
+  if (outcome.deviceTarget) {
+    const count = outcome.deviceCount ?? 1;
+    parts.push(`+${count} device${count > 1 ? 's' : ''}`);
+  }
+  if (outcome.meterDelta) {
+    parts.push(`${outcome.meterDelta > 0 ? '+' : ''}${outcome.meterDelta} trust`);
+  }
+  return parts.join(' · ');
+}
+
+function resolveIncident(state: GameState, incident: IncidentCard, choice: 'support' | 'pushback'): GameState {
   let s: GameState = { ...state, pendingIncident: null };
-  s = log(s, `Resolving incident: ${incident.name}`);
+  const outcome = choice === 'support' ? incident.support : incident.pushBack;
+  s = {
+    ...s,
+    resolvedIncident: {
+      name: incident.name,
+      choice,
+      text: outcome.text,
+      effectSummary: summarizeIncidentOutcome(outcome),
+    },
+  };
+  s = log(s, `${incident.name} — ${choice === 'support' ? 'Support' : 'Push Back'}: ${outcome.text}`);
 
   // 1) Place devices (placeDevice applies its own per-device meter penalty).
-  if (incident.deviceTarget) {
+  if (outcome.deviceTarget) {
     const targetIds: NeighborhoodId[] =
-      incident.deviceTarget === 'all'
+      outcome.deviceTarget === 'all'
         ? s.neighborhoods.map((n) => n.id)
-        : [incident.deviceTarget];
-    const count = incident.deviceCount ?? 1;
+        : [outcome.deviceTarget];
+    const count = outcome.deviceCount ?? 1;
     for (const nId of targetIds) {
       for (let i = 0; i < count; i++) {
         const emptySlot = s.neighborhoods
@@ -450,9 +474,9 @@ function resolveIncident(state: GameState, incident: IncidentCard): GameState {
     }
   }
 
-  // 2) Apply the card's explicit meter change, if any.
-  if (incident.meterDelta) {
-    s = shiftMeter(s, incident.meterDelta, incident.name);
+  // 2) Apply the outcome's explicit meter change, if any.
+  if (outcome.meterDelta) {
+    s = shiftMeter(s, outcome.meterDelta, incident.name);
   }
 
   return s;
@@ -666,10 +690,10 @@ function advanceTurnWithIncident(s: GameState, playerRoleId: string): GameState 
   const incidentCard = getIncidentForRound(s.round);
   if (!incidentCard || s.incidentFiredThisRound) return advanceTurn(s);
 
-  // Each player has an equal chance to trigger the incident.
-  // The last player in the round is guaranteed to trigger it if no one else did.
-  const playersRemaining = s.players.length - s.currentPlayerIndex;
-  if (Math.random() >= 1 / playersRemaining) return advanceTurn(s);
+  // Incidents always land at the end of the last player's turn in the round,
+  // right before the Board Phase reveal.
+  const isLastPlayer = s.currentPlayerIndex === s.players.length - 1;
+  if (!isLastPlayer) return advanceTurn(s);
 
   s = { ...s, incidentFiredThisRound: true };
 
@@ -1103,6 +1127,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         pendingDiceRoll: true,
         densityTracker: Math.min(8, s.densityTracker + 1),
         incidentFiredThisRound: false,
+        resolvedIncident: null,
       };
       s = log(s, `--- Round ${s.round} begins — ${s.players[0].role.name}, roll the dice! ---`);
 
@@ -1113,7 +1138,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'INCIDENT_VOTE': {
       if (!state.pendingIncident) return state;
       const incident = state.pendingIncident.card;
-      return resolveIncident(state, incident);
+      return resolveIncident(state, incident, action.choice);
     }
 
     // ── Discard card ──────────────────────────────────────────────────

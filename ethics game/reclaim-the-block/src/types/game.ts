@@ -131,11 +131,16 @@ export interface PendingIncident {
 }
 
 // The community's choice on the last incident, revealed during the following Board Phase.
+// Holds the chosen outcome's effect until the following Board Phase button
+// click actually applies it — the choice and the consequence are separate.
 export interface ResolvedIncident {
   name: string;
   choice: 'support' | 'pushback';
   text: string;
   effectSummary: string;
+  deviceTarget?: NeighborhoodId | 'all';
+  deviceCount?: number;
+  meterDelta?: number;
 }
 
 export interface GameState {

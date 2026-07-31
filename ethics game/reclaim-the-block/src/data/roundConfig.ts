@@ -2,7 +2,7 @@ import type { IncidentCard } from '../types/game';
 import { INCIDENT_CARDS } from './cards';
 
 interface RoundConfig {
-  incidentId: string;
+  incidentId?: string;
   boardPhaseEvent: string;
 }
 
@@ -13,27 +13,30 @@ export const ROUND_CONFIG: Record<number, RoundConfig> = {
   },
   2: {
     incidentId: 'incident-04',
-    boardPhaseEvent: 'Shops and streets install more security cameras to prevent crimes.',
+    boardPhaseEvent: 'The city looks to expand cameras into parks, transit stops, and public plazas.',
   },
   3: {
     incidentId: 'incident-02',
-    boardPhaseEvent: 'Police begin requesting access to private and store camera footage.',
+    boardPhaseEvent: 'Police request access to upgrade public cameras with facial recognition.',
   },
   4: {
     incidentId: 'incident-07',
-    boardPhaseEvent: 'Courts allow police to access more surveillance footage without strong restrictions.',
+    boardPhaseEvent: 'Automated license plate readers begin logging vehicles at major intersections.',
   },
   5: {
     incidentId: 'incident-03',
-    boardPhaseEvent: 'Footage from homes, streets, and stores are now connected so information can be shared easily.',
+    boardPhaseEvent: 'A city report reveals residents’ movements have been logged without their knowledge.',
   },
   6: {
     incidentId: 'incident-06',
-    boardPhaseEvent: 'Cameras begin using AI to identify people and track movement.',
+    boardPhaseEvent: 'Residents organize a march against the growing surveillance network.',
   },
   7: {
     incidentId: 'incident-09',
-    boardPhaseEvent: 'The city starts using data to predict where more monitoring is needed.',
+    boardPhaseEvent: 'The city proposes predicting where incidents are likely to occur.',
+  },
+  8: {
+    boardPhaseEvent: 'No theft. No accident. No proposal. Maplewood is safe now. At least, that is what the cameras say. No decision. No vote. The end.',
   },
 };
 

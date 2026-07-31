@@ -442,6 +442,10 @@ function summarizeIncidentOutcome(outcome: IncidentOutcome): string {
   return parts.join(' · ');
 }
 
+// Records the community's choice only — the actual device/meter consequence
+// isn't applied until the player clicks the Board Phase button (see
+// applyResolvedIncidentEffect), so nothing changes on the board from a
+// mere Support/Push Back click.
 function resolveIncident(state: GameState, incident: IncidentCard, choice: 'support' | 'pushback'): GameState {
   let s: GameState = { ...state, pendingIncident: null };
   const outcome = choice === 'support' ? incident.support : incident.pushBack;
@@ -452,17 +456,26 @@ function resolveIncident(state: GameState, incident: IncidentCard, choice: 'supp
       choice,
       text: outcome.text,
       effectSummary: summarizeIncidentOutcome(outcome),
+      deviceTarget: outcome.deviceTarget,
+      deviceCount: outcome.deviceCount,
+      meterDelta: outcome.meterDelta,
     },
   };
   s = log(s, `${incident.name} — ${choice === 'support' ? 'Support' : 'Push Back'}: ${outcome.text}`);
+  return s;
+}
 
-  // 1) Place devices (placeDevice applies its own per-device meter penalty).
-  if (outcome.deviceTarget) {
+// Applies the effect of a resolved incident choice — called from BOARD_PHASE
+// so the consequence lands exactly when the player clicks the board button.
+function applyResolvedIncidentEffect(state: GameState): GameState {
+  const r = state.resolvedIncident;
+  if (!r) return state;
+  let s = state;
+
+  if (r.deviceTarget) {
     const targetIds: NeighborhoodId[] =
-      outcome.deviceTarget === 'all'
-        ? s.neighborhoods.map((n) => n.id)
-        : [outcome.deviceTarget];
-    const count = outcome.deviceCount ?? 1;
+      r.deviceTarget === 'all' ? s.neighborhoods.map((n) => n.id) : [r.deviceTarget];
+    const count = r.deviceCount ?? 1;
     for (const nId of targetIds) {
       for (let i = 0; i < count; i++) {
         const emptySlot = s.neighborhoods
@@ -474,12 +487,29 @@ function resolveIncident(state: GameState, incident: IncidentCard, choice: 'supp
     }
   }
 
-  // 2) Apply the outcome's explicit meter change, if any.
-  if (outcome.meterDelta) {
-    s = shiftMeter(s, outcome.meterDelta, incident.name);
+  if (r.meterDelta) {
+    s = shiftMeter(s, r.meterDelta, r.name);
   }
 
   return s;
+}
+
+// True combined effect of the resolved incident choice — the chosen device
+// count, plus the trust cost each of those devices carries on its own (via
+// placeDevice's built-in per-device penalty), so the Board Phase button can
+// state the real total instead of just the device count.
+export function previewResolvedIncidentEffect(
+  state: GameState
+): { deviceCount: number; meterDelta: number } | null {
+  const r = state.resolvedIncident;
+  if (!r) return null;
+  let deviceCount = 0;
+  let meterDelta = r.meterDelta ?? 0;
+  if (r.deviceTarget) {
+    deviceCount = r.deviceCount ?? 1;
+    meterDelta += meterShiftForDevice(deviceForTracker(state.densityTracker)) * deviceCount;
+  }
+  return { deviceCount, meterDelta };
 }
 
 // ── Card Effect Application ───────────────────────────────────────────────
@@ -703,7 +733,6 @@ function advanceTurnWithIncident(s: GameState, playerRoleId: string): GameState 
     return advanceTurn(s);
   }
 
-  s = shiftMeter(s, -1, `Incident: ${incidentCard.name}`);
   s = advanceTurn(s);
   s = { ...s, pendingIncident: { card: incidentCard, triggeredByRoleId: playerRoleId } };
   s = log(s, `⚠️ INCIDENT: ${incidentCard.name}`);
@@ -1078,7 +1107,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     // ── Board Phase ───────────────────────────────────────────────────
     case 'BOARD_PHASE': {
-      let s = state;
+      let s = applyResolvedIncidentEffect(state);
 
       if (s.blockedBoardPhases > 0) {
         s = { ...s, blockedBoardPhases: s.blockedBoardPhases - 1 };

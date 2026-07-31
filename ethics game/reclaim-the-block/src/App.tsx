@@ -1,9 +1,9 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { gameReducer, buildInitialState, getReachablePositions } from './store/gameReducer';
+import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect } from './store/gameReducer';
 import { asset } from './utils/asset';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
-import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState, ResolvedIncident } from './types/game';
+import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState } from './types/game';
 import GameSetup from './components/GameSetup';
 import GameOver from './components/GameOver';
 import PrivacyMeter from './components/PrivacyMeter';
@@ -113,19 +113,18 @@ function CornerPanel({
 
 // ── Board phase action button — reflects the incident's resolved effect ────
 
-function boardPhaseActionLabel(resolved: ResolvedIncident | null): string {
-  if (!resolved || !resolved.effectSummary) return 'Place Device';
-  const deviceMatch = resolved.effectSummary.match(/\+(\d+) device/);
-  if (deviceMatch) {
-    const n = parseInt(deviceMatch[1], 10);
-    return `Place ${n} Device${n > 1 ? 's' : ''}`;
+function boardPhaseActionLabel(state: GameState): string {
+  const preview = previewResolvedIncidentEffect(state);
+  if (!preview || (preview.deviceCount === 0 && preview.meterDelta === 0)) return 'Place Device';
+
+  if (preview.deviceCount > 0) {
+    const label = `Place ${preview.deviceCount} Device${preview.deviceCount > 1 ? 's' : ''}`;
+    if (preview.meterDelta === 0) return label;
+    return `${label} (${preview.meterDelta > 0 ? '+' : ''}${preview.meterDelta} Trust)`;
   }
-  const trustMatch = resolved.effectSummary.match(/([+-])(\d+) trust/);
-  if (trustMatch) {
-    const [, sign, amount] = trustMatch;
-    return sign === '+' ? `Raise Trust Meter by ${amount}` : `Decrease Trust Meter by ${amount}`;
-  }
-  return 'Continue';
+
+  const amount = Math.abs(preview.meterDelta);
+  return preview.meterDelta > 0 ? `Raise Trust Meter by ${amount}` : `Decrease Trust Meter by ${amount}`;
 }
 
 // ── Surveillance incident overlay ──────────────────────────────────────────
@@ -757,7 +756,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   }
                 }}
               >
-                {flashTarget ? 'Placing...' : boardPhaseActionLabel(state.resolvedIncident)}
+                {flashTarget ? 'Placing...' : boardPhaseActionLabel(state)}
               </button>
             </div>
           </div>

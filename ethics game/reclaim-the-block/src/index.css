@@ -77,7 +77,6 @@ input, select { font-family: inherit; }
   line-height: 1.4;
 }
 .setup-subtitle { color: var(--text-muted); font-size: clamp(0.7rem, 1.2vmin, 0.88rem); }
-.setup-credit { color: var(--text-muted); font-size: clamp(0.6rem, 1vmin, 0.78rem); margin-top: 0.1rem; }
 
 .setup-section { margin: clamp(0.35rem, 0.8vh, 0.75rem) 0; }
 .setup-section h2 {

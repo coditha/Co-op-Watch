@@ -141,7 +141,6 @@ export default function GameSetup({ onStart }: Props) {
         <div className="setup-title">
           <h1>CO-OP WATCH</h1>
           <p className="setup-subtitle">A cooperative game about neighborhood surveillance</p>
-          <p className="setup-credit">HCI 220 · UC Santa Cruz · Spring 2026</p>
         </div>
 
         <div className="setup-section">

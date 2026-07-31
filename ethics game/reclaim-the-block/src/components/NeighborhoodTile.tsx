@@ -157,9 +157,7 @@ export default function NeighborhoodTile({
                     ? <img src={DEVICE_IMAGE[device]} alt={DEVICE_LABEL[device]} className="device-token-img" />
                     : DEVICE_EMOJI[device]}
                 </span>
-              ) : (
-                <span className="slot-label">{SLOT_LABELS[i]}</span>
-              )}
+              ) : null}
               {playersOnSlot.length > 0 && (
                 <div className="slot-pawns">
                   {playersOnSlot.map((p) => (

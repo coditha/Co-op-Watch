@@ -1130,8 +1130,8 @@ input, select { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px;
-  height: 181px;
+  width: 175px;
+  height: 127px;
   overflow: visible;
   position: relative;
 }
@@ -1144,8 +1144,8 @@ input, select { font-family: inherit; }
   bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 89px;
-  height: 17px;
+  width: 62px;
+  height: 12px;
   background: rgba(0,0,0,0.35);
   border-radius: 50%;
   pointer-events: none;
@@ -1158,41 +1158,34 @@ input, select { font-family: inherit; }
   user-select: none;
   transform-origin: center center;
   transform-style: preserve-3d;
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   image-rendering: pixelated;
 }
 .ap-die-wrap:active:not(.jitter):not(.land) { transform: scale(0.9); }
 /* Rolling: JS controls 3D rotation via inline style */
 .ap-die-wrap.jitter { cursor: default; }
 /* Landing: dice stays static — only sparkle particles animate */
-/* 3D octahedron (d8) — square bipyramid, 4 upper + 4 lower triangular faces */
-.die3d-octa {
-  width: 100px;
-  height: 100px;
+/* 3D cube die, numbered 3-8 */
+.die3d-cube {
+  width: 70px;
+  height: 70px;
   position: relative;
   transform-style: preserve-3d;
 }
 .die3d-face {
   position: absolute;
-  left: 17px;
-  top: 21px;
-  width: 67px;
-  height: 58px;
+  width: 70px;
+  height: 70px;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  padding-bottom: 6px;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  align-items: center;
+  background: #e8d4a0;
+  border: 3px solid #3a2410;
+  border-radius: 6px;
   image-rendering: pixelated;
   backface-visibility: hidden;
-}
-.die3d-face-top {
-  background: #f0dfb0;
-}
-.die3d-face-bottom {
-  background: #d9c088;
 }
 .die3d-face-num {
   font-family: 'Press Start 2P', monospace;

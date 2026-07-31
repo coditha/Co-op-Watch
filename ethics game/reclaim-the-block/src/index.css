@@ -789,16 +789,13 @@ input, select { font-family: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   font-size: 0.68rem; cursor: pointer;
   border: 2px solid var(--border);
-  box-shadow: inset 1px 1px 0 var(--px-highlight), inset -1px -1px 0 var(--px-shadow), 2px 2px 0 var(--px-dark);
   position: relative; gap: 2px;
-  background: url('/path.png') center / contain no-repeat, #dcc8a0;
+  background: url('/path.png') center / contain no-repeat;
 }
-.device-slot.empty { color: var(--text-muted); border: none; box-shadow: none; }
+.device-slot.empty { color: var(--text-muted); border: none; }
 .device-slot.empty:hover { filter: brightness(0.92); }
-.device-slot.occupied { border-color: var(--red); }
+.device-slot.occupied { border: none; }
 .device-slot.slot-selected { outline: 2px solid var(--yellow); outline-offset: -2px; }
-.device-slot.player-here { box-shadow: inset 1px 1px 0 var(--px-highlight), inset -1px -1px 0 var(--px-shadow), 2px 2px 0 var(--px-dark); }
-.device-slot.active-player-here { box-shadow: inset 1px 1px 0 var(--px-highlight), inset -1px -1px 0 var(--px-shadow), 2px 2px 0 var(--px-dark); }
 .device-slot.slot-moveable { cursor: pointer; animation: moveable-ring 1.1s ease-in-out infinite; }
 .device-slot.slot-removeable { cursor: pointer; }
 @keyframes moveable-ring {

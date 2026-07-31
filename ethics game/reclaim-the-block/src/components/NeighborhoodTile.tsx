@@ -24,7 +24,7 @@ const DEVICE_EMOJI: Record<DeviceType, string> = {
   'flock-reader': '🚗',
 };
 const DEVICE_IMAGE: Partial<Record<DeviceType, string>> = {
-  ring: asset('/ring.png'),
+  ring: asset('/ring.gif'),
 };
 
 const DEVICE_LABEL: Record<DeviceType, string> = {

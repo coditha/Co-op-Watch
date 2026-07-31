@@ -565,18 +565,18 @@ input, select { font-family: inherit; }
 /* Connecting roads — same tan street + dark pixel outline as neighborhood roads */
 .road-line-v {
   width: 8px; flex: 1;
-  background: #c8a060;
-  box-shadow: 2px 0 0 var(--px-dark), -2px 0 0 var(--px-dark);
+  background: transparent;
+  box-shadow: none;
 }
 .road-line-h {
   height: 8px; width: 16px;
-  background: #c8a060;
-  box-shadow: 0 2px 0 var(--px-dark), 0 -2px 0 var(--px-dark);
+  background: transparent;
+  box-shadow: none;
 }
 .road-waypoint {
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-  width: 40px; height: 40px;
+  width: 56px; height: 56px;
   background: url('/pebble.png') center/cover no-repeat;
   border: none;
   border-radius: 50%;
@@ -587,9 +587,11 @@ input, select { font-family: inherit; }
 }
 .road-waypoint.moveable { cursor: pointer; animation: moveable-ring 1.1s ease-in-out infinite; }
 .road-waypoint.moveable:hover { filter: brightness(1.2); }
+/* No pebble on the Town Square <-> Neighborhood / Civic Center connectors */
+.board-roads-top .road-waypoint, .board-roads-bottom .road-waypoint { background: none; }
 .road-waypoint.active-player-here { outline: none; animation: none; }
-.road-v { width: 8px; height: 100%; background: #c8a060; box-shadow: 2px 0 0 var(--px-dark), -2px 0 0 var(--px-dark); }
-.road-h { height: 8px; width: 40px; background: #c8a060; box-shadow: 0 2px 0 var(--px-dark), 0 -2px 0 var(--px-dark); }
+.road-v { width: 8px; height: 100%; background: transparent; box-shadow: none; }
+.road-h { height: 8px; width: 40px; background: transparent; box-shadow: none; }
 
 .board-middle { display: flex; align-items: center; gap: 0; width: 100%; justify-content: center; }
 /* City Hall area fills the full middle-row height with vertical road stubs
@@ -685,11 +687,7 @@ input, select { font-family: inherit; }
   margin-bottom: 2px;
 }
 /* The connecting streets — winding SVG roads threading through the houses */
-.district-roads {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0; overflow: visible; pointer-events: none;
-}
+.district-roads { display: none; }
 .district-roads path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
 .district-roads .road-edge { stroke: var(--px-dark); stroke-width: 15; vector-effect: non-scaling-stroke; }
 .district-roads .road-fill { stroke: #c8a060; stroke-width: 11; vector-effect: non-scaling-stroke; }
@@ -772,7 +770,7 @@ input, select { font-family: inherit; }
 .int-road-seg { cursor: default; }
 .int-road-seg.seg-h, .int-road-seg.seg-v { display: flex; align-items: center; justify-content: center; }
 .int-waypoint {
-  width: 32px; height: 32px; flex-shrink: 0; position: relative; z-index: 1;
+  width: 44px; height: 44px; flex-shrink: 0; position: relative; z-index: 1;
   border-radius: 50%;
   background: url('/pebble.png') center/cover no-repeat;
   border: none; box-shadow: none;

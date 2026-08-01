@@ -713,7 +713,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {showRoles && <RoleOverlay state={state} onClose={() => setShowRoles(false)} rotated={rotatedOverlay} />}
 
       {/* ── Board phase overlay ──────────────────────────────── */}
-      {state.phase === 'board-phase' && !state.pendingIncident && !flashTarget && (
+      {state.phase === 'board-phase' && !state.pendingIncident && !flashTarget && !isApplyingBoardPhase && (
         <div className="board-phase-overlay">
           <div className="board-phase-border">
           <div className="board-phase-card">
@@ -744,7 +744,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             <div className="board-phase-footer">
               <button
                 className="btn board-phase-btn"
-                disabled={isApplyingBoardPhase}
                 onClick={() => {
                   const r = state.resolvedIncident;
                   let target: { neighborhood: string; slot: number } | null = null;
@@ -765,16 +764,33 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                     }
                   }
 
-                  if (target) setFlashTarget(target);
                   setIsApplyingBoardPhase(true);
-                  setTimeout(() => {
+
+                  if (target) {
+                    // Anticipation flash on the target tile, then the device
+                    // actually lands, then a short beat before the round advances.
+                    setFlashTarget(target);
+                    setTimeout(() => {
+                      dispatch({ type: 'BOARD_PHASE' });
+                      setFlashTarget(null);
+                      setTimeout(() => {
+                        dispatch({ type: 'ADVANCE_ROUND' });
+                        setIsApplyingBoardPhase(false);
+                      }, 700);
+                    }, 1500);
+                  } else {
+                    // No device to place — apply the effect (e.g. a meter shift)
+                    // right away so it's visible on the meter, then pause before
+                    // advancing to the next round's dice-roll prompt.
                     dispatch({ type: 'BOARD_PHASE' });
-                    setFlashTarget(null);
-                    setIsApplyingBoardPhase(false);
-                  }, 1500);
+                    setTimeout(() => {
+                      dispatch({ type: 'ADVANCE_ROUND' });
+                      setIsApplyingBoardPhase(false);
+                    }, 900);
+                  }
                 }}
               >
-                {isApplyingBoardPhase ? (flashTarget ? 'Placing...' : 'Applying...') : boardPhaseActionLabel(state)}
+                {boardPhaseActionLabel(state)}
               </button>
             </div>
           </div>

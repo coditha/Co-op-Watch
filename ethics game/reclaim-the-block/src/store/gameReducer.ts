@@ -223,6 +223,7 @@ export type GameAction =
   | { type: 'ACKNOWLEDGE_DRAWN_CARDS' }
   | { type: 'DISCARD_TO_HAND_LIMIT'; cardIds: string[] }
   | { type: 'BOARD_PHASE' }
+  | { type: 'ADVANCE_ROUND' }
   | { type: 'INCIDENT_VOTE'; choice: 'support' | 'pushback'; discardCardId?: string }
   | { type: 'DISCARD_CARD'; cardId: string };
 
@@ -1157,7 +1158,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Clear revealed surveillance cards after board phase
       s = { ...s, revealedSurveillanceCards: [] };
 
-      // Advance to the next round — straight into player turns (no preview phase)
+      // Stay in 'board-phase' here — the device placement / meter shift above
+      // needs to be visible on the board before the round actually advances.
+      // The UI dispatches ADVANCE_ROUND separately once that's had time to show.
+      return checkWinLoss(s);
+    }
+
+    // ── Advance to the next round (dispatched after the Board Phase effect
+    // above has had a moment to visibly land) ─────────────────────────────
+    case 'ADVANCE_ROUND': {
+      let s = state;
       const nextPlayers = s.players.map((p) => ({ ...p, hasUsedSpecialAbilityThisTurn: false }));
       s = {
         ...s,

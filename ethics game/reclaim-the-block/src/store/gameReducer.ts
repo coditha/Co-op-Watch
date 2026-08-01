@@ -381,7 +381,8 @@ function placeDevice(
   state: GameState,
   neighborhoodId: NeighborhoodId,
   slotIndex: SlotIndex,
-  device: DeviceType
+  device: DeviceType,
+  options: { skipMeterPenalty?: boolean } = {}
 ): GameState {
   let s = { ...state };
   const nIdx = neighborhoodIndex(neighborhoodId);
@@ -404,8 +405,10 @@ function placeDevice(
   };
 
   // Meter shift for device type
-  const deviceShift = meterShiftForDevice(device);
-  s = shiftMeter(s, deviceShift, `${deviceEmoji(device)} placed in ${n.name}`);
+  if (!options.skipMeterPenalty) {
+    const deviceShift = meterShiftForDevice(device);
+    s = shiftMeter(s, deviceShift, `${deviceEmoji(device)} placed in ${n.name}`);
+  }
 
   if (densityTrack === 4) {
     s = { ...s, densityTracker: Math.min(8, s.densityTracker + 1) };
@@ -459,6 +462,7 @@ function resolveIncident(state: GameState, incident: IncidentCard, choice: 'supp
       deviceTarget: outcome.deviceTarget,
       deviceCount: outcome.deviceCount,
       meterDelta: outcome.meterDelta,
+      skipDeviceMeterPenalty: outcome.skipDeviceMeterPenalty,
     },
   };
   s = log(s, `${incident.name} — ${choice === 'support' ? 'Support' : 'Push Back'}: ${outcome.text}`);
@@ -482,7 +486,9 @@ function applyResolvedIncidentEffect(state: GameState): GameState {
           .find((n) => n.id === nId)!
           .slots.findIndex((sl) => sl === null);
         if (emptySlot === -1) break;
-        s = placeDevice(s, nId, emptySlot as SlotIndex, deviceForTracker(s.densityTracker));
+        s = placeDevice(s, nId, emptySlot as SlotIndex, deviceForTracker(s.densityTracker), {
+          skipMeterPenalty: r.skipDeviceMeterPenalty,
+        });
       }
     }
   }
@@ -496,8 +502,9 @@ function applyResolvedIncidentEffect(state: GameState): GameState {
 
 // True combined effect of the resolved incident choice — the chosen device
 // count, plus the trust cost each of those devices carries on its own (via
-// placeDevice's built-in per-device penalty), so the Board Phase button can
-// state the real total instead of just the device count.
+// placeDevice's built-in per-device penalty, unless the outcome opts out via
+// skipDeviceMeterPenalty), so the Board Phase button can state the real
+// total instead of just the device count.
 export function previewResolvedIncidentEffect(
   state: GameState
 ): { deviceCount: number; meterDelta: number } | null {
@@ -507,7 +514,9 @@ export function previewResolvedIncidentEffect(
   let meterDelta = r.meterDelta ?? 0;
   if (r.deviceTarget) {
     deviceCount = r.deviceCount ?? 1;
-    meterDelta += meterShiftForDevice(deviceForTracker(state.densityTracker)) * deviceCount;
+    if (!r.skipDeviceMeterPenalty) {
+      meterDelta += meterShiftForDevice(deviceForTracker(state.densityTracker)) * deviceCount;
+    }
   }
   return { deviceCount, meterDelta };
 }

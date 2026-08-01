@@ -68,6 +68,10 @@ export interface IncidentOutcome {
   // Explicit meter change applied on top of any per-device penalties.
   // Negative moves the meter toward zero (worse for the players).
   meterDelta?: number;
+  // Skip the usual per-device Trust penalty for devices placed by this
+  // outcome (e.g. when the outcome's own meterDelta already accounts for
+  // the full intended cost, or the branch is meant to be device-only).
+  skipDeviceMeterPenalty?: boolean;
 }
 
 export interface IncidentCard {
@@ -141,6 +145,7 @@ export interface ResolvedIncident {
   deviceTarget?: NeighborhoodId | 'all';
   deviceCount?: number;
   meterDelta?: number;
+  skipDeviceMeterPenalty?: boolean;
 }
 
 export interface GameState {

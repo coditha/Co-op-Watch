@@ -507,10 +507,11 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Street cameras go up across the neighborhood.',
       deviceTarget: 'suburb',
       deviceCount: 1,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Proposal stalls, but fear keeps growing.',
-      meterDelta: -2,
+      meterDelta: -1,
     },
   },
   {

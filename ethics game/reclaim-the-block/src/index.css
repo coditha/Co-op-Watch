@@ -1639,7 +1639,7 @@ input, select { font-family: inherit; }
 }
 .board-phase-incident-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; font-style: italic; }
 .board-phase-footer { padding: 0 0.75rem 0.75rem; }
-.board-phase-btn { width: 100%; background: var(--yellow); color: #fff; }
+.board-phase-btn { width: 100%; background: var(--yellow); color: #fff; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; }
 .board-phase-btn:hover { background: #b06e00; }
 
 .incident-overlay {
@@ -1712,7 +1712,7 @@ input, select { font-family: inherit; }
   font-size: 0.72rem; font-weight: 700; color: var(--text); text-align: center;
 }
 .incident-card-discard-options { display: flex; flex-direction: column; gap: 0.35rem; }
-.incident-card-btn { width: 100%; font-size: 1rem; padding: 0.65rem 1rem; }
+.incident-card-btn { width: 100%; font-family: 'Press Start 2P', monospace; font-size: 0.7rem; padding: 0.65rem 1rem; }
 /* Support / Push Back share the same neutral tone — neither choice should
    read as "correct" or "safe" via color alone. */
 .incident-btn-support, .incident-btn-pushback { background: var(--yellow); color: #fff; }

@@ -258,6 +258,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showRoles, setShowRoles] = useState(false);
   const [flashTarget, setFlashTarget] = useState<{ neighborhood: string; slot: number } | null>(null);
+  const [isApplyingBoardPhase, setIsApplyingBoardPhase] = useState(false);
   // Intro story — shown once when a fresh game mounts, before Round 1.
   const [showIntro, setShowIntro] = useState(true);
 
@@ -743,22 +744,37 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             <div className="board-phase-footer">
               <button
                 className="btn board-phase-btn"
-                disabled={!!flashTarget}
+                disabled={isApplyingBoardPhase}
                 onClick={() => {
-                  const willPlace = state.blockedBoardPhases === 0 && state.cancelNextSurveillance === 0 && state.surveillanceDeck.length > 0;
-                  if (willPlace) {
-                    const top = state.surveillanceDeck[0];
-                    setFlashTarget({ neighborhood: top.neighborhood, slot: top.slot });
-                    setTimeout(() => {
-                      dispatch({ type: 'BOARD_PHASE' });
-                      setFlashTarget(null);
-                    }, 1500);
+                  const r = state.resolvedIncident;
+                  let target: { neighborhood: string; slot: number } | null = null;
+
+                  if (r) {
+                    // Incident already fully determines this round's board effect —
+                    // only flash a tile if that effect actually places a device.
+                    if (r.deviceTarget && r.deviceTarget !== 'all' && (r.deviceCount ?? 1) > 0) {
+                      const nhd = state.neighborhoods.find((n) => n.id === r.deviceTarget);
+                      const emptySlot = nhd?.slots.findIndex((sl) => sl === null) ?? -1;
+                      if (emptySlot !== -1) target = { neighborhood: r.deviceTarget, slot: emptySlot };
+                    }
                   } else {
-                    dispatch({ type: 'BOARD_PHASE' });
+                    const willPlace = state.blockedBoardPhases === 0 && state.cancelNextSurveillance === 0 && state.surveillanceDeck.length > 0;
+                    if (willPlace) {
+                      const top = state.surveillanceDeck[0];
+                      target = { neighborhood: top.neighborhood, slot: top.slot };
+                    }
                   }
+
+                  if (target) setFlashTarget(target);
+                  setIsApplyingBoardPhase(true);
+                  setTimeout(() => {
+                    dispatch({ type: 'BOARD_PHASE' });
+                    setFlashTarget(null);
+                    setIsApplyingBoardPhase(false);
+                  }, 1500);
                 }}
               >
-                {flashTarget ? 'Placing...' : boardPhaseActionLabel(state)}
+                {isApplyingBoardPhase ? (flashTarget ? 'Placing...' : 'Applying...') : boardPhaseActionLabel(state)}
               </button>
             </div>
           </div>

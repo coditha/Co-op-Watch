@@ -578,7 +578,7 @@ input, select { font-family: inherit; }
 .road-waypoint {
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-  width: 36px; height: 36px;
+  width: 24px; height: 24px;
   background: url('/pebble.png') center/contain no-repeat;
   border: none;
   box-shadow: none;
@@ -769,7 +769,7 @@ input, select { font-family: inherit; }
 .int-road-seg { cursor: default; }
 .int-road-seg.seg-h, .int-road-seg.seg-v { display: flex; align-items: center; justify-content: center; }
 .int-waypoint {
-  width: 28px; height: 28px; flex-shrink: 0; position: relative; z-index: 1;
+  width: 20px; height: 20px; flex-shrink: 0; position: relative; z-index: 1;
   background: url('/pebble.png') center/contain no-repeat;
   border: none; box-shadow: none;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 0.6rem;
@@ -2044,12 +2044,12 @@ input, select { font-family: inherit; }
 .tv-game .district-landmark { width: 50px; height: 50px; font-size: 2rem; }
 .tv-game .district-tree { font-size: 1.05rem; }
 .tv-game .int-waypoint {
-  width: 40px;
-  height: 40px;
+  width: 26px;
+  height: 26px;
 }
 .tv-game .road-waypoint {
-  width: 44px;
-  height: 44px;
+  width: 30px;
+  height: 30px;
 }
 .tv-game .board-roads-top,
 .tv-game .board-roads-bottom {

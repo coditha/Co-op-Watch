@@ -555,11 +555,13 @@ input, select { font-family: inherit; }
 .board-n1 { display: flex; justify-content: center; width: 100%; }
 .board-roads-top, .board-roads-bottom { display: flex; justify-content: center; align-items: center; height: 70px; }
 /* Bias each road pebble toward Town Square so it sits mid-road, not under the
-   neighborhood's nearest device slot. (longer line on the neighborhood side) */
-.board-roads-top .road-line-v:first-child { flex: 3; }
-.board-roads-top .road-line-v:last-child { flex: 1; }
-.board-roads-bottom .road-line-v:first-child { flex: 1; }
-.board-roads-bottom .road-line-v:last-child { flex: 3; }
+   neighborhood's nearest device slot. The Town Square side is pinned to a
+   fixed 16px — matching .road-line-h's width — so the pebble-to-plaza gap is
+   the same on all four sides; the neighborhood side just absorbs the rest. */
+.board-roads-top .road-line-v:first-child { flex: 1; }
+.board-roads-top .road-line-v:last-child { flex: 0 0 16px; }
+.board-roads-bottom .road-line-v:first-child { flex: 0 0 16px; }
+.board-roads-bottom .road-line-v:last-child { flex: 1; }
 .road-segment-v { display: flex; flex-direction: column; align-items: center; height: 100%; }
 .road-segment-h { display: flex; flex-direction: row; align-items: center; }
 /* Connecting roads — same tan street + dark pixel outline as neighborhood roads */
@@ -577,7 +579,7 @@ input, select { font-family: inherit; }
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
   width: 56px; height: 56px;
-  background: url('/pebble.png') center/cover no-repeat;
+  background: url('/pebble.png') center/70% no-repeat;
   border: none;
   border-radius: 50%;
   box-shadow: none;
@@ -587,8 +589,6 @@ input, select { font-family: inherit; }
 }
 .road-waypoint.moveable { cursor: pointer; animation: moveable-ring 1.1s ease-in-out infinite; }
 .road-waypoint.moveable:hover { filter: brightness(1.2); }
-/* No pebble on the Town Square <-> Neighborhood / Civic Center connectors */
-.board-roads-top .road-waypoint, .board-roads-bottom .road-waypoint { background: none; }
 .road-waypoint.active-player-here { outline: none; animation: none; }
 .road-v { width: 8px; height: 100%; background: transparent; box-shadow: none; }
 .road-h { height: 8px; width: 40px; background: transparent; box-shadow: none; }
@@ -598,7 +598,7 @@ input, select { font-family: inherit; }
    above & below, so the roads reach up to Suburb and down to Politics Row. */
 .city-hall-area { display: flex; flex-direction: column; align-items: center; justify-content: center; align-self: stretch; gap: 0; flex-shrink: 0; }
 .city-hall-row { display: flex; flex-direction: row; align-items: center; }
-.ch-road-v { flex: 1 1 0; min-height: 10px; width: 8px; background: #c8a060; box-shadow: 2px 0 0 var(--px-dark), -2px 0 0 var(--px-dark); }
+.ch-road-v { flex: 1 1 0; min-height: 10px; width: 8px; background: transparent; box-shadow: none; }
 
 /* Town Square — central deposit plaza (building sprite) */
 .city-hall {
@@ -772,7 +772,7 @@ input, select { font-family: inherit; }
 .int-waypoint {
   width: 44px; height: 44px; flex-shrink: 0; position: relative; z-index: 1;
   border-radius: 50%;
-  background: url('/pebble.png') center/cover no-repeat;
+  background: url('/pebble.png') center/70% no-repeat;
   border: none; box-shadow: none;
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 0.6rem;
   image-rendering: pixelated;
@@ -2062,8 +2062,8 @@ input, select { font-family: inherit; }
    waypoint click targets and the road IDs are all unchanged. */
 /* Vertical roads: pull the top/bottom districts inward so the road meets the
    facing house. */
-.tv-game .board-roads-top { margin-top: -22px; }
-.tv-game .board-roads-bottom { margin-bottom: -22px; }
+.tv-game .board-roads-top { margin-top: -22px; margin-bottom: -35px; }
+.tv-game .board-roads-bottom { margin-bottom: -22px; margin-top: -35px; }
 /* Horizontal roads: pull the side districts inward and drop the road to the
    height of the N2/N3 side houses so it lines up with them. */
 .tv-game .city-hall-area { margin-left: -16px; margin-right: -16px; }

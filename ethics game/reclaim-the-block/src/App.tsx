@@ -114,17 +114,19 @@ function CornerPanel({
 // ── Board phase action button — reflects the incident's resolved effect ────
 
 function boardPhaseActionLabel(state: GameState): string {
+  const r = state.resolvedIncident;
   const preview = previewResolvedIncidentEffect(state);
-  if (!preview || (preview.deviceCount === 0 && preview.meterDelta === 0)) return 'Place Device';
+  if (!r || !preview || (preview.deviceCount === 0 && preview.meterDelta === 0)) return 'Place Device';
 
+  const lines: string[] = [];
   if (preview.deviceCount > 0) {
-    const label = `Place ${preview.deviceCount} Device${preview.deviceCount > 1 ? 's' : ''}`;
-    if (preview.meterDelta === 0) return label;
-    return `${label} (${preview.meterDelta > 0 ? '+' : ''}${preview.meterDelta} Trust)`;
+    lines.push(`Place ${preview.deviceCount} Surveillance Device${preview.deviceCount > 1 ? 's' : ''}`);
   }
-
-  const amount = Math.abs(preview.meterDelta);
-  return preview.meterDelta > 0 ? `Raise Trust Meter by ${amount}` : `Decrease Trust Meter by ${amount}`;
+  if (preview.meterDelta !== 0) {
+    const amount = Math.abs(preview.meterDelta);
+    lines.push(preview.meterDelta < 0 ? `Decrease Trust Meter by ${amount}` : `Increase Trust Meter by ${amount}`);
+  }
+  return lines.join('\n');
 }
 
 // ── Surveillance incident overlay ──────────────────────────────────────────

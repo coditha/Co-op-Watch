@@ -1118,7 +1118,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'BOARD_PHASE': {
       let s = applyResolvedIncidentEffect(state);
 
-      if (s.blockedBoardPhases > 0) {
+      if (s.resolvedIncident) {
+        // The incident's chosen outcome already fully describes this round's
+        // board effect (that's what the button label states) — skip the
+        // separate regular per-round device draw so nothing extra happens.
+      } else if (s.blockedBoardPhases > 0) {
         s = { ...s, blockedBoardPhases: s.blockedBoardPhases - 1 };
         s = log(s, 'Board Phase blocked by community action!');
       } else if (s.cancelNextSurveillance > 0) {

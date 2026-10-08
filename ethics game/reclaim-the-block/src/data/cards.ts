@@ -525,6 +525,8 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Cameras spread across all public spaces.',
       deviceTarget: 'courthouse',
       deviceCount: 1,
+      meterDelta: -2,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Expansion limited — but the city installs cameras at transit stops anyway.',
@@ -541,6 +543,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'All public cameras are upgraded, now capturing faces and license plates clearly.',
       deviceTarget: 'media',
       deviceCount: 1,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Upgrade denied.',
@@ -557,6 +560,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Readers expand to all major roads across Maplewood.',
       deviceTarget: 'politics',
       deviceCount: 2,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Pilot limited to two intersections.',
@@ -573,6 +577,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Surveillance data is retained and shared with law enforcement.',
       deviceTarget: 'suburb',
       deviceCount: 2,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Maplewood residents protest outside City Hall demanding the data be deleted.',
@@ -589,6 +594,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Monitoring of public demonstrations becomes standard city policy.',
       deviceTarget: 'courthouse',
       deviceCount: 1,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Devices removed, but the city keeps the footage captured during the demonstration.',
@@ -604,6 +610,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
       text: 'Proposal passed. Certain neighborhoods are placed under heightened watch automatically.',
       deviceTarget: 'media',
       deviceCount: 1,
+      skipDeviceMeterPenalty: true,
     },
     pushBack: {
       text: 'Proposal rejected. Maplewood quietly begins a limited test in two neighborhoods.',

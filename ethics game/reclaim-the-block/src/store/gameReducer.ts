@@ -416,8 +416,9 @@ function placeDevice(
     s = log(s, `Density Tracker increased to ${s.densityTracker}`);
   }
 
-  // Flock reader bleed
-  if (device === 'flock-reader') {
+  // Flock reader bleed (also a trust penalty, so incident outcomes that set
+  // their own exact trust change skip it too)
+  if (device === 'flock-reader' && !options.skipMeterPenalty) {
     // Also affect adjacent slots within neighborhood
     const adjSlots = adjacentSlots(slotIndex as SlotIndex);
     for (const adj of adjSlots) {

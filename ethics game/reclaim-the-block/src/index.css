@@ -446,6 +446,7 @@ input, select { font-family: inherit; }
 .density-inline-badge:hover { border-color: var(--yellow); }
 .density-inline-badge:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--px-dark); }
 .density-inline-badge-emoji { font-size: 1.5rem; line-height: 1; }
+.density-device-img { width: 1.4em; height: 1.4em; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
 .density-inline-badge-name { flex: 1; text-align: left; font-weight: 700; font-size: 0.75rem; }
 .density-inline-badge-lv {
   flex: 1; text-align: left; white-space: nowrap;

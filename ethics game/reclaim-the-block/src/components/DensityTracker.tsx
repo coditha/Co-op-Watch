@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { asset } from '../utils/asset';
 
 interface Props {
   value: number;
@@ -7,8 +8,10 @@ interface Props {
   round?: number;
 }
 
-const DEVICE_LABELS = ['Ring', 'Ring', 'Speaker', 'Speaker', 'Traffic', 'Traffic', 'Flock', 'Flock'];
-const DEVICE_EMOJIS = ['📷', '📷', '🔊', '🔊', '🚦', '🚦', '🚗', '🚗'];
+// Every density level uses the same ring camera device.
+const LEVELS = [1, 2, 3, 4, 5, 6, 7, 8];
+const DEVICE_LABEL = 'Camera';
+const DeviceImg = () => <img src={asset('/ring.gif')} alt="" className="density-device-img" />;
 
 export default function DensityTracker({ value, vertical, blocked, round }: Props) {
   const [expanded, setExpanded] = useState(false);
@@ -45,7 +48,7 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
     }
   }, [blocked]);
 
-  const idx = Math.min(Math.max(value - 1, 0), DEVICE_EMOJIS.length - 1);
+  const idx = Math.min(Math.max(value - 1, 0), LEVELS.length - 1);
 
   if (vertical) {
     return (
@@ -56,7 +59,7 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
           onClick={round === undefined ? () => setExpanded((e) => !e) : undefined}
           title={round === undefined ? (expanded ? 'Collapse tracker' : 'Expand full tracker') : undefined}
         >
-          {round === undefined && <span className="density-inline-badge-emoji">{DEVICE_EMOJIS[idx]}</span>}
+          {round === undefined && <span className="density-inline-badge-emoji"><DeviceImg /></span>}
           <span className="density-inline-badge-lv">{round !== undefined ? `Round ${round}` : `${value}`}</span>
           {round === undefined && <span className="density-inline-chevron">{expanded ? '◂' : '▸'}</span>}
         </button>
@@ -64,12 +67,12 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
         {/* In-place expansion — full tracker unfolds beneath the badge */}
         {expanded && round === undefined && (
           <div className="density-inline-track">
-            {DEVICE_LABELS.map((_label, i) => (
+            {LEVELS.map((_n, i) => (
               <div
                 key={i}
                 className={`density-inline-step ${i + 1 === value ? 'current' : i + 1 < value ? 'passed' : ''}`}
               >
-                <span className="density-inline-emoji">{DEVICE_EMOJIS[i]}</span>
+                <span className="density-inline-emoji"><DeviceImg /></span>
                 <span className="density-inline-lv">{i + 1}</span>
               </div>
             ))}
@@ -86,19 +89,19 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
         <span className="density-value">Level {value}</span>
       </div>
       <div className="density-track">
-        {DEVICE_LABELS.map((label, i) => (
+        {LEVELS.map((_n, i) => (
           <div
             key={i}
             className={`density-step ${i + 1 === value ? 'current' : i + 1 < value ? 'passed' : ''}`}
           >
-            <span className="density-emoji">{DEVICE_EMOJIS[i]}</span>
-            <span className="density-label">{label}</span>
+            <span className="density-emoji"><DeviceImg /></span>
+            <span className="density-label">{DEVICE_LABEL}</span>
             <span className="density-num">{i + 1}</span>
           </div>
         ))}
       </div>
       <div className="density-info">
-        Current device: <strong>{DEVICE_EMOJIS[value - 1]} {DEVICE_LABELS[value - 1]}</strong>
+        Current device: <strong><DeviceImg /> {DEVICE_LABEL}</strong>
         {' '}(meter shift: {value <= 2 ? '-1' : value <= 4 ? '-1' : value <= 6 ? '-2' : '-3'} when placed)
       </div>
     </div>

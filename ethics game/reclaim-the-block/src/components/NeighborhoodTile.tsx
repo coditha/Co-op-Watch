@@ -17,15 +17,8 @@ interface Props {
   facesTop?: boolean;
 }
 
-const DEVICE_EMOJI: Record<DeviceType, string> = {
-  ring: '📷',
-  'smart-speaker': '🔊',
-  'traffic-camera': '🚦',
-  'flock-reader': '🚗',
-};
-const DEVICE_IMAGE: Partial<Record<DeviceType, string>> = {
-  ring: asset('/ring.gif'),
-};
+// Every device type renders as the same ring camera gif on the board.
+const DEVICE_IMAGE = asset('/ring.gif');
 
 const DEVICE_LABEL: Record<DeviceType, string> = {
   ring: 'Ring',
@@ -153,9 +146,7 @@ export default function NeighborhoodTile({
             >
               {device ? (
                 <span className="device-token">
-                  {DEVICE_IMAGE[device]
-                    ? <img src={DEVICE_IMAGE[device]} alt={DEVICE_LABEL[device]} className="device-token-img" />
-                    : DEVICE_EMOJI[device]}
+                  <img src={DEVICE_IMAGE} alt={DEVICE_LABEL[device]} className="device-token-img" />
                 </span>
               ) : null}
               {playersOnSlot.length > 0 && (

@@ -1082,8 +1082,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return { ...s, pendingDrawnCards: { playerId: player.id, cards: allDrawn } };
       }
 
-      // No community cards drawn (all were incidents or deck empty) — advance immediately
-      return advanceTurn(s);
+      // No community cards drawn (deck empty) — advance immediately, still firing
+      // this round's incident if this was the last player's turn
+      return advanceTurnWithIncident(s, player.role.id);
     }
 
     // ── Acknowledge drawn cards (add peeked cards to hand) ────────────

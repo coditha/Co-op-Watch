@@ -26,7 +26,7 @@ const STEPS = [
   },
   {
     title: 'Taking Your Turn',
-    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, or **share cards** with a teammate. When you are done, press **End Turn** to draw 2 new Community Cards.',
+    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, or **transfer a card** to a teammate. When you are done, press **End Turn** to draw 2 new Community Cards.',
   },
   {
     title: 'Moving Around',
@@ -41,8 +41,8 @@ const STEPS = [
     body: 'Cards come in 5 colors: **Legal (blue)**, **Organizing (yellow)**, **Media (green)**, **Political (red)**, and **Neighborhood (purple)**. You can hold up to **7 cards**. Match colors to neighborhoods — Neighborhood needs yellow, Courthouse needs blue, Downtown needs green, Civic Center needs red.',
   },
   {
-    title: 'Exchange Cards',
-    body: 'You can give a teammate **1 Community Card** if you are both on the **exact same tile**. Press **Share Knowledge**, choose your teammate, then pick which card to give. Costs 1 action. Use this to pass the right color card to the right player!',
+    title: 'Transfer Card',
+    body: 'You can give a teammate **1 Community Card** if you are both on the **exact same tile**. Press **Transfer Card**, choose your teammate, then pick which card to give. Costs 1 action. Use this to pass the right color card to the right player!',
   },
   {
     title: 'Town Square',
@@ -62,7 +62,7 @@ const STEPS = [
   },
   {
     title: 'Ready to Play!',
-    body: 'Work together, **share cards**, and **clear all 4 neighborhoods** before time runs out or the Privacy Meter bottoms out. Good luck — your community is counting on you!',
+    body: 'Work together, **transfer cards**, and **clear all 4 neighborhoods** before time runs out or the Privacy Meter bottoms out. Good luck — your community is counting on you!',
   },
 ];
 

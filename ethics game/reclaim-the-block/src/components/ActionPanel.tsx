@@ -31,7 +31,7 @@ export default function ActionPanel({
   const player = players[currentPlayerIndex];
   const actions = actionsRemaining;
 
-  // ── Share Knowledge picker state ─────────────────────────────────────────
+  // ── Transfer Card picker state ─────────────────────────────────────────
   const [shareStep, setShareStep] = useState<'idle' | 'pick-player' | 'pick-card'>('idle');
   const [shareTargetId, setShareTargetId] = useState<number | null>(null);
 
@@ -151,7 +151,7 @@ export default function ActionPanel({
     {
       id: 'share',
       icon: '🤝',
-      label: 'Share Knowledge',
+      label: 'Transfer Card',
       tooltip: [
         'Cost: 1 action.',
         'Give 1 Community Card to a teammate on your tile.',
@@ -209,16 +209,16 @@ export default function ActionPanel({
 
 
 
-      {/* ── Action grid / Share Knowledge picker ───────────────── */}
+      {/* ── Action grid / Transfer Card picker ───────────────── */}
       {phase === 'player-turn' && !state.pendingDiceRoll && !pendingIncident && !pendingDiscard && (
         <div className="ap-body">
 
           {shareStep !== 'idle' ? (
-            /* ── Share Knowledge multi-step picker ── */
+            /* ── Transfer Card multi-step picker ── */
             <div className="ap-share-picker">
               {shareStep === 'pick-player' ? (
                 <>
-                  <div className="ap-share-title">Who to share knowledge with?</div>
+                  <div className="ap-share-title">Who to transfer a card to?</div>
                   {colocatedPlayers.map((p) => (
                     <button
                       key={p.id}
@@ -239,7 +239,7 @@ export default function ActionPanel({
                       key={card.id}
                       className="ap-share-option"
                       onClick={() => {
-                        dispatch({ type: 'SHARE_KNOWLEDGE', fromPlayerId: player.id, toPlayerId: shareTargetId!, cardId: card.id });
+                        dispatch({ type: 'TRANSFER_CARD', fromPlayerId: player.id, toPlayerId: shareTargetId!, cardId: card.id });
                         setShareStep('idle');
                         setShareTargetId(null);
                       }}

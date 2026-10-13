@@ -211,7 +211,7 @@ export type GameAction =
   | { type: 'MOVE'; to: Position }
   | { type: 'REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string] }
   | { type: 'SWAP_CARDS'; withPlayerId: number; giveCardIds: string[]; takeCardIds: string[] }
-  | { type: 'SHARE_KNOWLEDGE'; fromPlayerId: number; toPlayerId: number; cardId: string }
+  | { type: 'TRANSFER_CARD'; fromPlayerId: number; toPlayerId: number; cardId: string }
   | { type: 'DEPOSIT_AT_CITY_HALL'; cardIds: string[] }
   | { type: 'END_TURN' }
   | { type: 'ACKNOWLEDGE_DRAWN_CARDS' }
@@ -606,8 +606,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return s;
     }
 
-    // ── Share Knowledge (give 1 card to co-located player, costs 1 action) ──
-    case 'SHARE_KNOWLEDGE': {
+    // ── Transfer Card (give 1 card to co-located player, costs 1 action) ──
+    case 'TRANSFER_CARD': {
       if (state.actionsRemaining < 1) return state;
       const from = state.players[state.currentPlayerIndex];
       if (from.id !== action.fromPlayerId) return state;
@@ -622,7 +622,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return p;
       });
       let s = spendActions({ ...state, players }, 1);
-      s = log(s, `${from.role.name} shared "${card.name}" with ${to.role.name}`);
+      s = log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`);
       return s;
     }
 

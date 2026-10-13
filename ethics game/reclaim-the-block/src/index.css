@@ -124,7 +124,6 @@ input, select { font-family: inherit; }
 }
 .role-character-img { width: clamp(80px, 11vh, 110px); height: clamp(80px, 11vh, 110px); object-fit: contain; flex-shrink: 0; image-rendering: pixelated; }
 .role-name { font-weight: 700; font-size: clamp(0.6rem, 1.1vmin, 0.78rem); }
-.role-ability { color: #5a4a2a; font-size: clamp(0.55rem, 0.95vmin, 0.68rem); line-height: 1.45; }
 
 .setup-objective { color: var(--text-muted); line-height: 1.5; font-size: clamp(0.68rem, 1.2vmin, 0.84rem); }
 .setup-rules { list-style: none; margin-top: clamp(0.3rem, 0.7vh, 0.6rem); display: flex; flex-direction: column; gap: clamp(0.2rem, 0.5vh, 0.4rem); }
@@ -1020,9 +1019,6 @@ input, select { font-family: inherit; }
 .btn-action { background: var(--surface2); border: 2px solid var(--red); color: var(--text); width: 100%; }
 .btn-action:not(:disabled):hover { background: #f0d0d0; }
 .btn-deposit { background: var(--yellow); color: #fff; width: 100%; }
-.btn-powerup { background: var(--purple); color: #fff; width: 100%; }
-.btn-special { background: var(--surface2); border: 2px solid var(--yellow); color: var(--yellow); width: 100%; }
-.btn-special:not(:disabled):hover { background: var(--surface); }
 .btn-end-turn {
   background: var(--green); color: #fff; width: 100%;
   padding: 0.6rem; font-size: 0.85rem;
@@ -1384,7 +1380,6 @@ input, select { font-family: inherit; }
   padding: 2px 6px;
 }
 
-.player-ability { font-size: 0.68rem; color: var(--text-muted); padding: 0.4rem 0.75rem; border-bottom: 2px solid var(--border); line-height: 1.4; background: rgba(0,0,0,0.2); }
 
 .player-hand-header {
   padding: 0.3rem 0.75rem; font-size: 0.63rem; color: var(--px-gold);
@@ -1412,23 +1407,9 @@ input, select { font-family: inherit; }
 .card-disabled:hover { transform: none !important; filter: drop-shadow(3px 3px 0 var(--px-dark)) !important; }
 /* Inside the corner hand the panel-level brightness already signals inactive — keep cards opaque so they don't bleed through each other when overlapping */
 .corner-hand .card-disabled { opacity: 1; }
-.card-powerup { box-shadow: inset 1px 1px 0 var(--px-highlight), inset -1px -1px 0 var(--px-shadow); overflow: hidden; position: relative; }
-@keyframes card-shimmer {
-  0%   { transform: translateX(-150%) skewX(-20deg); }
-  100% { transform: translateX(350%) skewX(-20deg); }
-}
-.card-powerup::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
-  width: 40%;
-  animation: card-shimmer 2.2s ease-in-out infinite;
-  pointer-events: none;
-}
 
 .card-top { padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; }
 .card-category { font-size: 0.52rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: white; }
-.powerup-star { font-size: 0.75rem; }
 /* Art zone */
 .card-art { background: #f5f0e8; border-top: 1px solid rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; padding: 6px 0; }
 .card-art-icon { font-size: 1.6rem; line-height: 1; width: 1.6rem; height: 1.6rem; image-rendering: pixelated; }
@@ -1466,15 +1447,6 @@ input, select { font-family: inherit; }
   );
   padding: 3px;
   filter: drop-shadow(6px 6px 0 var(--px-dark));
-}
-.card-modal-powerup-shine .card-modal { position: relative; overflow: hidden; }
-.card-modal-powerup-shine .card-modal::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
-  width: 40%;
-  animation: card-shimmer 2.2s ease-in-out infinite;
-  pointer-events: none;
 }
 .card-modal {
   width: 240px; max-width: 80vw; min-height: 420px;
@@ -1814,19 +1786,6 @@ input, select { font-family: inherit; }
 .drawn-cards-confirm {
   align-self: center; margin-top: 0.5rem;
   padding: 0.6rem 2rem; font-size: 0.85rem;
-}
-.drawn-card-powerup { position: relative; }
-/* Shimmer on inner card only — wrapper border stays solid */
-.drawn-card-powerup > .drawn-card {
-  position: relative; overflow: hidden;
-}
-.drawn-card-powerup > .drawn-card::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
-  width: 40%;
-  animation: card-shimmer 2.2s ease-in-out infinite;
-  pointer-events: none;
 }
 
 /* ── Scrollbars ───────────────────────────────────────────── */
@@ -2421,10 +2380,6 @@ input, select { font-family: inherit; }
   letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.3rem;
 }
 .role-overlay-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.6; }
-.role-overlay-ability {
-  font-size: 0.72rem; color: var(--text); line-height: 1.55;
-  background: var(--surface2); padding: 0.4rem 0.6rem; border-left: 3px solid var(--px-gold);
-}
 
 /* ── Intro story overlay (start of a new game) ──────────────── */
 .intro-overlay {

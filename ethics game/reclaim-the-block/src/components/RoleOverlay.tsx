@@ -9,10 +9,10 @@ interface Props {
 }
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
-  organizer: 'A parent deeply embedded in the community who knows their neighbors and builds trust through everyday connections. Their strength lies in collaboration — the more players they work alongside, the more powerful their actions become.',
-  legal: 'A lawyer who understands the system from the inside. They can exploit legal loopholes and cross-category knowledge to remove surveillance devices directly, without needing to match neighborhood colors.',
-  captain: 'A seasoned activist who knows how to shift the narrative and slow the rollout. When devices stack up too fast, they can organize a pushback and roll back the density tracker.',
-  council: 'An insider with political leverage. Their ability to negotiate means the community needs fewer resources to trigger a neighborhood reset at Town Square, making wins more efficient.',
+  organizer: 'A parent deeply embedded in the community who knows their neighbors and builds trust through everyday connections.',
+  legal: 'A lawyer who understands the system from the inside and knows how to use the law to protect residents from surveillance.',
+  captain: 'A seasoned activist who knows how to shift the narrative and organize neighbors to push back on the rollout.',
+  council: 'An insider with political leverage who understands how decisions get made at City Hall.',
 };
 
 
@@ -58,9 +58,6 @@ export default function RoleOverlay({ state, onClose, rotated }: Props) {
           <div className="role-overlay-body">
             <div className="role-overlay-section-label">Description</div>
             <p className="role-overlay-desc">{ROLE_DESCRIPTIONS[role.id]}</p>
-
-            <div className="role-overlay-section-label" style={{ marginTop: '0.75rem' }}>Special Ability</div>
-            <p className="role-overlay-ability">{role.specialAbility}</p>
           </div>
         </div>
 

@@ -54,7 +54,7 @@ export default function CardDisplay({ card, isSelected, onClick, disabled }: Pro
 
   return (
     <div
-      className={`card ${isSelected ? 'card-selected' : ''} ${disabled ? 'card-disabled' : ''} ${card.isPowerUp ? 'card-powerup' : ''}`}
+      className={`card ${isSelected ? 'card-selected' : ''} ${disabled ? 'card-disabled' : ''}`}
       style={{ borderColor: color }}
       onClick={!disabled ? onClick : undefined}
       onDoubleClick={(e) => { e.stopPropagation(); setShowModal(true); }}
@@ -77,7 +77,7 @@ export default function CardDisplay({ card, isSelected, onClick, disabled }: Pro
         createPortal(
           <div className="card-modal-overlay" onClick={() => setShowModal(false)}>
             <div
-              className={`card-modal-border${card.isPowerUp ? ' card-modal-powerup-shine' : ''}`}
+              className={`card-modal-border`}
               style={{ background: color, ['--card-color' as string]: color }}
               onClick={(e) => e.stopPropagation()}
             >

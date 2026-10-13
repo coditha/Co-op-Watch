@@ -29,7 +29,6 @@ export interface CommunityCard {
   effect: string;
   effectType: CommunityCardEffectType;
   effectValue?: number;
-  isPowerUp: boolean;
 }
 
 export type CommunityCardEffectType =
@@ -98,7 +97,6 @@ export interface Role {
   id: RoleId;
   name: string;
   homeNeighborhood: NeighborhoodId;
-  specialAbility: string;
   color: string;
   emoji: string;
   colorHex: string;
@@ -117,7 +115,6 @@ export interface Player {
   role: Role;
   position: Position;
   hand: CommunityCard[];
-  hasUsedSpecialAbilityThisTurn: boolean;
 }
 
 export type GamePhase =

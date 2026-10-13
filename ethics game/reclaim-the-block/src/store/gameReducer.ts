@@ -8,7 +8,6 @@ import type {
   DeviceType,
   SlotIndex,
   Position,
-  RoleId,
 } from '../types/game';
 import { COMMUNITY_CARDS } from '../data/cards';
 import { SURVEILLANCE_CARDS } from '../data/surveillanceCards';
@@ -126,7 +125,6 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
     role,
     position: `${role.homeNeighborhood}-n1` as Position, // updated: players start at N1 of home neighborhood
     hand: [] as CommunityCard[],
-    hasUsedSpecialAbilityThisTurn: false,
   }));
 
   const communityDeck = buildCommunityDeck();
@@ -212,13 +210,9 @@ export type GameAction =
   | { type: 'ROLL_DIE'; precomputedRoll?: number }
   | { type: 'MOVE'; to: Position }
   | { type: 'REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string] }
-  | { type: 'LEGAL_REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string] }
-  | { type: 'CAPTAIN_REVERSE_OVERFLOW'; cardIds: [string, string] }
   | { type: 'SWAP_CARDS'; withPlayerId: number; giveCardIds: string[]; takeCardIds: string[] }
   | { type: 'SHARE_KNOWLEDGE'; fromPlayerId: number; toPlayerId: number; cardId: string }
-  | { type: 'PLAY_CARD'; cardId: string; targetNeighborhoodId?: NeighborhoodId; targetSlotIndex?: SlotIndex; targetPlayerId?: number; chosenPosition?: Position }
   | { type: 'DEPOSIT_AT_CITY_HALL'; cardIds: string[] }
-  | { type: 'USE_SPECIAL_ABILITY'; targetNeighborhoodId?: NeighborhoodId; targetSlotIndex?: SlotIndex; revealCount?: number }
   | { type: 'END_TURN' }
   | { type: 'ACKNOWLEDGE_DRAWN_CARDS' }
   | { type: 'DISCARD_TO_HAND_LIMIT'; cardIds: string[] }
@@ -229,7 +223,7 @@ export type GameAction =
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
-// Like drawCommunityCards but returns community cards separately instead of adding to hand.
+// Draws community cards and returns them separately instead of adding to hand.
 // Incidents are still resolved normally (set pendingIncident).
 function peekDrawCards(state: GameState, count: number): { state: GameState; drawnCards: CommunityCard[] } {
   let s = { ...state };
@@ -273,68 +267,6 @@ function peekDrawCards(state: GameState, count: number): { state: GameState; dra
   }
 
   return { state: s, drawnCards };
-}
-
-function drawCommunityCards(state: GameState, playerId: number, count: number, defer = false, noIncident = false): GameState {
-  let s = { ...state };
-  let deck = [...s.communityDeck];
-  let discard = [...s.communityDiscard];
-  let deferredIncident: IncidentCard | null = null;
-
-  let communityDrawn = 0;
-  const maxIterations = count + 20;
-  let iterations = 0;
-  while (communityDrawn < count && iterations < maxIterations) {
-    iterations++;
-    if (deck.length === 0) {
-      if (discard.length === 0) break;
-      deck = shuffle(discard);
-      discard = [];
-      s = log(s, 'Community deck reshuffled from discard.');
-    }
-    const card = deck.shift()!;
-    if (card.type === 'incident') {
-      discard.push(card);
-      if (noIncident) {
-        // Special ability draws skip incidents entirely
-      } else if (s.cancelNextIncident) {
-        s = { ...s, cancelNextIncident: false };
-        s = log(s, `Incident "${card.name}" cancelled by Class Action.`);
-      } else if (!deferredIncident) {
-        // Defer so the player finishes drawing their remaining cards first
-        deferredIncident = card as IncidentCard;
-      }
-    } else {
-      const players = s.players.map((p) =>
-        p.id === playerId ? { ...p, hand: [...p.hand, card as CommunityCard] } : p
-      );
-      s = { ...s, players };
-      communityDrawn++;
-    }
-  }
-
-  s = { ...s, communityDeck: deck, communityDiscard: discard };
-
-  if (deferredIncident) {
-    s = shiftMeter(s, -1, `Incident card drawn: ${deferredIncident.name}`);
-    const incident = { card: deferredIncident, triggeredByRoleId: s.players[s.currentPlayerIndex]?.role.id };
-    if (defer) {
-      s = { ...s, pendingDeferredIncident: incident };
-    } else {
-      s = { ...s, pendingIncident: incident };
-    }
-    s = log(s, `⚠️ INCIDENT: ${deferredIncident.name}`);
-  }
-
-  return s;
-}
-
-function drawCommunityCardsForAll(state: GameState, count: number, defer = false, noIncident = false): GameState {
-  let s = state;
-  for (const player of s.players) {
-    s = drawCommunityCards(s, player.id, count, defer, noIncident);
-  }
-  return s;
 }
 
 function removeCardFromHand(state: GameState, playerId: number, cardIds: string[]): GameState {
@@ -523,193 +455,6 @@ export function previewResolvedIncidentEffect(
   return { deviceCount, meterDelta };
 }
 
-// ── Card Effect Application ───────────────────────────────────────────────
-
-function applyCardEffect(
-  state: GameState,
-  card: CommunityCard,
-  playerId: number,
-  opts: {
-    targetNeighborhoodId?: NeighborhoodId;
-    targetSlotIndex?: SlotIndex;
-    targetPlayerId?: number;
-    chosenPosition?: Position;
-  }
-): GameState {
-  let s = state;
-
-  switch (card.effectType) {
-    case 'meter-plus':
-    case 'meter-plus-immediate':
-      s = shiftMeter(s, card.effectValue ?? 1, card.name);
-      break;
-
-    case 'draw-cards':
-      s = drawCommunityCards(s, playerId, card.effectValue ?? 1, true);
-      break;
-
-    case 'draw-cards-all':
-    case 'draw-cards-swap':
-      s = drawCommunityCardsForAll(s, card.effectValue ?? 1, true, true);
-      break;
-
-    case 'remove-device-own': {
-      const player = s.players.find((p) => p.id === playerId)!;
-      const home = s.neighborhoods.find((n) => n.id === player.role.homeNeighborhood)!;
-      const count = card.effectValue ?? 1;
-      let removed = 0;
-      let tempS = s;
-      for (let i = 0; i < 4 && removed < count; i++) {
-        if (home.slots[i] !== null) {
-          tempS = removeDeviceFromSlot(tempS, home.id, i as SlotIndex);
-          tempS = shiftMeter(tempS, 1, `Device removed from ${home.name}`);
-          removed++;
-        }
-      }
-      s = tempS;
-      break;
-    }
-
-    case 'remove-device-any':
-    case 'remove-devices-any': {
-      const targetId = opts.targetNeighborhoodId;
-      const targetSlot = opts.targetSlotIndex;
-      if (targetId !== undefined && targetSlot !== undefined) {
-        const count = card.effectValue ?? 1;
-        let removed = 0;
-        let tempS = s;
-        // Remove from specific slot first, then others
-        if (removed < count && tempS.neighborhoods.find((n) => n.id === targetId)!.slots[targetSlot] !== null) {
-          tempS = removeDeviceFromSlot(tempS, targetId, targetSlot);
-          tempS = shiftMeter(tempS, 1, `Device removed from ${targetId}`);
-          removed++;
-        }
-        // For remove-devices-any with count > 1, remove more from same neighborhood
-        if (card.effectType === 'remove-devices-any' && count > 1) {
-          const n = tempS.neighborhoods.find((nb) => nb.id === targetId)!;
-          for (let i = 0; i < 4 && removed < count; i++) {
-            if (n.slots[i] !== null) {
-              tempS = removeDeviceFromSlot(tempS, targetId, i as SlotIndex);
-              tempS = shiftMeter(tempS, 1, `Device removed from ${targetId}`);
-              removed++;
-            }
-          }
-        }
-        s = tempS;
-      }
-      break;
-    }
-
-    case 'remove-all-own': {
-      const player = s.players.find((p) => p.id === playerId)!;
-      const nId = player.role.homeNeighborhood;
-      const n = s.neighborhoods.find((nb) => nb.id === nId)!;
-      let tempS = s;
-      for (let i = 0; i < 4; i++) {
-        if (n.slots[i] !== null) {
-          tempS = removeDeviceFromSlot(tempS, nId, i as SlotIndex);
-          tempS = shiftMeter(tempS, 1, `Device removed from ${n.name}`);
-        }
-      }
-      s = tempS;
-      break;
-    }
-
-    case 'block-board-phase':
-      s = { ...s, blockedBoardPhases: s.blockedBoardPhases + 1 };
-      s = log(s, 'Board Phase blocked for 1 round!');
-      break;
-
-    case 'cancel-next-surveillance':
-      s = { ...s, cancelNextSurveillance: s.cancelNextSurveillance + 1 };
-      s = log(s, 'Next Surveillance Card placement cancelled!');
-      break;
-
-    case 'cancel-next-2-surveillance':
-      s = { ...s, cancelNextSurveillance: s.cancelNextSurveillance + 2 };
-      s = log(s, 'Next 2 Surveillance Card placements cancelled!');
-      break;
-
-    case 'cancel-next-incident':
-      s = { ...s, cancelNextIncident: true };
-      s = log(s, 'Next Incident Card will be cancelled!');
-      break;
-
-    case 'cancel-footage-request':
-      s = shiftMeter(s, card.effectValue ?? 1, card.name);
-      s = { ...s, cancelNextIncident: true };
-      s = log(s, 'Next Police Footage Request cancelled!');
-      break;
-
-    case 'wildcard-deposit':
-      s = log(s, `${card.name} counts as wildcard for next deposit.`);
-      break;
-
-    case 'actions-all':
-      s = { ...s, pendingExtraActions: s.pendingExtraActions + (card.effectValue ?? 1) };
-      s = log(s, `All players gain +${card.effectValue ?? 1} action(s) next turn.`);
-      break;
-
-    case 'actions-current':
-      s = { ...s, actionsRemaining: s.actionsRemaining + (card.effectValue ?? 1) };
-      s = log(s, `+${card.effectValue ?? 1} action(s) added.`);
-      break;
-
-    case 'move-any':
-      if (opts.chosenPosition) {
-        const players = s.players.map((p) =>
-          p.id === playerId ? { ...p, position: opts.chosenPosition! } : p
-        );
-        s = { ...s, players };
-        s = log(s, `${s.players[playerId].role.name} moved to ${opts.chosenPosition}`);
-      }
-      break;
-
-    case 'move-player-here': {
-      if (opts.targetPlayerId !== undefined) {
-        const mover = s.players.find((p) => p.id === playerId)!;
-        const players = s.players.map((p) =>
-          p.id === opts.targetPlayerId ? { ...p, position: mover.position } : p
-        );
-        s = { ...s, players };
-        s = log(s, `Player moved to ${mover.position}`);
-      }
-      break;
-    }
-
-    case 'reveal-surveillance': {
-      const count = card.effectValue ?? 3;
-      const revealed = s.surveillanceDeck.slice(0, count);
-      s = { ...s, revealedSurveillanceCards: revealed };
-      s = log(s, `Revealed top ${revealed.length} Surveillance Cards.`);
-      break;
-    }
-
-    case 'reveal-top-surveillance': {
-      const revealed = s.surveillanceDeck.slice(0, 1);
-      s = { ...s, revealedSurveillanceCards: revealed };
-      s = log(s, `Revealed top Surveillance Card.`);
-      break;
-    }
-
-    case 'reduced-deposit':
-      s = { ...s, reducedNextDeposit: true };
-      s = log(s, 'Next Town Square deposit only needs 4 cards!');
-      break;
-
-    case 'board-phase-reduced':
-      s = { ...s, reducedBoardPhaseRounds: s.reducedBoardPhaseRounds + (card.effectValue ?? 3) };
-      s = log(s, `Board Phase reduced for ${card.effectValue ?? 3} rounds.`);
-      break;
-
-    case 'swap-cards':
-    case 'none':
-      break;
-  }
-
-  return s;
-}
-
 // ── Win/Loss Check ─────────────────────────────────────────────────────────
 
 function checkWinLoss(state: GameState): GameState {
@@ -758,14 +503,10 @@ function advanceTurn(s: GameState): GameState {
     s = log(s, 'All players done — moving to Board Phase.');
   } else {
     const nextPlayer = s.players[nextIndex];
-    const players = s.players.map((p) =>
-      p.id === nextPlayer.id ? { ...p, hasUsedSpecialAbilityThisTurn: false } : p
-    );
     s = {
       ...s,
       currentPlayerIndex: nextIndex,
       actionsRemaining: 0,
-      players,
       phase: 'player-turn',
       pendingDiceRoll: true,
     };
@@ -831,53 +572,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return checkWinLoss(s);
     }
 
-    // ── Legal Advocate special remove (any 2 cards) ───────────────────
-    case 'CAPTAIN_REVERSE_OVERFLOW': {
-      const player = state.players[state.currentPlayerIndex];
-      if (player.role.id !== 'captain') return state;
-      if (state.actionsRemaining < 1) return state;
-      if (player.hasUsedSpecialAbilityThisTurn) return state;
-      // Need 2 cards in hand and a tracker above its minimum to lower
-      const cards = action.cardIds.map((id) => player.hand.find((c) => c.id === id)).filter(Boolean);
-      if (cards.length < 2) return state;
-      if (state.densityTracker <= 1) return log(state, 'Surveillance Density Tracker is already at its lowest.');
-
-      let s = removeCardFromHand(state, player.id, action.cardIds);
-      s = { ...s, densityTracker: Math.max(1, s.densityTracker - 1) };
-      s = spendActions(s, 1);
-      const players = s.players.map((p) =>
-        p.id === player.id ? { ...p, hasUsedSpecialAbilityThisTurn: true } : p
-      );
-      s = { ...s, players };
-      s = log(s, `${player.role.name} reversed overflow — Density Tracker lowered to ${s.densityTracker}`);
-      return checkWinLoss(s);
-    }
-
-    case 'LEGAL_REMOVE_DEVICE': {
-      const player = state.players[state.currentPlayerIndex];
-      if (player.role.id !== 'legal') return state;
-      if (state.actionsRemaining < 1) return state;
-      if (player.hasUsedSpecialAbilityThisTurn) return state;
-
-      // Legal Advocate must spend 2 cards of DIFFERENT colors
-      const cards = action.cardIds.map((id) => player.hand.find((c) => c.id === id)).filter(Boolean) as CommunityCard[];
-      if (cards.length < 2 || cards[0].category === cards[1].category) return state;
-
-      const n = state.neighborhoods.find((nb) => nb.id === action.neighborhoodId);
-      if (!n || n.slots[action.slotIndex] === null) return state;
-
-      let s = removeCardFromHand(state, player.id, action.cardIds);
-      s = removeDeviceFromSlot(s, action.neighborhoodId, action.slotIndex);
-      s = shiftMeter(s, 1, `Lawyer removed device from ${n.name}`);
-      s = spendActions(s, 1);
-      const players = s.players.map((p) =>
-        p.id === player.id ? { ...p, hasUsedSpecialAbilityThisTurn: true } : p
-      );
-      s = { ...s, players };
-      s = log(s, `${player.role.name} used special ability to remove device from ${n.name}`);
-      return checkWinLoss(s);
-    }
-
     // ── Swap cards ────────────────────────────────────────────────────
     case 'SWAP_CARDS': {
       if (state.actionsRemaining < 1) return state;
@@ -932,38 +626,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return s;
     }
 
-    // ── Play power-up card ────────────────────────────────────────────
-    case 'PLAY_CARD': {
-      if (state.actionsRemaining < 1) return state;
-      const player = state.players[state.currentPlayerIndex];
-      const card = player.hand.find((c) => c.id === action.cardId);
-      if (!card) return state;
-
-      let s = removeCardFromHand(state, player.id, [action.cardId]);
-      s = spendActions(s, 1);
-      s = applyCardEffect(s, card, player.id, {
-        targetNeighborhoodId: action.targetNeighborhoodId,
-        targetSlotIndex: action.targetSlotIndex,
-        targetPlayerId: action.targetPlayerId,
-        chosenPosition: action.chosenPosition,
-      });
-      s = log(s, `${player.role.name} played "${card.name}"`);
-      s = checkWinLoss(s);
-      if (s.phase === 'player-turn') {
-        // A draw effect may have pushed the player over 7 cards → manual discard
-        const limited = enforceHandLimit(s, player.id, false);
-        if (limited) return limited;
-      }
-      return s;
-    }
-
     // ── Deposit at City Hall ──────────────────────────────────────────
     case 'DEPOSIT_AT_CITY_HALL': {
       if (state.actionsRemaining < 1) return state;
       const player = state.players[state.currentPlayerIndex];
       if (player.position !== 'city-hall') return state;
 
-      const required = state.reducedNextDeposit ? 2 : player.role.id === 'council' ? 3 : 4;
+      const required = state.reducedNextDeposit ? 2 : 4;
       const cards = action.cardIds.map((id) => player.hand.find((c) => c.id === id)!).filter(Boolean);
 
       if (cards.length < required) return state;
@@ -995,55 +664,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return checkWinLoss(s);
     }
 
-    // ── Use special ability ───────────────────────────────────────────
-    case 'USE_SPECIAL_ABILITY': {
-      if (state.actionsRemaining < 1) return state;
-      const player = state.players[state.currentPlayerIndex];
-      if (player.hasUsedSpecialAbilityThisTurn) return state;
-
-      let s = state;
-
-      switch (player.role.id as RoleId) {
-        case 'organizer': {
-          // Draw 1 extra card if co-located with another player
-          const colocated = s.players.some((p) => p.id !== player.id && p.position === player.position);
-          if (colocated) {
-            s = drawCommunityCards(s, player.id, 1, false, true);
-            s = log(s, `${player.role.name} drew 1 extra card (organizer ability)`);
-          } else {
-            return log(s, 'Organizer ability requires another player on same space.');
-          }
-          break;
-        }
-        case 'captain': {
-          // Handled via CAPTAIN_REVERSE_OVERFLOW
-          s = log(s, 'Use the Activist ability via the Reverse Overflow action.');
-          break;
-        }
-        case 'council': {
-          // Auto-applied at deposit — no standalone action needed
-          return log(state, 'Council Member discount is applied automatically when depositing at the Town Square.');
-        }
-        case 'legal': {
-          // Handled via LEGAL_REMOVE_DEVICE
-          s = log(s, 'Use Lawyer ability via the Remove Device (any 2 cards) action.');
-          break;
-        }
-      }
-
-      const players = s.players.map((p) =>
-        p.id === player.id ? { ...p, hasUsedSpecialAbilityThisTurn: true } : p
-      );
-      s = spendActions({ ...s, players }, 1);
-      s = checkWinLoss(s);
-      if (s.phase === 'player-turn') {
-        // Organizer's draw may have pushed them over 7 cards → manual discard
-        const limited = enforceHandLimit(s, player.id, false);
-        if (limited) return limited;
-      }
-      return s;
-    }
-
     // ── End turn ──────────────────────────────────────────────────────
     case 'END_TURN': {
       const player = state.players[state.currentPlayerIndex];
@@ -1059,24 +679,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { state: s2, drawnCards } = peekDrawCards(s, 2);
       s = s2;
 
-      // Organizer draws an extra card if colocated (same neighborhood counts)
-      let extraDrawn: CommunityCard[] = [];
-      if (player.role.id === 'organizer') {
-        const nids = ['suburb', 'courthouse', 'media', 'politics'] as const;
-        const playerNhd = nids.find((id) => player.position === id || player.position.startsWith(id + '-n'));
-        const colocated = s.players.some((p) => {
-          if (p.id === player.id) return false;
-          if (playerNhd && (p.position === playerNhd || p.position.startsWith(playerNhd + '-n'))) return true;
-          return p.position === player.position;
-        });
-        if (colocated) {
-          const { state: s3, drawnCards: extra } = peekDrawCards(s, 1);
-          s = s3;
-          extraDrawn = extra;
-        }
-      }
-
-      const allDrawn = [...drawnCards, ...extraDrawn];
+      const allDrawn = drawnCards;
 
       if (allDrawn.length > 0) {
         return { ...s, pendingDrawnCards: { playerId: player.id, cards: allDrawn } };
@@ -1169,17 +772,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     // ── Advance to the next round (dispatched after the Board Phase effect
     // above has had a moment to visibly land) ─────────────────────────────
     case 'ADVANCE_ROUND': {
-      let s = state;
-      const nextPlayers = s.players.map((p) => ({ ...p, hasUsedSpecialAbilityThisTurn: false }));
-      s = {
-        ...s,
+      let s: GameState = {
+        ...state,
         phase: 'player-turn',
-        round: s.round + 1,
+        round: state.round + 1,
         currentPlayerIndex: 0,
         actionsRemaining: 0,
-        players: nextPlayers,
         pendingDiceRoll: true,
-        densityTracker: Math.min(8, s.densityTracker + 1),
+        densityTracker: Math.min(8, state.densityTracker + 1),
         incidentFiredThisRound: false,
         resolvedIncident: null,
       };

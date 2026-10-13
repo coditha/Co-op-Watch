@@ -1,7 +1,7 @@
 import type { CommunityCard, IncidentCard } from '../types/game';
 
 export const COMMUNITY_CARDS: CommunityCard[] = [
-  // ── BLUE LEGAL CARDS (12) ───────────────────────────────────────────────
+  // ── BLUE LEGAL CARDS (10) ───────────────────────────────────────────────
   {
     id: 'blue-01',
     type: 'community',
@@ -10,7 +10,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Cameras exist in legal gray areas.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-02',
@@ -20,7 +19,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Request public records on surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-03',
@@ -30,7 +28,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Expose how footage gets shared.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-04',
@@ -40,7 +37,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Require warrants for camera access.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-05',
@@ -50,7 +46,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Ban flawed recognition technology.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-06',
@@ -60,7 +55,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Learn your digital rights.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-07',
@@ -70,7 +64,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Cameras exist in legal gray areas.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-08',
@@ -80,7 +73,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Request public records on surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-09',
@@ -90,7 +82,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Expose how footage gets shared.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'blue-10',
@@ -100,31 +91,9 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Learn your digital rights.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
-  },
-  {
-    id: 'blue-11',
-    type: 'community',
-    category: 'blue',
-    name: 'Balance the Meter',
-    educationalContent: 'Legal wins restore community trust.',
-    effect: 'Shift the Privacy & Trust Meter back 3 spaces.',
-    effectType: 'meter-plus-immediate',
-    effectValue: 3,
-    isPowerUp: true,
-  },
-  {
-    id: 'blue-12',
-    type: 'community',
-    category: 'blue',
-    name: 'Warrant Requirement',
-    educationalContent: 'Block surveillance with legal protection.',
-    effect: 'Ignore the effects of the next Incident Card (if you are in the affected neighborhood).',
-    effectType: 'cancel-next-incident',
-    isPowerUp: true,
   },
 
-  // ── YELLOW COMMUNITY ORGANIZING CARDS (12) ─────────────────────────────
+  // ── YELLOW COMMUNITY ORGANIZING CARDS (10) ─────────────────────────────
   {
     id: 'yellow-01',
     type: 'community',
@@ -133,7 +102,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Negotiate privacy into lease agreements.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-02',
@@ -143,7 +111,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Map cameras in your community.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-03',
@@ -153,7 +120,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Build coalitions against surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-04',
@@ -163,7 +129,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Gather signatures, recruit advocates.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-05',
@@ -173,7 +138,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Demonstrate against new surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-06',
@@ -183,29 +147,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Share privacy alternatives with neighbors.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
-  },
-  {
-    id: 'yellow-07',
-    type: 'community',
-    category: 'yellow',
-    name: 'Rally the Block',
-    educationalContent: 'Collective action fights surveillance.',
-    effect: 'Each player immediately draws 1 Community Card.',
-    effectType: 'draw-cards-all',
-    effectValue: 1,
-    isPowerUp: true,
-  },
-  {
-    id: 'yellow-08',
-    type: 'community',
-    category: 'yellow',
-    name: 'Community Watch',
-    educationalContent: 'Neighbors, not cameras, build safety.',
-    effect: 'Increase the Privacy & Trust Meter by 1.',
-    effectType: 'meter-plus-immediate',
-    effectValue: 1,
-    isPowerUp: true,
   },
   {
     id: 'yellow-09',
@@ -215,7 +156,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Negotiate privacy into lease agreements.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-10',
@@ -225,7 +165,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Map cameras in your community.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-11',
@@ -235,7 +174,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Build coalitions against surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'yellow-12',
@@ -245,10 +183,9 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Share privacy alternatives with neighbors.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
 
-  // ── GREEN MEDIA CARDS (12) ─────────────────────────────────────────────
+  // ── GREEN MEDIA CARDS (10) ─────────────────────────────────────────────
   {
     id: 'green-01',
     type: 'community',
@@ -257,7 +194,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Expose hidden surveillance contracts.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-02',
@@ -267,7 +203,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Shape public narrative together.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-03',
@@ -277,7 +212,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Art raises privacy awareness.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-04',
@@ -287,7 +221,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Surveillance targets marginalized neighborhoods.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-05',
@@ -297,7 +230,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Share wrongful identification stories.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-06',
@@ -307,28 +239,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Force officials to respond publicly.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
-  },
-  {
-    id: 'green-07',
-    type: 'community',
-    category: 'green',
-    name: 'Bad Publicity',
-    educationalContent: 'Press coverage removes surveillance devices.',
-    effect: 'Remove one surveillance device from the Red or Yellow neighborhood.',
-    effectType: 'remove-device-any',
-    effectValue: 1,
-    isPowerUp: true,
-  },
-  {
-    id: 'green-08',
-    type: 'community',
-    category: 'green',
-    name: 'Undercover Report',
-    educationalContent: 'Reporting stalls surveillance expansion.',
-    effect: 'Your report forces a pause — block the next Board Phase so no new surveillance devices are placed for one round.',
-    effectType: 'block-board-phase',
-    isPowerUp: true,
   },
   {
     id: 'green-09',
@@ -338,7 +248,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Expose hidden surveillance contracts.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-10',
@@ -348,7 +257,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Shape public narrative together.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-11',
@@ -358,7 +266,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Art raises privacy awareness.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'green-12',
@@ -368,10 +275,9 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Surveillance targets marginalized neighborhoods.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
 
-  // ── RED POLITICAL ACTION CARDS (12) ────────────────────────────────────
+  // ── RED POLITICAL ACTION CARDS (10) ────────────────────────────────────
   {
     id: 'red-01',
     type: 'community',
@@ -380,7 +286,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Vote for privacy-first officials.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-02',
@@ -390,7 +295,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Hold officials directly accountable.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-03',
@@ -400,7 +304,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Vote against surveillance contracts.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-04',
@@ -410,7 +313,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Pause and evaluate surveillance systems.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-05',
@@ -420,7 +322,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Fund community, not surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-06',
@@ -430,28 +331,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Protect students from school surveillance.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
-  },
-  {
-    id: 'red-07',
-    type: 'community',
-    category: 'red',
-    name: 'Loss of Funding',
-    educationalContent: 'Cut surveillance program budgets.',
-    effect: 'Prevent one surveillance device from being placed during the next Board Phase.',
-    effectType: 'cancel-next-surveillance',
-    isPowerUp: true,
-  },
-  {
-    id: 'red-08',
-    type: 'community',
-    category: 'red',
-    name: 'Election Day',
-    educationalContent: 'Vote out surveillance supporters.',
-    effect: 'Move the Privacy & Trust Meter 1 space forward.',
-    effectType: 'meter-plus-immediate',
-    effectValue: 1,
-    isPowerUp: true,
   },
   {
     id: 'red-09',
@@ -461,7 +340,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Vote for privacy-first officials.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-10',
@@ -471,7 +349,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Hold officials directly accountable.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-11',
@@ -481,7 +358,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Vote against surveillance contracts.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
   {
     id: 'red-12',
@@ -491,7 +367,6 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     educationalContent: 'Pause and evaluate surveillance systems.',
     effect: '',
     effectType: 'none',
-    isPowerUp: false,
   },
 
 ];

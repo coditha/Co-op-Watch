@@ -14,9 +14,6 @@ function renderBold(text: string) {
   );
 }
 
-const ROLE_BODY = 'Each role has a unique ability usable **once per turn**:\n' +
-  ROLES.map(r => `${r.emoji} **${r.name}** — ${r.specialAbility}`).join('\n');
-
 const TUTORIAL_STEPS = [
   {
     title: 'The Situation',
@@ -28,7 +25,7 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Taking Your Turn',
-    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, **play cards**, or **use your special ability**. When you are done, press **End Turn** to draw 2 new Community Cards.',
+    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, or **share cards** with a teammate. When you are done, press **End Turn** to draw 2 new Community Cards.',
   },
   {
     title: 'Moving Around',
@@ -41,10 +38,6 @@ const TUTORIAL_STEPS = [
   {
     title: 'Community Cards',
     body: 'Cards come in 5 colors: **Legal (blue)**, **Organizing (yellow)**, **Media (green)**, **Political (red)**, and **Neighborhood (purple)**. You can hold up to **7 cards**. Match colors to neighborhoods — Neighborhood needs yellow, Courthouse needs blue, Downtown needs green, Civic Center needs red.',
-  },
-  {
-    title: 'Shimmer Cards',
-    body: 'Some cards have a **shimmer effect** — these are powerful one-time power-ups. Select one shimmer card and press **Play Card** (costs 1 action). Effects include drawing extra cards, removing devices instantly, blocking the Board Phase, and more.',
   },
   {
     title: 'Exchange Cards',
@@ -63,16 +56,12 @@ const TUTORIAL_STEPS = [
     body: 'Each round has a specific **Incident Card** that can be triggered when any player draws their cards at end of turn. These cause setbacks like **dropping the Privacy Meter** or **adding more devices**. It can only happen **once per round**.',
   },
   {
-    title: 'Player Special Powers',
-    body: ROLE_BODY,
-  },
-  {
     title: 'Privacy Meter',
-    body: 'Every device the city places **drops** the Privacy & Community Trust meter. If it falls **all the way down**, everyone loses. Keep it healthy by removing devices, depositing at the Town Square, and playing shimmer cards. Watch for the **red pulse** — it means danger!',
+    body: 'Every device the city places **drops** the Privacy & Community Trust meter. If it falls **all the way down**, everyone loses. Keep it healthy by removing devices, and depositing at the Town Square. Watch for the **red pulse** — it means danger!',
   },
   {
     title: 'Ready to Play!',
-    body: 'Work together, **share cards**, use your special powers, and **clear all 4 neighborhoods** before time runs out or the Privacy Meter bottoms out. Good luck — your community is counting on you!',
+    body: 'Work together, **share cards**, and **clear all 4 neighborhoods** before time runs out or the Privacy Meter bottoms out. Good luck — your community is counting on you!',
   },
 ];
 
@@ -171,7 +160,6 @@ export default function GameSetup({ onStart }: Props) {
                 </div>
                 <div className="role-preview-body">
                   <div className="role-name" style={{ color: r.colorHex }}>{r.name}</div>
-                  <div className="role-ability">{r.specialAbility}</div>
                 </div>
               </div>
             ))}

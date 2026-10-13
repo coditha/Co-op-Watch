@@ -81,22 +81,7 @@ export default function ActionPanel({
     twoSameColor && cardsMatchNeighborhood &&
     state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null;
 
-  // Legal Advocate: 2 cards of DIFFERENT colors, any neighborhood (not just own)
-  const twoDifferentColors =
-    selectedCards.length >= 2 && selectedCards[0].category !== selectedCards[1].category;
-  const canLegalRemove =
-    canAct && player.role.id === 'legal' &&
-    !player.hasUsedSpecialAbilityThisTurn && twoDifferentColors &&
-    selectedSlot !== null && selectedNeighborhood !== null &&
-    state.neighborhoods.find((n) => n.id === selectedNeighborhood)?.slots[selectedSlot] !== null;
-
-  // Neighborhood Captain: discard any 2 cards to lower the Surveillance Density Tracker by 1
-  const canCaptain =
-    canAct && player.role.id === 'captain' &&
-    !player.hasUsedSpecialAbilityThisTurn && selectedCards.length >= 2 &&
-    state.densityTracker > 1;
-
-  const depositRequired = state.reducedNextDeposit ? 2 : player.role.id === 'council' ? 3 : 4;
+  const depositRequired = state.reducedNextDeposit ? 2 : 4;
   // Pick the best subset: one card per unique color, wildcards fill remaining slots
   const depositColorMap = new Map<string, string>(); // category → cardId
   const depositWildcardIds: string[] = [];
@@ -115,10 +100,7 @@ export default function ActionPanel({
     canAct && player.position === 'city-hall' &&
     bestDepositIds.length >= depositRequired;
 
-  const canPlayCard = canAct && selectedCards.length === 1 && selectedCards[0].isPowerUp;
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
-  const canSpecial = canAct && !player.hasUsedSpecialAbilityThisTurn &&
-    (player.role.id !== 'organizer' || colocatedPlayers.length > 0);
   const canShare = canAct && colocatedPlayers.length > 0 && player.hand.length > 0;
 
   // ── Action button definitions ────────────────────────────────────────────
@@ -159,7 +141,6 @@ export default function ActionPanel({
         'Must be at the Town Square.',
         'Need one of each: blue · yellow · green · red.',
         'Raises the Privacy & Community Trust Meter.',
-        player.role.id === 'council' ? '★ Council discount: only 3 cards needed.' : '',
       ].filter(Boolean).join('\n'),
       available: canDeposit,
       onTap: () => {
@@ -167,78 +148,6 @@ export default function ActionPanel({
         onClearSelection();
       },
     },
-    {
-      id: 'playcard',
-      icon: '✨',
-      label: 'Play Card',
-      tooltip: [
-        'Cost: 1 action.',
-        'Select exactly one shimmer card from your hand.',
-        'Power-up cards have special team effects.',
-        'Tap a card to select it, then tap Play Card.',
-      ].join('\n'),
-      available: canPlayCard,
-      onTap: () => {
-        dispatch({
-          type: 'PLAY_CARD',
-          cardId: selectedCards[0].id,
-          targetNeighborhoodId: selectedNeighborhood ?? undefined,
-          targetSlotIndex: selectedSlot ?? undefined,
-        });
-        onClearSelection();
-      },
-    },
-    ...(player.role.id === 'legal' ? [{
-      id: 'legal',
-      icon: '⚖️',
-      label: 'Legal Remove',
-      tooltip: [
-        'Cost: 1 action + 2 cards of DIFFERENT colors (once per turn).',
-        'Lawyer special ability.',
-        'Remove a device from ANY neighborhood.',
-        'Select 2 different-color cards and a device slot.',
-      ].join('\n'),
-      available: canLegalRemove,
-      onTap: () => {
-        dispatch({
-          type: 'LEGAL_REMOVE_DEVICE',
-          neighborhoodId: selectedNeighborhood!,
-          slotIndex: selectedSlot!,
-          cardIds: [selectedCardIds[0], selectedCardIds[1]] as [string, string],
-        });
-        onClearSelection();
-      },
-    } as ActionBtn] : []),
-    ...(player.role.id === 'captain' ? [{
-      id: 'captain',
-      icon: '🟢',
-      label: 'Reverse Overflow',
-      tooltip: [
-        'Cost: 1 action + discard any 2 cards (once per turn).',
-        'Activist special ability.',
-        'Lower the Surveillance Density Tracker by 1.',
-        'Select any 2 cards to discard.',
-      ].join('\n'),
-      available: canCaptain,
-      onTap: () => {
-        dispatch({
-          type: 'CAPTAIN_REVERSE_OVERFLOW',
-          cardIds: [selectedCardIds[0], selectedCardIds[1]] as [string, string],
-        });
-        onClearSelection();
-      },
-    } as ActionBtn] : []),
-    ...(player.role.id === 'organizer' ? [{
-      id: 'special',
-      icon: player.role.emoji,
-      label: 'Special',
-      tooltip: [
-        'Cost: 1 action (once per turn).',
-        player.role.specialAbility,
-      ].join('\n'),
-      available: canSpecial,
-      onTap: () => dispatch({ type: 'USE_SPECIAL_ABILITY' }),
-    } as ActionBtn] : []),
     {
       id: 'share',
       icon: '🤝',

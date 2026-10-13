@@ -36,10 +36,6 @@ export default function PlayerPanel({ player, isActive, selectedCardIds, onCardC
         {isActive && <span className="active-badge">ACTIVE</span>}
       </div>
 
-      <div className="player-ability">
-        <strong>Ability:</strong> {player.role.specialAbility}
-      </div>
-
       <div className="player-hand-header">
         Hand ({player.hand.length}/7)
       </div>

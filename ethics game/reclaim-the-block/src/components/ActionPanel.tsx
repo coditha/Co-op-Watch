@@ -83,19 +83,25 @@ export default function ActionPanel({
 
   const depositRequired = state.reducedNextDeposit ? 2 : 4;
   // Pick the best subset: one card per unique color, wildcards fill remaining slots
-  const depositColorMap = new Map<string, string>(); // category → cardId
-  const depositWildcardIds: string[] = [];
-  for (const card of selectedCards) {
-    if (card.effectType === 'wildcard-deposit') {
-      depositWildcardIds.push(card.id);
-    } else if (!depositColorMap.has(card.category)) {
-      depositColorMap.set(card.category, card.id);
+  const pickDepositIds = (cards: typeof player.hand): string[] => {
+    const colorMap = new Map<string, string>(); // category → cardId
+    const wildcardIds: string[] = [];
+    for (const card of cards) {
+      if (card.effectType === 'wildcard-deposit') {
+        wildcardIds.push(card.id);
+      } else if (!colorMap.has(card.category)) {
+        colorMap.set(card.category, card.id);
+      }
     }
-  }
-  const bestDepositIds = [
-    ...depositColorMap.values(),
-    ...depositWildcardIds,
-  ].slice(0, depositRequired);
+    return [...colorMap.values(), ...wildcardIds].slice(0, depositRequired);
+  };
+  // Use the player's selection if it is already a valid set; otherwise fall back
+  // to the best set in their whole hand, so Deposit is ready as soon as they
+  // hold one card of each color — no need to select them first.
+  const selectedDepositIds = pickDepositIds(selectedCards);
+  const bestDepositIds = selectedDepositIds.length >= depositRequired
+    ? selectedDepositIds
+    : pickDepositIds(player.hand);
   const canDeposit =
     canAct && player.position === 'city-hall' &&
     bestDepositIds.length >= depositRequired;
@@ -142,6 +148,7 @@ export default function ActionPanel({
         `Cost: 1 action + ${depositRequired} unique-color cards.`,
         'Must be at the Town Square.',
         'Need one of each: blue · yellow · green · red.',
+        'Selected cards are used first; otherwise the best set in your hand.',
         'Raises the Privacy & Community Trust Meter.',
       ].filter(Boolean).join('\n'),
       available: canDeposit,

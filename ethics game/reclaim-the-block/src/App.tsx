@@ -183,6 +183,26 @@ function IncidentOverlay({
   );
 }
 
+// ── "Neighborhood cleared" banner ───────────────────────────────────────────
+
+function ClearedBanner({ banner }: { banner: NonNullable<GameState['clearBanner']> }) {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    setVisible(true);
+    const t = setTimeout(() => setVisible(false), 2800);
+    return () => clearTimeout(t);
+  }, [banner.id]);
+  if (!visible) return null;
+  return (
+    <div className="clear-banner" key={banner.id}>
+      <div className="clear-banner-title">{banner.neighborhood} Cleared!</div>
+      <div className="clear-banner-sub">
+        {banner.removed} surveillance device{banner.removed === 1 ? '' : 's'} removed
+      </div>
+    </div>
+  );
+}
+
 // ── Turn action popup ───────────────────────────────────────────────────────
 
 function TurnPopup({
@@ -799,6 +819,8 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
           </div>
         </div>
       )}
+
+      {state.clearBanner && <ClearedBanner banner={state.clearBanner} />}
 
       {/* ── Surveillance incident overlay — shown after drawn cards are confirmed ── */}
       {state.pendingIncident && !state.pendingDrawnCards && (

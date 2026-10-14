@@ -184,6 +184,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
     pendingIncident: null,
     pendingDeferredIncident: null,
     resolvedIncident: null,
+    clearBanner: null,
     pendingDrawnCards: null,
     pendingDiscard: null,
 
@@ -685,6 +686,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // In practice UI should pass targetNeighborhoodId — we'll clear the most dense
       const target = [...state.neighborhoods].sort((a, b) => b.densityTrack - a.densityTrack)[0];
 
+      const removedCount = target.densityTrack;
       let s = removeCardFromHand(state, player.id, action.cardIds);
       if (s.reducedNextDeposit) s = { ...s, reducedNextDeposit: false };
       // Remove all devices
@@ -698,6 +700,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       s = shiftMeter(s, 1, 'Density Tracker decreased');
       s = spendActions(s, 1);
       s = log(s, `${player.role.name} deposited at the Town Square — ${target.name} cleared!`);
+      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, neighborhood: target.name, removed: removedCount } };
       return checkWinLoss(s);
     }
 

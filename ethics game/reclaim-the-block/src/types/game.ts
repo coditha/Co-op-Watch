@@ -182,6 +182,10 @@ export interface GameState {
 
   incidentFiredThisRound: boolean;
 
+  // Set when a Town Square deposit clears a neighborhood, so the UI can show a banner.
+  // `id` increments each time so the same neighborhood clearing twice re-triggers it.
+  clearBanner: { id: number; neighborhood: string; removed: number } | null;
+
   gameLog: string[];
   lossReason?: string;
 }

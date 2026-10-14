@@ -700,7 +700,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       s = shiftMeter(s, 1, 'Density Tracker decreased');
       s = spendActions(s, 1);
       s = log(s, `${player.role.name} deposited at the Town Square — ${target.name} cleared!`);
-      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, neighborhood: target.name, removed: removedCount } };
+      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, neighborhood: target.name, removed: removedCount, byRoleId: player.role.id } };
       return checkWinLoss(s);
     }
 

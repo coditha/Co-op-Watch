@@ -2512,7 +2512,6 @@ input, select { font-family: inherit; }
   /* dark outline keeps light colors (yellow/green) readable */
   text-shadow: 2px 0 0 var(--px-dark), -2px 0 0 var(--px-dark), 0 2px 0 var(--px-dark), 0 -2px 0 var(--px-dark), 3px 3px 0 var(--px-dark);
 }
-.clear-banner-sub { margin-top: 0.55rem; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 @keyframes clear-banner-life {
   0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
   12%  { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }

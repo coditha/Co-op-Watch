@@ -280,20 +280,21 @@ export default function ActionPanel({
                     <span className="ap-btn-label">{btn.label}</span>
                   </button>
                 ))}
+
+                {/* End Turn — fills the last grid cell */}
+                <button
+                  className="ap-end-turn"
+                  onPointerDown={() => startHold('endturn')}
+                  onPointerUp={endHold}
+                  onPointerLeave={endHold}
+                  onPointerCancel={endHold}
+                  onClick={() => { if (!tooltipShown.current) { dispatch({ type: 'END_TURN' }); onClearSelection(); } }}
+                >
+                  End Turn
+                  <span className="ap-end-sub">DRAW 2 CARDS</span>
+                </button>
               </div>
 
-              {/* End Turn — always last, largest button */}
-              <button
-                className="ap-end-turn"
-                onPointerDown={() => startHold('endturn')}
-                onPointerUp={endHold}
-                onPointerLeave={endHold}
-                onPointerCancel={endHold}
-                onClick={() => { if (!tooltipShown.current) { dispatch({ type: 'END_TURN' }); onClearSelection(); } }}
-              >
-                End Turn
-                <span className="ap-end-sub">DRAW 2 CARDS</span>
-              </button>
             </>
           )}
         </div>

@@ -49,11 +49,11 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Board Phase',
-    body: 'After all players have taken their turns, the Board Phase happens. The city either carries out the result of that round's **Incident** or places a **new surveillance device**. A flash highlights exactly which slot gets the device. The more neighborhoods fill up, the worse the devices get — **keep clearing them**!',
+    body: 'After all players have taken their turns, the Board Phase happens. The city either carries out the result of that round\'s **Incident** or places a **new surveillance device**. A flash highlights exactly which slot gets the device. The more neighborhoods fill up, the worse the devices get — **keep clearing them**!',
   },
   {
     title: 'Incident Cards',
-    body: 'Rounds 1–7 each end with a **Surveillance Incident**, after the last player's turn. Your community decides together: **Support** or **Push Back**. Each choice has a different outcome — more devices, a change to the Privacy Meter, or both. The result is revealed and applied in the Board Phase. Round 8 has no decision at all.',
+    body: 'Rounds 1–7 each end with a **Surveillance Incident**, after the last player\'s turn. Your community decides together: **Support** or **Push Back**. Each choice has a different outcome — more devices, a change to the Privacy Meter, or both. The result is revealed and applied in the Board Phase. Round 8 has no decision at all.',
   },
   {
     title: 'Privacy Meter',

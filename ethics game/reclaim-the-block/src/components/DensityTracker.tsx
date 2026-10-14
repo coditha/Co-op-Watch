@@ -48,8 +48,6 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
     }
   }, [blocked]);
 
-  const idx = Math.min(Math.max(value - 1, 0), LEVELS.length - 1);
-
   if (vertical) {
     return (
       <div className={`density-inline ${expanded ? 'expanded' : ''} ${increasing ? 'dt-increasing' : ''}`}>

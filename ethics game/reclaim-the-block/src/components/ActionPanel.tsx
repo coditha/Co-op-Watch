@@ -255,7 +255,6 @@ export default function ActionPanel({
                             ? <img src={p.role.characterImage} alt="" className="ap-tile-img" />
                             : <span className="ap-tile-emoji">{p.role.emoji}</span>}
                         </span>
-                        <span className="ap-tile-sub">{p.hand.length}/7 cards</span>
                       </button>
                     ))}
                   </div>

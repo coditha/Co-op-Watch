@@ -971,14 +971,13 @@ input, select { font-family: inherit; }
   padding: 3px 4px; color: #fff;
   font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
 }
-.ap-tile-art { display: flex; align-items: center; justify-content: center; padding: 6px 0 2px; }
+.ap-tile-art { display: flex; align-items: center; justify-content: center; padding: 6px 0; }
 .ap-tile-img { width: 2.6rem; height: 2.6rem; object-fit: contain; image-rendering: pixelated; }
 .ap-tile-emoji { font-size: 2rem; line-height: 1; }
 .ap-tile-icon { width: 2rem; height: 2rem; font-size: 1.8rem; line-height: 1; image-rendering: pixelated; }
 .ap-tile-name {
   padding: 2px 4px 6px; font-size: 0.68rem; font-weight: 800; line-height: 1.2;
 }
-.ap-tile-sub { padding: 0 4px 6px; font-size: 0.58rem; color: var(--text-muted); font-weight: 700; }
 
 .action-buttons { display: flex; flex-direction: column; gap: 0.6rem; }
 .action-group { }

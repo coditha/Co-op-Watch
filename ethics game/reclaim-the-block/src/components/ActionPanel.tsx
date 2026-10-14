@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { GameState, NeighborhoodId, SlotIndex } from '../types/game';
 import type { GameAction } from '../store/gameReducer';
+import { CategoryIcon, CATEGORY_COLORS, CATEGORY_LABELS } from './CardDisplay';
 
 interface Props {
   state: GameState;
@@ -235,39 +236,56 @@ export default function ActionPanel({
         <div className="ap-body">
 
           {shareStep !== 'idle' ? (
-            /* ── Transfer Card multi-step picker ── */
+            /* ── Transfer Card multi-step picker (tile grids) ── */
             <div className="ap-share-picker">
               {shareStep === 'pick-player' ? (
                 <>
                   <div className="ap-share-title">Who to transfer a card to?</div>
-                  {transferTargets.map((p) => (
-                    <button
-                      key={p.id}
-                      className="ap-share-option"
-                      style={{ borderColor: p.role.colorHex }}
-                      onClick={() => { setShareTargetId(p.id); setShareStep('pick-card'); }}
-                    >
-                      {p.role.emoji} {p.role.name}
-                    </button>
-                  ))}
+                  <div className="ap-tile-grid">
+                    {transferTargets.map((p) => (
+                      <button
+                        key={p.id}
+                        className="ap-tile"
+                        style={{ borderColor: p.role.colorHex }}
+                        onClick={() => { setShareTargetId(p.id); setShareStep('pick-card'); }}
+                      >
+                        <span className="ap-tile-head" style={{ background: p.role.colorHex }}>{p.role.name}</span>
+                        <span className="ap-tile-art">
+                          {p.role.characterImage
+                            ? <img src={p.role.characterImage} alt="" className="ap-tile-img" />
+                            : <span className="ap-tile-emoji">{p.role.emoji}</span>}
+                        </span>
+                        <span className="ap-tile-sub">{p.hand.length}/7 cards</span>
+                      </button>
+                    ))}
+                  </div>
                   <button className="ap-share-cancel ap-share-cancel-green" onClick={() => setShareStep('idle')}>Cancel</button>
                 </>
               ) : (
                 <>
                   <div className="ap-share-title">Which card to give?</div>
-                  {player.hand.map((card) => (
-                    <button
-                      key={card.id}
-                      className="ap-share-option"
-                      onClick={() => {
-                        dispatch({ type: 'TRANSFER_CARD', fromPlayerId: player.id, toPlayerId: shareTargetId!, cardId: card.id });
-                        setShareStep('idle');
-                        setShareTargetId(null);
-                      }}
-                    >
-                      <span className={`card-dot cat-${card.category}`} /> {card.name}
-                    </button>
-                  ))}
+                  <div className="ap-tile-grid">
+                    {player.hand.map((card) => (
+                      <button
+                        key={card.id}
+                        className="ap-tile"
+                        style={{ borderColor: CATEGORY_COLORS[card.category] }}
+                        onClick={() => {
+                          dispatch({ type: 'TRANSFER_CARD', fromPlayerId: player.id, toPlayerId: shareTargetId!, cardId: card.id });
+                          setShareStep('idle');
+                          setShareTargetId(null);
+                        }}
+                      >
+                        <span className="ap-tile-head" style={{ background: CATEGORY_COLORS[card.category] }}>
+                          {CATEGORY_LABELS[card.category]}
+                        </span>
+                        <span className="ap-tile-art">
+                          <CategoryIcon category={card.category} className="ap-tile-icon" />
+                        </span>
+                        <span className="ap-tile-name" style={{ color: CATEGORY_COLORS[card.category] }}>{card.name}</span>
+                      </button>
+                    ))}
+                  </div>
                   <button className="ap-share-cancel ap-share-cancel-green" onClick={() => { setShareStep('pick-player'); setShareTargetId(null); }}>Back</button>
                 </>
               )}

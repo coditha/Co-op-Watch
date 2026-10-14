@@ -10,7 +10,7 @@ interface Props {
   disabled?: boolean;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
+export const CATEGORY_COLORS: Record<string, string> = {
   blue: '#3b82f6',
   yellow: '#f59e0b',
   green: '#22c55e',
@@ -18,7 +18,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   purple: '#a855f7',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
+export const CATEGORY_LABELS: Record<string, string> = {
   blue: 'Legal',
   yellow: 'Organizing',
   green: 'Media',
@@ -42,7 +42,7 @@ const CATEGORY_ICON_IMAGES: Partial<Record<string, string>> = {
   yellow: 'community.png',
 };
 
-function CategoryIcon({ category, className }: { category: string; className: string }) {
+export function CategoryIcon({ category, className }: { category: string; className: string }) {
   const image = CATEGORY_ICON_IMAGES[category];
   if (image) return <img src={asset(`/${image}`)} alt="" className={className} />;
   return <span className={className}>{CATEGORY_ICONS[category]}</span>;

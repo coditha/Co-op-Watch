@@ -937,7 +937,7 @@ input, select { font-family: inherit; }
   text-shadow: 2px 2px 0 var(--px-dark);
 }
 
-/* ── Share Knowledge picker ───────────────────────────────── */
+/* ── Transfer Card picker ───────────────────────────────── */
 .ap-share-picker {
   display: flex; flex-direction: column; gap: 0.45rem;
   padding: 0.5rem;
@@ -946,16 +946,6 @@ input, select { font-family: inherit; }
   font-weight: 700; font-size: 0.78rem;
   color: var(--text-muted); margin-bottom: 0.2rem;
 }
-.ap-share-option {
-  display: flex; align-items: center; gap: 0.5rem;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  box-shadow: 2px 2px 0 var(--px-dark);
-  padding: 0.45rem 0.65rem;
-  font-size: 0.82rem; color: var(--text); text-align: left;
-  transition: border-color 0.1s;
-}
-.ap-share-option:hover { border-color: var(--yellow); color: var(--text); }
 .ap-share-cancel {
   background: none; border: 1px solid var(--border);
   color: var(--text-muted); font-size: 0.75rem;
@@ -965,6 +955,30 @@ input, select { font-family: inherit; }
 .ap-share-cancel:hover { border-color: var(--text-muted); color: var(--text); }
 .ap-share-cancel-green { background: #5a7a3a; color: #fff; border-color: var(--px-dark); box-shadow: 2px 2px 0 var(--px-dark); }
 .ap-share-cancel-green:hover { background: #6a8f48; color: #fff; border-color: var(--px-dark); }
+
+/* Transfer Card tiles (teammates and cards) */
+.ap-tile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.ap-tile {
+  display: flex; flex-direction: column; align-items: stretch;
+  background: #f5f0e8; border: 3px solid var(--border);
+  box-shadow: 2px 2px 0 var(--px-dark);
+  padding: 0; cursor: pointer; text-align: center;
+  transition: transform 0.08s;
+}
+.ap-tile:hover { transform: translateY(-2px); }
+.ap-tile:active { transform: translate(2px, 2px); box-shadow: none; }
+.ap-tile-head {
+  padding: 3px 4px; color: #fff;
+  font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.ap-tile-art { display: flex; align-items: center; justify-content: center; padding: 6px 0 2px; }
+.ap-tile-img { width: 2.6rem; height: 2.6rem; object-fit: contain; image-rendering: pixelated; }
+.ap-tile-emoji { font-size: 2rem; line-height: 1; }
+.ap-tile-icon { width: 2rem; height: 2rem; font-size: 1.8rem; line-height: 1; image-rendering: pixelated; }
+.ap-tile-name {
+  padding: 2px 4px 6px; font-size: 0.68rem; font-weight: 800; line-height: 1.2;
+}
+.ap-tile-sub { padding: 0 4px 6px; font-size: 0.58rem; color: var(--text-muted); font-weight: 700; }
 
 .action-buttons { display: flex; flex-direction: column; gap: 0.6rem; }
 .action-group { }

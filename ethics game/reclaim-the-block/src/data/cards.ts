@@ -318,7 +318,7 @@ export const COMMUNITY_CARDS: CommunityCard[] = [
     id: 'red-05',
     type: 'community',
     category: 'red',
-    name: 'Budget Allocation Vote',
+    name: 'Fund People First',
     educationalContent: 'Fund community, not surveillance.',
     effect: '',
     effectType: 'none',

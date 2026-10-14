@@ -76,9 +76,20 @@ export default function ActionPanel({
     effectiveNeighborhood !== null &&
     (player.position === effectiveNeighborhood || player.position.startsWith(`${effectiveNeighborhood}-n`));
 
+  // Cards to spend: the player's selection if it is already a valid matching pair,
+  // otherwise the first two cards in their hand that match the neighborhood color —
+  // so Remove Device is ready as soon as they stand on a device holding the right cards.
+  const validSelectedPair = twoSameColor && cardsMatchNeighborhood;
+  const handMatches = effectiveNeighborhood !== null
+    ? player.hand.filter((c) => c.category === NHCOLOR[effectiveNeighborhood])
+    : [];
+  const removeCardIds: string[] = validSelectedPair
+    ? [selectedCards[0].id, selectedCards[1].id]
+    : handMatches.slice(0, 2).map((c) => c.id);
+
   const canRemove =
     canAct && playerInSelectedNeighborhood && effectiveSlot !== null && effectiveNeighborhood !== null &&
-    twoSameColor && cardsMatchNeighborhood &&
+    removeCardIds.length === 2 &&
     state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null;
 
   const depositRequired = state.reducedNextDeposit ? 2 : 4;
@@ -121,13 +132,14 @@ export default function ActionPanel({
       label: 'Remove Device',
       tooltip: [
         'Cost: 1 action + 2 matching-color cards.',
+        'Selected cards are used first; otherwise matching cards from your hand.',
         'You must be inside the neighborhood.',
         'Color key:',
         'Neighborhood → yellow   Courthouse → blue',
         'Media → green     Politics → red',
         nhColorNeeded
           ? `Currently need: 2 ${nhColorNeeded} cards.`
-          : 'Select a neighborhood + device slot first.',
+          : 'Stand on a device (or select its slot) first.',
       ].join('\n'),
       available: canRemove,
       onTap: () => {
@@ -135,7 +147,7 @@ export default function ActionPanel({
           type: 'REMOVE_DEVICE',
           neighborhoodId: effectiveNeighborhood!,
           slotIndex: effectiveSlot!,
-          cardIds: [selectedCardIds[0], selectedCardIds[1]] as [string, string],
+          cardIds: [removeCardIds[0], removeCardIds[1]] as [string, string],
         });
         onClearSelection();
       },
@@ -277,7 +289,7 @@ export default function ActionPanel({
                 {actionButtons.map((btn) => (
                   <button
                     key={btn.id}
-                    className={`ap-action-btn${btn.available ? '' : ' ap-disabled'}${btn.id === 'deposit' && btn.available ? ' ap-ready' : ''}`}
+                    className={`ap-action-btn${btn.available ? '' : ' ap-disabled'}${(btn.id === 'deposit' || btn.id === 'remove') && btn.available ? ' ap-ready' : ''}`}
                     onPointerDown={() => startHold(btn.id)}
                     onPointerUp={endHold}
                     onPointerLeave={endHold}

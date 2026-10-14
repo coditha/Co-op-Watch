@@ -1656,18 +1656,18 @@ input, select { font-family: inherit; }
   filter: drop-shadow(0 0 24px rgba(239,68,68,0.5)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(6px 6px 0 var(--px-dark));
 }
 /* Incident + Board Phase cards sit in the right-middle slot between the two
-   right-hand player panels, turned 90° (counter-clockwise) so they face the
-   right-edge players. The card pivots on its bottom-right corner, which is
-   placed so the rotated card ends up vertically centred, flush with the right edge. */
+   right-hand player panels, turned 90° clockwise (text reads top to bottom).
+   The card pivots on its top-left corner, placed so the rotated card ends up
+   vertically centred and flush with the right edge. */
 .incident-card-side,
 .board-phase-border {
   --side-w: min(440px, 54vh);
   position: absolute;
   width: var(--side-w);
-  right: 10px;
-  bottom: calc(50% + var(--side-w) / 2);
-  transform-origin: bottom right;
-  transform: rotate(-90deg);
+  left: calc(100% - 10px);
+  top: calc(50% - var(--side-w) / 2);
+  transform-origin: top left;
+  transform: rotate(90deg);
 }
 /* Red header band */
 .incident-card-header {

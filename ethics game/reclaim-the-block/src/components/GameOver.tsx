@@ -16,12 +16,12 @@ export default function GameOver({ won, reason, round, privacyMeter, onRestart }
         <div className="gameover-message">
           {won
             ? 'All neighborhoods have been cleared of excess surveillance devices. The community reclaimed the block!'
-            : `The Privacy and Community Trust Meter hit 0. ${reason ?? ''}`}
+            : (reason ?? 'The Privacy and Community Trust Meter hit 0.')}
         </div>
         <div className="gameover-stats">
           <div className="stat">
             <span className="stat-label">Rounds survived</span>
-            <span className="stat-value">{round}</span>
+            <span className="stat-value">{Math.min(round, 8)}</span>
           </div>
           <div className="stat">
             <span className="stat-label">Final meter</span>

@@ -194,13 +194,22 @@ function ClearedBanner({ banner }: { banner: NonNullable<GameState['clearBanner'
   }, [banner.id]);
   if (!visible) return null;
   return (
-    <div className="clear-banner" key={banner.id}>
+    <div className={`clear-banner${banner.kind === 'removed' ? ' clear-banner-removed' : ''}`} key={banner.id}>
       {/* Parent (top-left) and Activist (top-right) sit across the table, so flip the text for them */}
       <div className={['organizer', 'captain'].includes(banner.byRoleId) ? 'clear-banner-flipped' : ''}>
-        <div className="clear-banner-title">{banner.neighborhood} Cleared!</div>
-        <div className="clear-banner-sub">
-          {banner.removed} surveillance device{banner.removed === 1 ? '' : 's'} removed
-        </div>
+        {banner.kind === 'cleared' ? (
+          <>
+            <div className="clear-banner-title">{banner.neighborhood} Cleared!</div>
+            <div className="clear-banner-sub">
+              {banner.removed} surveillance device{banner.removed === 1 ? '' : 's'} removed
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="clear-banner-title">Device Removed!</div>
+            <div className="clear-banner-sub">Surveillance device removed from {banner.neighborhood}</div>
+          </>
+        )}
       </div>
     </div>
   );

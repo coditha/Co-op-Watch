@@ -606,6 +606,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       s = shiftMeter(s, 1, `Device removed from ${n.name}`);
       s = spendActions(s, 1);
       s = log(s, `${player.role.name} removed device from ${n.name} slot ${action.slotIndex + 1}`);
+      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, kind: 'removed', neighborhood: n.name, removed: 1, byRoleId: player.role.id } };
       return checkWinLoss(s);
     }
 
@@ -700,7 +701,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       s = shiftMeter(s, 1, 'Density Tracker decreased');
       s = spendActions(s, 1);
       s = log(s, `${player.role.name} deposited at the Town Square — ${target.name} cleared!`);
-      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, neighborhood: target.name, removed: removedCount, byRoleId: player.role.id } };
+      s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, kind: 'cleared', neighborhood: target.name, removed: removedCount, byRoleId: player.role.id } };
       return checkWinLoss(s);
     }
 

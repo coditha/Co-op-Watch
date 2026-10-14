@@ -270,7 +270,7 @@ export default function ActionPanel({
                 {actionButtons.map((btn) => (
                   <button
                     key={btn.id}
-                    className={`ap-action-btn${btn.available ? '' : ' ap-disabled'}`}
+                    className={`ap-action-btn${btn.available ? '' : ' ap-disabled'}${btn.id === 'deposit' && btn.available ? ' ap-ready' : ''}`}
                     onPointerDown={() => startHold(btn.id)}
                     onPointerUp={endHold}
                     onPointerLeave={endHold}

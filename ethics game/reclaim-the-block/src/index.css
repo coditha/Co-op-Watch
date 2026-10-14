@@ -1710,12 +1710,13 @@ input, select { font-family: inherit; }
 /* Footer actions */
 .incident-card-footer {
   padding: 0.75rem 1rem 0.85rem;
-  display: flex; flex-direction: row; gap: 0.6rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
 }
 .incident-card-discard-label {
   font-size: 0.72rem; font-weight: 700; color: var(--text); text-align: center;
 }
 .incident-card-discard-options { display: flex; flex-direction: column; gap: 0.35rem; }
+.incident-btn-placeholder { background: transparent; border: 2px dashed rgba(0,0,0,0.25); box-shadow: none; cursor: default; min-height: 2.4rem; }
 .incident-card-btn { width: 100%; font-family: 'Press Start 2P', monospace; font-size: 0.7rem; padding: 0.65rem 1rem; }
 /* Support / Push Back share the same neutral tone — neither choice should
    read as "correct" or "safe" via color alone. */

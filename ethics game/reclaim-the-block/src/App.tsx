@@ -173,6 +173,9 @@ function IncidentOverlay({
             onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'pushback' })}>
             Push Back
           </button>
+          {/* Placeholder slots for two more answers (not wired up yet) */}
+          <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
+          <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
         </div>
       </div>
       </div>

@@ -135,7 +135,7 @@ export default function ActionPanel({
     {
       id: 'deposit',
       icon: '🏛️',
-      label: 'Deposit',
+      label: 'Deposit Cards',
       tooltip: [
         `Cost: 1 action + ${depositRequired} unique-color cards.`,
         'Must be at the Town Square.',

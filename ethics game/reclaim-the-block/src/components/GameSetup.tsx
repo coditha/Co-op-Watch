@@ -45,7 +45,7 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Town Square',
-    body: 'The **Town Square** is the center of the board. When you are there, select **4 cards** (one of each color: blue, yellow, green, red) and press **Deposit**. This clears ALL devices from the most crowded neighborhood and gives the Privacy Meter a **big boost**!',
+    body: 'The **Town Square** is the center of the board. When you are there, select **4 cards** (one of each color: blue, yellow, green, red) and press **Deposit Cards**. This clears ALL devices from the most crowded neighborhood and gives the Privacy Meter a **big boost**!',
   },
   {
     title: 'Board Phase',

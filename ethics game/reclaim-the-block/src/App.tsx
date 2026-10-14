@@ -116,15 +116,17 @@ function CornerPanel({
 function boardPhaseActionLabel(state: GameState): string {
   const r = state.resolvedIncident;
   const preview = previewResolvedIncidentEffect(state);
-  if (!r || !preview || (preview.deviceCount === 0 && preview.meterDelta === 0)) return 'Place Device';
+  // No incident this round (e.g. Round 8): the city places a regular device.
+  if (!r || !preview) return '+1 Surveillance Device';
+  // Incident outcome with no device or trust change (e.g. Round 6 Push Back).
+  if (preview.deviceCount === 0 && preview.meterDelta === 0) return 'No Change';
 
   const lines: string[] = [];
   if (preview.deviceCount > 0) {
-    lines.push(`Place ${preview.deviceCount} Surveillance Device${preview.deviceCount > 1 ? 's' : ''}`);
+    lines.push(`+${preview.deviceCount} Surveillance Device${preview.deviceCount > 1 ? 's' : ''}`);
   }
   if (preview.meterDelta !== 0) {
-    const amount = Math.abs(preview.meterDelta);
-    lines.push(preview.meterDelta < 0 ? `Decrease Trust Meter by ${amount}` : `Increase Trust Meter by ${amount}`);
+    lines.push(`${preview.meterDelta > 0 ? '+' : '-'}${Math.abs(preview.meterDelta)} Privacy & Trust Meter`);
   }
   return lines.join('\n');
 }

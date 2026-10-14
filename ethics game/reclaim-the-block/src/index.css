@@ -1568,7 +1568,6 @@ input, select { font-family: inherit; }
 }
 .board-phase-overlay { animation: board-phase-overlay-pulse 1.6s ease-in-out infinite; }
 .board-phase-border {
-  width: min(300px, 88vw);
   background: #d97706;
   padding: 3px;
   clip-path: polygon(
@@ -1648,7 +1647,7 @@ input, select { font-family: inherit; }
 /* ── Incident card — playing-card layout ─────────────────── */
 .incident-card {
   position: relative; z-index: 1;
-  width: min(360px, 90vw);
+  width: 100%;
   background: #f5f0e8;
   border: 5px solid #ef4444;
   clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
@@ -1656,7 +1655,20 @@ input, select { font-family: inherit; }
   animation: incident-card-in 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
   filter: drop-shadow(0 0 24px rgba(239,68,68,0.5)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(6px 6px 0 var(--px-dark));
 }
-.incident-card-rotated { transform: rotate(180deg); }
+/* Incident + Board Phase cards sit in the right-middle slot between the two
+   right-hand player panels, turned 90° (counter-clockwise) so they face the
+   right-edge players. The card pivots on its bottom-right corner, which is
+   placed so the rotated card ends up vertically centred, flush with the right edge. */
+.incident-card-side,
+.board-phase-border {
+  --side-w: min(440px, 54vh);
+  position: absolute;
+  width: var(--side-w);
+  right: 10px;
+  bottom: calc(50% + var(--side-w) / 2);
+  transform-origin: bottom right;
+  transform: rotate(-90deg);
+}
 /* Red header band */
 .incident-card-header {
   background: #ef4444;
@@ -1698,7 +1710,7 @@ input, select { font-family: inherit; }
 /* Footer actions */
 .incident-card-footer {
   padding: 0.75rem 1rem 0.85rem;
-  display: flex; flex-direction: column; gap: 0.45rem;
+  display: flex; flex-direction: row; gap: 0.6rem;
 }
 .incident-card-discard-label {
   font-size: 0.72rem; font-weight: 700; color: var(--text); text-align: center;

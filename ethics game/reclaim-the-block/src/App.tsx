@@ -134,16 +134,14 @@ function boardPhaseActionLabel(state: GameState): string {
 function IncidentOverlay({
   incident,
   dispatch,
-  facesTop,
 }: {
   incident: import('./types/game').PendingIncident;
   dispatch: (a: GameAction) => void;
-  facesTop?: boolean;
 }) {
   return (
     <div className="incident-overlay">
       <div className="incident-flash" />
-      <div className={facesTop ? 'incident-card-rotated' : ''}>
+      <div className="incident-card-side">
       <div className="incident-card">
         {/* Card header band */}
         <div className="incident-card-header">
@@ -803,7 +801,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
         <IncidentOverlay
           incident={state.pendingIncident}
           dispatch={dispatch}
-          facesTop={['organizer', 'captain'].includes(state.pendingIncident.triggeredByRoleId ?? '')}
         />
       )}
 

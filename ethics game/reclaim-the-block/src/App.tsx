@@ -1,5 +1,5 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect } from './store/gameReducer';
+import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect, previewRegularBoardPhase } from './store/gameReducer';
 import { asset } from './utils/asset';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
@@ -114,19 +114,19 @@ function CornerPanel({
 // ── Board phase action button — reflects the incident's resolved effect ────
 
 function boardPhaseActionLabel(state: GameState): string {
-  const r = state.resolvedIncident;
-  const preview = previewResolvedIncidentEffect(state);
-  // No incident this round (e.g. Round 8): the city places a regular device.
-  if (!r || !preview) return '+1 Surveillance Device';
-  // Incident outcome with no device or trust change (e.g. Round 6 Push Back).
-  if (preview.deviceCount === 0 && preview.meterDelta === 0) return 'No Change';
+  // Incident rounds apply the chosen outcome; otherwise the city places a regular device.
+  const effect = state.resolvedIncident
+    ? previewResolvedIncidentEffect(state)
+    : previewRegularBoardPhase(state);
+  if (!effect) return '+1 Surveillance Device';
+  if (effect.deviceCount === 0 && effect.meterDelta === 0) return 'No Change';
 
   const lines: string[] = [];
-  if (preview.deviceCount > 0) {
-    lines.push(`+${preview.deviceCount} Surveillance Device${preview.deviceCount > 1 ? 's' : ''}`);
+  if (effect.deviceCount > 0) {
+    lines.push(`+${effect.deviceCount} Surveillance Device${effect.deviceCount > 1 ? 's' : ''}`);
   }
-  if (preview.meterDelta !== 0) {
-    lines.push(`${preview.meterDelta > 0 ? '+' : '-'}${Math.abs(preview.meterDelta)} Privacy & Trust Meter`);
+  if (effect.meterDelta !== 0) {
+    lines.push(`${effect.meterDelta > 0 ? '+' : '-'}${Math.abs(effect.meterDelta)} Privacy & Trust Meter`);
   }
   return lines.join('\n');
 }
@@ -760,10 +760,9 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                       if (emptySlot !== -1) target = { neighborhood: r.deviceTarget, slot: emptySlot };
                     }
                   } else {
-                    const willPlace = state.blockedBoardPhases === 0 && state.cancelNextSurveillance === 0 && state.surveillanceDeck.length > 0;
-                    if (willPlace) {
-                      const top = state.surveillanceDeck[0];
-                      target = { neighborhood: top.neighborhood, slot: top.slot };
+                    const regular = previewRegularBoardPhase(state);
+                    if (regular?.target) {
+                      target = { neighborhood: regular.target.neighborhood, slot: regular.target.slot };
                     }
                   }
 

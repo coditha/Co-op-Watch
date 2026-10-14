@@ -455,6 +455,40 @@ export function previewResolvedIncidentEffect(
   return { deviceCount, meterDelta };
 }
 
+// Where a regular (non-incident) Board Phase device lands. The drawn card names
+// a slot; if that slot is already taken, use the next open slot in the same
+// neighborhood, then any open slot, so a drawn device never silently vanishes.
+function pickRegularSlot(
+  state: GameState,
+  card: { neighborhood: NeighborhoodId; slot: SlotIndex }
+): { neighborhood: NeighborhoodId; slot: SlotIndex } | null {
+  const own = state.neighborhoods.find((n) => n.id === card.neighborhood)!;
+  if (own.slots[card.slot] === null) return { neighborhood: card.neighborhood, slot: card.slot };
+  const ownOpen = own.slots.findIndex((sl) => sl === null);
+  if (ownOpen !== -1) return { neighborhood: card.neighborhood, slot: ownOpen as SlotIndex };
+  for (const n of state.neighborhoods) {
+    const open = n.slots.findIndex((sl) => sl === null);
+    if (open !== -1) return { neighborhood: n.id, slot: open as SlotIndex };
+  }
+  return null;
+}
+
+// What the regular Board Phase will do right now (device placed + total trust
+// change, including the device's own penalty), so the button can state it.
+export function previewRegularBoardPhase(
+  state: GameState
+): { deviceCount: number; meterDelta: number; target: { neighborhood: NeighborhoodId; slot: SlotIndex } | null } | null {
+  if (state.blockedBoardPhases > 0 || state.cancelNextSurveillance > 0) {
+    return { deviceCount: 0, meterDelta: 0, target: null };
+  }
+  const card = state.surveillanceDeck[0];
+  if (!card) return null;
+  const target = pickRegularSlot(state, card);
+  if (!target) return { deviceCount: 0, meterDelta: 0, target: null };
+  const after = placeDevice(state, target.neighborhood, target.slot, deviceForTracker(state.densityTracker));
+  return { deviceCount: 1, meterDelta: after.privacyMeter - state.privacyMeter, target };
+}
+
 // ── Win/Loss Check ─────────────────────────────────────────────────────────
 
 function checkWinLoss(state: GameState): GameState {
@@ -754,8 +788,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         s = { ...s, surveillanceDeck: deck, surveillanceDiscard: [...s.surveillanceDiscard, card] };
 
         const device = deviceForTracker(s.densityTracker);
-        s = placeDevice(s, card.neighborhood, card.slot, device);
-        s = log(s, `Board Phase: ${deviceEmoji(device)} placed in ${card.neighborhood} slot ${card.slot + 1}`);
+        const target = pickRegularSlot(s, card);
+        if (target) {
+          s = placeDevice(s, target.neighborhood, target.slot, device);
+          s = log(s, `Board Phase: ${deviceEmoji(device)} placed in ${target.neighborhood} slot ${target.slot + 1}`);
+        } else {
+          s = log(s, 'Board Phase: every slot is already full, no device placed.');
+        }
       }
 
       if (s.reducedBoardPhaseRounds > 0) {

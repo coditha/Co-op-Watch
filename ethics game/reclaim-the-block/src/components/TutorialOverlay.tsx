@@ -26,7 +26,7 @@ const STEPS = [
   },
   {
     title: 'Taking Your Turn',
-    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, or **transfer a card** to a teammate. When you are done, press **End Turn** to draw 2 new Community Cards.',
+    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, **deposit cards**, or **transfer a card** to a teammate. Each of these costs 1 action. When you are done, press **End Turn** to draw 2 new Community Cards.',
   },
   {
     title: 'Moving Around',
@@ -38,11 +38,11 @@ const STEPS = [
   },
   {
     title: 'Community Cards',
-    body: 'Cards come in 5 colors: **Legal (blue)**, **Organizing (yellow)**, **Media (green)**, **Political (red)**, and **Neighborhood (purple)**. You can hold up to **7 cards**. Match colors to neighborhoods — Neighborhood needs yellow, Courthouse needs blue, Downtown needs green, Civic Center needs red.',
+    body: 'Cards come in 4 colors: **Legal (blue)**, **Organizing (yellow)**, **Media (green)**, and **Political (red)**. You can hold up to **7 cards**. Match colors to neighborhoods — Neighborhood needs yellow, Courthouse needs blue, Downtown needs green, Civic Center needs red. Cards have no special effects — they are the resources you spend to remove devices and deposit.',
   },
   {
     title: 'Transfer Card',
-    body: 'You can give a teammate **1 Community Card** if you are both on the **exact same tile**. Press **Transfer Card**, choose your teammate, then pick which card to give. Costs 1 action. Use this to pass the right color card to the right player!',
+    body: 'You can give a teammate **1 Community Card** if you are both on the **exact same tile**. Press **Transfer Card**, choose your teammate, then pick which card to give. Costs 1 action. Your teammate must have room in their hand (max 7). Use this to pass the right color card to the right player!',
   },
   {
     title: 'Town Square',
@@ -50,15 +50,15 @@ const STEPS = [
   },
   {
     title: 'Board Phase',
-    body: 'After all players have taken their turns, the city places a **new surveillance device**. A flash will highlight exactly which slot gets the device. The more neighborhoods fill up, the worse the devices get — **keep clearing them**!',
+    body: 'After all players have taken their turns, the Board Phase happens. The city either carries out the result of that round's **Incident** or places a **new surveillance device**. A flash highlights exactly which slot gets the device. The more neighborhoods fill up, the worse the devices get — **keep clearing them**!',
   },
   {
     title: 'Incident Cards',
-    body: 'Each round has a specific **Incident Card** that can be triggered when any player draws their cards at end of turn. These cause setbacks like **dropping the Privacy Meter** or **adding more devices**. It can only happen **once per round**.',
+    body: 'Rounds 1–7 each end with a **Surveillance Incident**, after the last player's turn. Your community decides together: **Support** or **Push Back**. Each choice has a different outcome — more devices, a change to the Privacy Meter, or both. The result is revealed and applied in the Board Phase. Round 8 has no decision at all.',
   },
   {
     title: 'Privacy Meter',
-    body: 'Every device the city places **drops** the Privacy & Community Trust meter. If it falls **all the way down**, everyone loses. Keep it healthy by removing devices, and depositing at the Town Square. Watch for the **red pulse** — it means danger!',
+    body: 'Surveillance devices and Incident outcomes can **drop** the Privacy & Community Trust meter — and some choices can raise it. If it falls **all the way down**, everyone loses. Keep it healthy by removing devices and depositing at the Town Square. Watch for the **red pulse** — it means danger!',
   },
   {
     title: 'Ready to Play!',

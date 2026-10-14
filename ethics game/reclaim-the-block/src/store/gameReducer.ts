@@ -464,9 +464,11 @@ function checkWinLoss(state: GameState): GameState {
   if (state.round > MAX_ROUNDS) {
     return { ...state, phase: 'lost', lossReason: `The city completed its surveillance rollout. You ran out of time after ${MAX_ROUNDS} rounds.` };
   }
-  const gameHasProgressed = state.surveillanceDiscard.length > 0;
+  // The game always starts with devices on the board, so an empty board is a
+  // genuine win. (Don't gate on the surveillance deck having been drawn from:
+  // incident rounds skip that draw, which made the game unwinnable.)
   const allClear = state.neighborhoods.every((n) => n.densityTrack === 0);
-  if (gameHasProgressed && allClear) {
+  if (allClear) {
     return { ...state, phase: 'won' };
   }
   return state;
@@ -613,6 +615,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (from.id !== action.fromPlayerId) return state;
       const to = state.players.find((p) => p.id === action.toPlayerId);
       if (!to || from.position !== to.position) return state;
+      if (to.hand.length >= 7) return state; // receiver is at the hand limit
       const card = from.hand.find((c) => c.id === action.cardId);
       if (!card) return state;
 

@@ -101,7 +101,9 @@ export default function ActionPanel({
     bestDepositIds.length >= depositRequired;
 
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
-  const canShare = canAct && colocatedPlayers.length > 0 && player.hand.length > 0;
+  // Teammates on the same tile who have room (hand limit is 7)
+  const transferTargets = colocatedPlayers.filter((p) => p.hand.length < 7);
+  const canShare = canAct && transferTargets.length > 0 && player.hand.length > 0;
 
   // ── Action button definitions ────────────────────────────────────────────
   const nhColorNeeded = selectedNeighborhood ? NHCOLOR[selectedNeighborhood] : null;
@@ -219,7 +221,7 @@ export default function ActionPanel({
               {shareStep === 'pick-player' ? (
                 <>
                   <div className="ap-share-title">Who to transfer a card to?</div>
-                  {colocatedPlayers.map((p) => (
+                  {transferTargets.map((p) => (
                     <button
                       key={p.id}
                       className="ap-share-option"

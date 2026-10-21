@@ -1782,7 +1782,8 @@ input, select { font-family: inherit; }
     10px 100%, 6px calc(100% - 4px), 4px calc(100% - 6px), 0 calc(100% - 10px)
   );
   width: 200px; min-height: 320px; flex-shrink: 0;
-  align-self: flex-start;
+  /* Stretch so cards side by side share the tallest card's height */
+  align-self: stretch;
   display: flex; flex-direction: column;
 }
 .cat-wrap-blue   { background: var(--blue); }
@@ -1800,7 +1801,8 @@ input, select { font-family: inherit; }
     10px 100%, 6px calc(100% - 4px), 4px calc(100% - 6px), 0 calc(100% - 10px)
   );
   display: flex; flex-direction: column;
-  width: 100%; height: 100%; overflow: hidden;
+  /* flex: 1 (not height: 100%) so the face fills the min-height wrapper */
+  width: 100%; flex: 1; overflow: hidden;
 }
 /* Header band — filled with category color */
 .drawn-card-header {

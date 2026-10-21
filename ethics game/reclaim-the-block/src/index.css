@@ -1781,7 +1781,7 @@ input, select { font-family: inherit; }
     100% calc(100% - 10px), calc(100% - 4px) calc(100% - 6px), calc(100% - 6px) calc(100% - 4px), calc(100% - 10px) 100%,
     10px 100%, 6px calc(100% - 4px), 4px calc(100% - 6px), 0 calc(100% - 10px)
   );
-  width: 200px; height: 320px; flex-shrink: 0;
+  width: 200px; min-height: 320px; flex-shrink: 0;
   align-self: flex-start;
   display: flex; flex-direction: column;
 }
@@ -1819,7 +1819,7 @@ input, select { font-family: inherit; }
   font-size: 0.75rem; color: var(--px-dark); line-height: 1.6;
   text-align: center;
   border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
-  overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  flex-shrink: 0; overflow-wrap: anywhere;
 }
 .drawn-card-edu {
   font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; font-style: italic;
@@ -1854,7 +1854,8 @@ input, select { font-family: inherit; }
   overflow: hidden;
   display: grid;
   /* Corner columns sized for the player hands; board fills the center cell */
-  grid-template-columns: var(--corner-w) 1fr var(--corner-w);
+  /* minmax(0, 1fr) so the board can't push the right-hand corners off-screen */
+  grid-template-columns: var(--corner-w) minmax(0, 1fr) var(--corner-w);
   grid-template-rows: 22vh 1fr 22vh;
   grid-template-areas:
     "corner-tl  top-center  corner-tr"
@@ -2194,6 +2195,8 @@ input, select { font-family: inherit; }
   cursor: pointer;
   transition: z-index 0s;
 }
+/* Hovering a card lifts it above its overlapping neighbours so its title is readable */
+.fan-card-wrap:hover { z-index: 25 !important; }
 
 /* Card fills its wrapper completely */
 .corner-hand .card {
@@ -2204,7 +2207,8 @@ input, select { font-family: inherit; }
   display: flex; flex-direction: column;
 }
 /* Wider cards → more readable text, description shown inline (no dropdown) */
-.corner-hand .card-name   { font-size: 0.52rem; line-height: 1.25; padding: 4px 6px; }
+/* Sized so the longest single word ("Accountability") fits the card width */
+.corner-hand .card-name   { font-size: 0.5rem; line-height: 1.25; padding: 4px; flex-shrink: 0; overflow-wrap: anywhere; }
 .corner-hand .card-effect { font-size: 0.62rem; padding: 0 6px 3px; font-weight: 700; color: var(--text); }
 .corner-hand .card-desc   { font-size: 0.58rem; padding: 8px 6px 4px; flex: 1; text-align: left; }
 .corner-hand .card-top    { padding: 3px 6px; }

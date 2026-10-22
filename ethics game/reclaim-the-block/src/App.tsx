@@ -140,10 +140,15 @@ function IncidentOverlay({
   incident: import('./types/game').PendingIncident;
   dispatch: (a: GameAction) => void;
 }) {
+  // Shared between both copies: the table makes one choice together, then confirms.
+  const [choice, setChoice] = useState<'support' | 'pushback' | null>(null);
   return (
     <div className="incident-overlay">
       <div className="incident-flash" />
-      <div className="incident-card-side">
+      {/* Two copies in the middle: upright for the bottom players, flipped for the top */}
+      <div className="dual-cards">
+      {[false, true].map((facesTop) => (
+      <div key={String(facesTop)} className={`dual-card${facesTop ? ' faces-top' : ''}`}>
       <div className="incident-card">
         {/* Card header band */}
         <div className="incident-card-header">
@@ -165,19 +170,26 @@ function IncidentOverlay({
 
         {/* Action footer */}
         <div className="incident-card-footer">
-          <button className="btn incident-card-btn incident-btn-support"
-            onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'support' })}>
+          <button className={`btn incident-card-btn incident-btn-support${choice === 'support' ? ' chosen' : choice ? ' not-chosen' : ''}`}
+            onClick={() => setChoice('support')}>
             Support
           </button>
-          <button className="btn incident-card-btn incident-btn-pushback"
-            onClick={() => dispatch({ type: 'INCIDENT_VOTE', choice: 'pushback' })}>
+          <button className={`btn incident-card-btn incident-btn-pushback${choice === 'pushback' ? ' chosen' : choice ? ' not-chosen' : ''}`}
+            onClick={() => setChoice('pushback')}>
             Push Back
           </button>
           {/* Placeholder slots for two more answers (not wired up yet) */}
           <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
           <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
+          <button className="btn incident-card-btn incident-btn-confirm"
+            disabled={!choice}
+            onClick={() => { if (choice) dispatch({ type: 'INCIDENT_VOTE', choice }); }}>
+            {choice ? 'Confirm' : 'Choose together'}
+          </button>
         </div>
       </div>
+      </div>
+      ))}
       </div>
     </div>
   );
@@ -752,6 +764,10 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {/* ── Board phase overlay ──────────────────────────────── */}
       {state.phase === 'board-phase' && !state.pendingIncident && !flashTarget && !isApplyingBoardPhase && (
         <div className="board-phase-overlay">
+          {/* Two copies in the middle: upright for the bottom players, flipped for the top */}
+          <div className="dual-cards">
+          {[false, true].map((facesTop) => (
+          <div key={String(facesTop)} className={`dual-card${facesTop ? ' faces-top' : ''}`}>
           <div className="board-phase-border">
           <div className="board-phase-card">
             <div className="board-phase-header">
@@ -830,6 +846,9 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
               </button>
             </div>
           </div>
+          </div>
+          </div>
+          ))}
           </div>
         </div>
       )}

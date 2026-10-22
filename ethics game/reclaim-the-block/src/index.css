@@ -1728,20 +1728,14 @@ input, select { font-family: inherit; }
   animation: incident-card-in 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
   filter: drop-shadow(0 0 24px rgba(239,68,68,0.5)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(0 0 2px var(--px-dark)) drop-shadow(6px 6px 0 var(--px-dark));
 }
-/* Incident + Board Phase cards sit in the right-middle slot between the two
-   right-hand player panels, turned 90° clockwise (text reads top to bottom).
-   The card pivots on its top-left corner, placed so the rotated card ends up
-   vertically centred and flush with the right edge. */
-.incident-card-side,
-.board-phase-border {
-  --side-w: min(440px, 54vh);
-  position: absolute;
-  width: var(--side-w);
-  left: calc(100% - 10px);
-  top: calc(50% - var(--side-w) / 2);
-  transform-origin: top left;
-  transform: rotate(90deg);
+/* Incident + Board Phase cards: two copies side by side in the middle — upright
+   for the bottom players, rotated 180° for the top players. */
+.dual-cards {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; gap: 32px;
 }
+.dual-card { width: min(400px, 44vw); }
+.dual-card.faces-top { transform: rotate(180deg); }
 /* Red header band */
 .incident-card-header {
   background: #ef4444;
@@ -1794,6 +1788,11 @@ input, select { font-family: inherit; }
 /* Support / Push Back share the same neutral tone — neither choice should
    read as "correct" or "safe" via color alone. */
 .incident-btn-support, .incident-btn-pushback { background: var(--yellow); color: #fff; }
+/* The chosen option shows on both copies; the other dims. Still neutral — the
+   highlight is an outline, not a colour that implies right or wrong. */
+.incident-card-btn.chosen { outline: 3px solid var(--px-dark); outline-offset: 2px; }
+.incident-card-btn.not-chosen { opacity: 0.45; }
+.incident-btn-confirm { grid-column: 1 / -1; background: var(--px-dark); color: #fff; }
 
 /* ── Drawn Cards Overlay ─────────────────────────────────── */
 .drawn-cards-overlay {

@@ -586,7 +586,9 @@ input, select { font-family: inherit; }
   border: none;
   box-shadow: none;
   font-size: 1.4rem;
-  z-index: 1;
+  /* Above the neighbourhood houses (z-index 3), which extend past their tile
+     and would otherwise cover pawns standing on the road. */
+  position: relative; z-index: 5;
   image-rendering: pixelated;
 }
 .road-waypoint.moveable { cursor: pointer; animation: moveable-ring 1.1s ease-in-out infinite; }
@@ -641,7 +643,8 @@ input, select { font-family: inherit; }
   border-radius: 0;
   box-shadow: none;
   padding: 0.5rem 0.5rem 0.25rem;
-  overflow: hidden;
+  /* Edge houses, their highlight rings and pawns extend past the tile box. */
+  overflow: visible;
   cursor: pointer;
   width: 210px; min-width: 190px;
   position: relative;
@@ -808,6 +811,16 @@ input, select { font-family: inherit; }
 .device-slot.slot-flash { animation: slot-flash-anim 0.45s ease-in-out infinite; z-index: 10; }
 .device-token { font-size: 1.1rem; }
 .slot-pawns { display: flex; gap: 2px; line-height: 1; }
+/* Player on a house with a device: layer instead of stacking, so the pawn
+   stands in front of the camera and both stay within the house. */
+.device-slot.occupied.player-here .device-token {
+  position: absolute; top: 50%; left: 50%; z-index: 1;
+  transform: translate(-10%, -78%);
+}
+.device-slot.occupied.player-here .slot-pawns {
+  position: absolute; top: 50%; left: 50%; z-index: 2;
+  transform: translate(-70%, -50%);
+}
 .slot-pawn { font-size: 1.2rem; }
 .pawn-img { width: 3rem; height: 3rem; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
 .device-token-img { width: 2.4rem; height: 2.4rem; object-fit: contain; image-rendering: pixelated; display: block; }

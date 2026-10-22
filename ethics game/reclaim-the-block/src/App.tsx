@@ -570,7 +570,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   onClick={() => { if (reachable('city-hall')) handleMove('city-hall'); }}
                 >
                   <div className="town-square-icon" aria-hidden="true">⛲</div>
-                  <div className="city-hall-label">TOWN SQUARE</div>
+                  <div className={`city-hall-label${facesTop ? ' label-flipped' : ''}`}>TOWN SQUARE</div>
                   <div className="city-hall-sublabel">Deposit Zone</div>
                   <div className="city-hall-players">
                     {state.players.filter((p) => p.position === 'city-hall').map((p) => (

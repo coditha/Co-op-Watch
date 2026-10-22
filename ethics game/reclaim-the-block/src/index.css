@@ -627,6 +627,7 @@ input, select { font-family: inherit; }
   background: rgba(46,28,10,0.88); border: 1px solid var(--px-dark);
   padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
 }
+.city-hall-label.label-flipped { transform: rotate(180deg); }
 .city-hall-sublabel { display: none; }
 .city-hall-players { font-size: 1rem; margin-top: 1px; min-height: 1.1rem; }
 .city-hall-road-players { font-size: 0.8rem; color: var(--text-muted); }

@@ -80,9 +80,6 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
             </div>
           ))}
         </div>
-        <p className="tut-note">
-          Each player starts on the top house of their home district with 4 cards. With 2 players, use the Parent and Lawyer. With 3, add the Activist.
-        </p>
       </>
     ),
   },
@@ -92,7 +89,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     content: (
       <>
         <Row title="1. Roll the dice">
-          Your roll (1–6) is how many <strong>actions</strong> you get this turn.
+          Your roll (3–8) is how many <strong>actions</strong> you get this turn.
         </Row>
         <Row title="2. Spend your actions">
           Moving one step, removing a device, depositing, and transferring a card each cost <strong>1 action</strong>.
@@ -141,7 +138,6 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
             </div>
           ))}
         </div>
-        <p className="tut-note">Cards have no special powers. They're what you spend to remove devices and deposit.</p>
       </>
     ),
   },

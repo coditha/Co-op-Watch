@@ -98,7 +98,7 @@ function CornerPanel({
                     setFocusedCardId(focusedCardId === card.id ? null : card.id);
                     onCardClick(card);
                   }}
-                  disabled={!isActive}
+                  disabled={!isActive && !pendingDiscard}
                 />
               </div>
             );
@@ -136,6 +136,15 @@ function boardPhaseActionLabel(state: GameState): string {
 
 // ── Surveillance incident overlay ──────────────────────────────────────────
 
+// Scenario text marks its key part with **...**; render that part highlighted.
+function highlightKeyText(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <mark key={i} className="incident-card-key">{part.slice(2, -2)}</mark>
+      : part
+  );
+}
+
 function IncidentOverlay({
   incident,
   dispatch,
@@ -167,7 +176,7 @@ function IncidentOverlay({
         {/* Inner frame body */}
         <div className="incident-card-body">
           <div className="incident-card-name">{incident.card.name}</div>
-          <div className="incident-card-flavor">{incident.card.educationalNote}</div>
+          <div className="incident-card-flavor">{highlightKeyText(incident.card.educationalNote)}</div>
           <div className="incident-card-rule">{incident.card.effect}</div>
 
         </div>
@@ -184,7 +193,7 @@ function IncidentOverlay({
           <button className="btn incident-card-btn incident-btn-confirm"
             disabled={choice === null}
             onClick={() => { if (choice !== null) dispatch({ type: 'INCIDENT_VOTE', choiceIndex: choice }); }}>
-            {choice !== null ? 'Confirm' : 'Choose together'}
+            Confirm
           </button>
         </div>
       </div>
@@ -416,8 +425,13 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
 
   const isActive = (p?: Player) => !!p && p.id === activePlayer.id && !state.pendingDiceRoll;
   const hasMoved = (p?: Player) => !!p && p.id === activePlayer.id && state.actionsRemaining < (state.lastDiceRoll ?? state.actionsRemaining + 1);
-  const selFor   = (p?: Player) => (isActive(p) ? selectedCardIds : []);
-  const clickFor = (p?: Player) => (isActive(p) ? handleCardClick : () => {});
+  // The player choosing a discard (usually the active player; for a Transfer Card
+  // to a full hand, the receiving teammate) selects from their own hand.
+  const discardingId = state.pendingDiscard?.playerId;
+  const isDiscarding = (p?: Player) => !!p && p.id === discardingId;
+  const selFor   = (p?: Player) => (isActive(p) || isDiscarding(p) ? selectedCardIds : []);
+  const clickFor = (p?: Player) =>
+    (discardingId !== undefined ? isDiscarding(p) : isActive(p)) ? handleCardClick : () => {};
 
   return (
     <div className="tv-game">
@@ -431,7 +445,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             hasMoved={hasMoved(organizerPlayer)}
             selectedCardIds={selFor(organizerPlayer)}
             onCardClick={clickFor(organizerPlayer)}
-            pendingDiscard={isActive(organizerPlayer) && !!state.pendingDiscard}
+            pendingDiscard={isDiscarding(organizerPlayer)}
             pendingDiscardCount={state.pendingDiscard?.count}
           />
         ) : (
@@ -497,7 +511,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             hasMoved={hasMoved(captainPlayer)}
             selectedCardIds={selFor(captainPlayer)}
             onCardClick={clickFor(captainPlayer)}
-            pendingDiscard={isActive(captainPlayer) && !!state.pendingDiscard}
+            pendingDiscard={isDiscarding(captainPlayer)}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>
@@ -701,7 +715,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             hasMoved={hasMoved(legalPlayer)}
             selectedCardIds={selFor(legalPlayer)}
             onCardClick={clickFor(legalPlayer)}
-            pendingDiscard={isActive(legalPlayer) && !!state.pendingDiscard}
+            pendingDiscard={isDiscarding(legalPlayer)}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>
@@ -717,7 +731,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             hasMoved={hasMoved(councilPlayer)}
             selectedCardIds={selFor(councilPlayer)}
             onCardClick={clickFor(councilPlayer)}
-            pendingDiscard={isActive(councilPlayer) && !!state.pendingDiscard}
+            pendingDiscard={isDiscarding(councilPlayer)}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>

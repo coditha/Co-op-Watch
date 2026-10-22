@@ -117,7 +117,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
           This clears <strong>every device</strong> in the most crowded district and raises the meter by 5.
         </Row>
         <Row title="Transfer Card: give 1 card to teammate">
-          When you share a tile with a teammate, give them 1 card. They need room in their hand (fewer than 7).
+          When you share a tile with a teammate, give them 1 card. If they already hold 7, they first choose 1 of their cards to remove.
         </Row>
       </>
     ),

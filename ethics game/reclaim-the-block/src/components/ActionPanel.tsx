@@ -115,8 +115,8 @@ export default function ActionPanel({
     bestDepositIds.length >= depositRequired;
 
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
-  // Teammates on the same tile who have room (hand limit is 7)
-  const transferTargets = colocatedPlayers.filter((p) => p.hand.length < 7);
+  // Any teammate on the same tile; a full hand discards 1 before receiving.
+  const transferTargets = colocatedPlayers;
   const canShare = canAct && transferTargets.length > 0 && player.hand.length > 0;
 
   // ── Action button definitions ────────────────────────────────────────────
@@ -215,11 +215,24 @@ export default function ActionPanel({
       {/* ── Hand limit discard ──────────────────────────────── */}
       {pendingDiscard && (
         <div className="ap-incident">
-          <div className="ap-incident-title">Hand Limit Exceeded</div>
-          <div className="ap-incident-effect">
-            Remove {pendingDiscard.count} card{pendingDiscard.count > 1 ? 's' : ''} to not exceed max 7 hand limit.
-            ({selectedCardIds.length}/{pendingDiscard.count} selected)
-          </div>
+          {pendingDiscard.thenTransfer ? (
+            <>
+              <div className="ap-incident-title">Make Room for a Card</div>
+              <div className="ap-incident-effect">
+                {players.find((p) => p.id === pendingDiscard.playerId)?.role.name} has 7 cards.
+                They choose {pendingDiscard.count} card{pendingDiscard.count > 1 ? 's' : ''} from their hand to remove, then receive the card.
+                ({selectedCardIds.length}/{pendingDiscard.count} selected)
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="ap-incident-title">Hand Limit Exceeded</div>
+              <div className="ap-incident-effect">
+                Remove {pendingDiscard.count} card{pendingDiscard.count > 1 ? 's' : ''} to not exceed max 7 hand limit.
+                ({selectedCardIds.length}/{pendingDiscard.count} selected)
+              </div>
+            </>
+          )}
           <button className="btn btn-danger ap-discard-confirm"
             disabled={selectedCardIds.length !== pendingDiscard.count}
             onClick={() => { dispatch({ type: 'DISCARD_TO_HAND_LIMIT', cardIds: selectedCardIds }); onClearSelection(); }}>
@@ -270,6 +283,7 @@ export default function ActionPanel({
                         style={{ borderColor: CATEGORY_COLORS[card.category] }}
                         onClick={() => {
                           dispatch({ type: 'TRANSFER_CARD', fromPlayerId: player.id, toPlayerId: shareTargetId!, cardId: card.id });
+                          onClearSelection();
                           setShareStep('idle');
                           setShareTargetId(null);
                         }}

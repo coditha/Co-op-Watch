@@ -133,7 +133,14 @@ export interface GameState {
   pendingIncident: PendingIncident | null;
   resolvedIncident: ResolvedIncident | null;
   pendingDrawnCards: { playerId: number; cards: CommunityCard[] } | null;
-  pendingDiscard: { playerId: number; count: number; advanceAfter: boolean } | null;
+  // A player must discard before play continues. thenTransfer: the discard makes
+  // room for a Transfer Card to that player, which completes once they've chosen.
+  pendingDiscard: {
+    playerId: number;
+    count: number;
+    advanceAfter: boolean;
+    thenTransfer?: { fromPlayerId: number; cardId: string };
+  } | null;
 
   pendingDiceRoll: boolean;
   lastDiceRoll: number | null;

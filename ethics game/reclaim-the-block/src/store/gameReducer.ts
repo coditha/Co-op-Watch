@@ -261,6 +261,21 @@ function removeDeviceFromSlot(
   return { ...state, neighborhoods };
 }
 
+// Moves one card between hands and spends the action (Transfer Card).
+function transferCard(state: GameState, fromPlayerId: number, toPlayerId: number, cardId: string): GameState {
+  const from = state.players.find((p) => p.id === fromPlayerId)!;
+  const to = state.players.find((p) => p.id === toPlayerId)!;
+  const card = from.hand.find((c) => c.id === cardId);
+  if (!card) return state;
+  const players = state.players.map((p) => {
+    if (p.id === fromPlayerId) return { ...p, hand: p.hand.filter((c) => c.id !== cardId) };
+    if (p.id === toPlayerId) return { ...p, hand: [...p.hand, card] };
+    return p;
+  });
+  const s = spendActions({ ...state, players }, 1);
+  return log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`);
+}
+
 function spendActions(state: GameState, count: number): GameState {
   return { ...state, actionsRemaining: state.actionsRemaining - count };
 }
@@ -571,18 +586,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (from.id !== action.fromPlayerId) return state;
       const to = state.players.find((p) => p.id === action.toPlayerId);
       if (!to || from.position !== to.position) return state;
-      if (to.hand.length >= 7) return state; // receiver is at the hand limit
-      const card = from.hand.find((c) => c.id === action.cardId);
-      if (!card) return state;
+      if (!from.hand.some((c) => c.id === action.cardId)) return state;
 
-      const players = state.players.map((p) => {
-        if (p.id === action.fromPlayerId) return { ...p, hand: p.hand.filter((c) => c.id !== action.cardId) };
-        if (p.id === action.toPlayerId)   return { ...p, hand: [...p.hand, card] };
-        return p;
-      });
-      let s = spendActions({ ...state, players }, 1);
-      s = log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`);
-      return s;
+      // A full receiver first chooses a card to discard; the transfer completes after.
+      if (to.hand.length >= 7) {
+        const s = log(state, `${to.role.name} has a full hand and must discard 1 card to receive it.`);
+        return {
+          ...s,
+          pendingDiscard: {
+            playerId: to.id,
+            count: to.hand.length - 6,
+            advanceAfter: false,
+            thenTransfer: { fromPlayerId: from.id, cardId: action.cardId },
+          },
+        };
+      }
+      return transferCard(state, from.id, to.id, action.cardId);
     }
 
     // ── Deposit at City Hall ──────────────────────────────────────────
@@ -667,6 +686,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       let s = removeCardFromHand(state, playerId, action.cardIds);
       s = log(s, `${discardPlayer.role.name} discarded ${count} card(s) to meet the hand limit.`);
       s = { ...s, pendingDiscard: null };
+      // The discard made room for a transfer — complete it now.
+      if (state.pendingDiscard.thenTransfer) {
+        const { fromPlayerId, cardId } = state.pendingDiscard.thenTransfer;
+        return transferCard(s, fromPlayerId, playerId, cardId);
+      }
       // Only end the turn if the overflow came from the end-of-turn draw
       return advanceAfter ? advanceTurnWithIncident(s, discardPlayer.role.id) : s;
     }

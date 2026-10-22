@@ -337,7 +337,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'Theft Wave',
     effect: 'Does your community:',
-    educationalNote: 'A surge in package thefts is sweeping through Maplewood. Residents are scared, local news is amplifying the fear, and neighbors are calling for more cameras to deter theft. A neighbor wants to install a doorbell camera pointed at the shared sidewalk and add the live feed to the block group chat.',
+    educationalNote: 'A surge in package thefts is sweeping through Maplewood. Residents are scared, local news is amplifying the fear, and neighbors are calling for more cameras to deter theft. **A neighbor wants to install a doorbell camera pointed at the shared sidewalk and add the live feed to the block group chat.**',
     choices: [
       {
         label: 'Support it fully',
@@ -371,7 +371,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'Crime Panic',
     effect: 'Does your community:',
-    educationalNote: 'Thefts continue across Maplewood. Now the city wants to expand by adding cameras to parks, transit stops, and public plazas. Three neighboring communities have already accepted the city’s offer of a free camera network monitored by the police department.',
+    educationalNote: 'Thefts continue across Maplewood. **Now the city wants to expand by adding cameras to parks, transit stops, and public plazas.** Three neighboring communities have already accepted the city’s offer of a free camera network monitored by the police department.',
     choices: [
       {
         label: 'Accept fully',
@@ -405,7 +405,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'Eyes on the Street',
     effect: 'Does your community:',
-    educationalNote: 'A hit and run happens steps from a traffic camera, but the footage is too blurry to identify the driver. Police are requesting an upgrade to all public cameras with high-definition recording and automatic license plate recognition. The timing, after what just happened, feels impossible to refuse.',
+    educationalNote: 'A hit and run happens steps from a traffic camera, but the footage is too blurry to identify the driver. **Police are requesting an upgrade to all public cameras with high-definition recording and automatic license plate recognition.** The timing, after what just happened, feels impossible to refuse.',
     choices: [
       {
         label: 'Approve the full upgrade',
@@ -440,7 +440,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'License Plate Readers',
     effect: 'Does your community:',
-    educationalNote: 'Maplewood installs automated license plate readers at major intersections, scanning and logging every vehicle that passes through. A journalist discovers the readers have been flagging residents whose movement patterns are considered anomalous, including people who attended last month’s community meeting.',
+    educationalNote: 'Maplewood installs automated license plate readers at major intersections, scanning and logging every vehicle that passes through. A journalist discovers **the readers have been flagging residents whose movement patterns are considered anomalous, including people who attended last month’s community meeting.**',
     choices: [
       {
         label: 'Accept the explanation',
@@ -475,7 +475,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'What the Cameras Saw',
     effect: 'Does your community:',
-    educationalNote: 'A city report reveals that the city’s cameras and license plate readers have been logging the daily movements of residents without public knowledge. Two hundred residents march outside City Hall demanding the data be deleted. Three days later, one of the organizers receives a call from police asking about their role in planning the protest.',
+    educationalNote: 'A city report reveals that the city’s cameras and license plate readers have been logging the daily movements of residents without public knowledge. Two hundred residents march outside City Hall demanding the data be deleted. Three days later, **one of the organizers receives a call from police asking about their role in planning the protest.**',
     choices: [
       {
         label: 'Accept it',
@@ -510,7 +510,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'Demonstration Against Surveillance',
     effect: 'Does your community:',
-    educationalNote: 'Residents organize a second peaceful march against the growing surveillance network. The city responds by deploying monitoring devices around the demonstration site for crowd safety. A tech company approaches the school board with a discounted facial recognition system for all school entrances.',
+    educationalNote: 'Residents organize a second peaceful march against the growing surveillance network. The city responds by **deploying monitoring devices around the demonstration site** for crowd safety. A tech company approaches the school board with **a discounted facial recognition system for all school entrances.**',
     choices: [
       {
         label: 'Support it',
@@ -544,7 +544,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'Predictive Monitoring',
     effect: 'Does your community:',
-    educationalNote: 'The city proposes using data from public cameras to predict where incidents are likely to occur. The same journalist reveals that footage from Maplewood’s network was quietly shared with a federal agency six months ago without notifying residents. The city says it was authorized under a provision buried in the original camera agreement.',
+    educationalNote: '**The city proposes using data from public cameras to predict where incidents are likely to occur.** The same journalist reveals that **footage from Maplewood’s network was quietly shared with a federal agency** six months ago without notifying residents. The city says it was authorized under a provision buried in the original camera agreement.',
     choices: [
       {
         label: 'Accept the proposal',
@@ -579,7 +579,7 @@ export const INCIDENT_CARDS: IncidentCard[] = [
     type: 'incident',
     name: 'The Point of No Return',
     effect: 'Does your community:',
-    educationalNote: 'No theft. No accident. No proposal. Maplewood is safe now. At least, that is what the cameras say. Tomorrow the city council votes on a Privacy and Community Safety Ordinance that would limit data retention, require community consent for new devices, establish a civilian oversight board, and prohibit data sharing without a court order. It has taken years to get here. The vote is close.',
+    educationalNote: 'No theft. No accident. No proposal. Maplewood is safe now. At least, that is what the cameras say. **Tomorrow the city council votes on a Privacy and Community Safety Ordinance** that would limit data retention, require community consent for new devices, establish a civilian oversight board, and prohibit data sharing without a court order. It has taken years to get here. The vote is close.',
     choices: [
       {
         label: 'Rally full support',

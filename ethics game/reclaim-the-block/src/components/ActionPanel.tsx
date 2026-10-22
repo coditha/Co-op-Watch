@@ -16,6 +16,7 @@ interface ActionBtn {
   id: string;
   icon: string;
   label: string;
+  sub: string;
   tooltip: string;
   available: boolean;
   onTap: () => void;
@@ -131,6 +132,7 @@ export default function ActionPanel({
       id: 'remove',
       icon: '🗑️',
       label: 'Remove Device',
+      sub: 'Spend 2 same color cards',
       tooltip: [
         'Cost: 1 action + 2 matching-color cards.',
         'Selected cards are used first; otherwise matching cards from your hand.',
@@ -157,6 +159,7 @@ export default function ActionPanel({
       id: 'deposit',
       icon: '🏛️',
       label: 'Deposit Cards',
+      sub: `${depositRequired} colors at Town Square`,
       tooltip: [
         `Cost: 1 action + ${depositRequired} unique-color cards.`,
         'Must be at the Town Square.',
@@ -174,6 +177,7 @@ export default function ActionPanel({
       id: 'share',
       icon: '🤝',
       label: 'Transfer Card',
+      sub: 'Give 1 card to teammate',
       tooltip: [
         'Cost: 1 action.',
         'Give 1 Community Card to a teammate on your tile.',
@@ -314,6 +318,7 @@ export default function ActionPanel({
                     onClick={() => { if (!tooltipShown.current && btn.available) btn.onTap(); }}
                   >
                     <span className="ap-btn-label">{btn.label}</span>
+                    <span className="ap-btn-sub">{btn.sub}</span>
                   </button>
                 ))}
 

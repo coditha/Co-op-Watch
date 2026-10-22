@@ -1301,6 +1301,15 @@ input, select { font-family: inherit; }
   letter-spacing: 0.2px;
   line-height: 1.2;
 }
+.ap-btn-sub {
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 400;
+  opacity: 0.82;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
 
 /* End Turn sits in the action grid's last cell, same size as the other buttons */
 .ap-grid .ap-end-turn {

@@ -51,16 +51,22 @@ export default function DensityTracker({ value, vertical, blocked, round }: Prop
   if (vertical) {
     return (
       <div className={`density-inline ${expanded ? 'expanded' : ''} ${increasing ? 'dt-increasing' : ''}`}>
-        {/* Compact badge — always shows current level; tap to toggle the in-place panel */}
-        <button
-          className="density-inline-badge"
-          onClick={round === undefined ? () => setExpanded((e) => !e) : undefined}
-          title={round === undefined ? (expanded ? 'Collapse tracker' : 'Expand full tracker') : undefined}
-        >
-          {round === undefined && <span className="density-inline-badge-emoji"><DeviceImg /></span>}
-          <span className="density-inline-badge-lv">{round !== undefined ? `Round ${round}` : `${value}`}</span>
-          {round === undefined && <span className="density-inline-chevron">{expanded ? '◂' : '▸'}</span>}
-        </button>
+        {/* Round label is static; otherwise the compact badge toggles the in-place panel */}
+        {round !== undefined ? (
+          <div className="density-inline-badge static">
+            <span className="density-inline-badge-lv">Round {round}</span>
+          </div>
+        ) : (
+          <button
+            className="density-inline-badge"
+            onClick={() => setExpanded((e) => !e)}
+            title={expanded ? 'Collapse tracker' : 'Expand full tracker'}
+          >
+            <span className="density-inline-badge-emoji"><DeviceImg /></span>
+            <span className="density-inline-badge-lv">{value}</span>
+            <span className="density-inline-chevron">{expanded ? '◂' : '▸'}</span>
+          </button>
+        )}
 
         {/* In-place expansion — full tracker unfolds beneath the badge */}
         {expanded && round === undefined && (

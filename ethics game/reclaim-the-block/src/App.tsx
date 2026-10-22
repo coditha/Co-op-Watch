@@ -498,7 +498,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {/* ── CENTER BOARD ──────────────────────────────────────── */}
       <div className="tv-board-zone" ref={boardZoneRef}>
         <div className="board-area" ref={boardAreaRef}>
-          <div className="board-grid">
+          <div className={`board-grid${facesTop ? ' faces-top' : ''}`}>
             <div className="board-n1">
               <NeighborhoodTile
                 neighborhood={state.neighborhoods[0]}

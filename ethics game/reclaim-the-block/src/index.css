@@ -824,6 +824,8 @@ input, select { font-family: inherit; }
 }
 .slot-pawn { font-size: 1.2rem; }
 .pawn-img { width: 3rem; height: 3rem; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
+/* Board pawns face whoever's turn it is, like the neighborhood signs. */
+.board-grid.faces-top .pawn-img { transform: rotate(180deg); }
 .device-token-img { width: 2.4rem; height: 2.4rem; object-fit: contain; image-rendering: pixelated; display: block; }
 .corner-pawn-circle { display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; background: rgba(255,255,255,0.85); border-radius: 50%; flex-shrink: 0; }
 .corner-pawn-img { width: 1.6rem; height: 1.6rem; object-fit: contain; display: block; transform: translateY(-8%); }
@@ -2106,6 +2108,8 @@ input, select { font-family: inherit; }
    blocks the road. Flip its column order to move the banner to the outer edge,
    leaving the N1 house facing the road. */
 .tv-game .board-n4 .neighborhood-tile { flex-direction: column-reverse; }
+/* The banner is now below the houses, so its gap goes on the top side. */
+.tv-game .board-n4 .neighborhood-header { margin: 16px 0 0; }
 .tv-game .city-hall {
   width: 142px; height: 158px; min-width: 142px;
   padding: 0;

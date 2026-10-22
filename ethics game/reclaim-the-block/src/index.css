@@ -2423,7 +2423,7 @@ input, select { font-family: inherit; }
 .tut-tab:hover:not(.active) { border-color: var(--text-muted); color: var(--text); }
 .tut-tab.active { background: var(--yellow); border-color: var(--px-dark); color: #fff; box-shadow: 2px 2px 0 var(--px-dark); }
 .tut-content {
-  overflow-y: auto; height: min(360px, 58vh);
+  overflow-y: auto; height: min(500px, 70vh);
   display: flex; flex-direction: column; gap: 0.75rem;
   font-family: 'Nunito', system-ui, sans-serif; font-size: 0.85rem; line-height: 1.55; color: var(--text);
 }
@@ -2440,6 +2440,9 @@ input, select { font-family: inherit; }
 }
 .tut-row-img { flex: 0 0 64px; height: 64px; display: flex; align-items: center; justify-content: center; }
 .tut-row-img .tut-img { width: 64px; height: 64px; }
+/* Game screenshots (Your Turn tab) */
+.tut-row-img.tut-row-shot { flex-basis: 150px; height: auto; }
+.tut-row-shot .tut-img { width: 150px; height: auto; border: 2px solid var(--px-dark); image-rendering: auto; }
 .tut-row-title { font-weight: 800; margin-bottom: 0.15rem; }
 .tut-row-body { color: var(--text-muted); }
 /* Roles: same card style as the start screen */

@@ -28,10 +28,11 @@ function Img({ src, className = '' }: { src: string; className?: string }) {
   return <img src={asset(src)} alt="" className={`tut-img ${className}`} />;
 }
 
-function Row({ img, title, children }: { img?: ReactNode; title: string; children: ReactNode }) {
+// shot: the image is a game screenshot, shown larger than a sprite icon.
+function Row({ img, shot, title, children }: { img?: ReactNode; shot?: boolean; title: string; children: ReactNode }) {
   return (
     <div className="tut-row">
-      {img && <div className="tut-row-img">{img}</div>}
+      {img && <div className={`tut-row-img${shot ? ' tut-row-shot' : ''}`}>{img}</div>}
       <div className="tut-row-text">
         <div className="tut-row-title">{title}</div>
         <div className="tut-row-body">{children}</div>
@@ -88,14 +89,14 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     label: 'Your Turn',
     content: (
       <>
-        <Row title="1. Roll the dice">
+        <Row img={<Img src="/tutorial/turn-dice.png" />} shot title="1. Roll the dice">
           Your roll (3–8) is how many <strong>actions</strong> you get this turn.
         </Row>
-        <Row title="2. Spend your actions">
+        <Row img={<Img src="/tutorial/turn-move.png" />} shot title="2. Spend your actions">
           Moving one step, removing a device, depositing, and transferring a card each cost <strong>1 action</strong>.
           Tiles with a <strong>white outline</strong> show where you can move. Your pawn glows <strong>gold</strong> on your turn.
         </Row>
-        <Row title="3. End your turn">
+        <Row img={<Img src="/tutorial/turn-cards.png" />} shot title="3. End your turn">
           <strong>End Turn</strong> is free and draws <strong>2 cards</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
         </Row>
       </>

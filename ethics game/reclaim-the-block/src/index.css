@@ -124,6 +124,7 @@ input, select { font-family: inherit; }
 }
 .role-character-img { width: clamp(80px, 11vh, 110px); height: clamp(80px, 11vh, 110px); object-fit: contain; flex-shrink: 0; image-rendering: pixelated; }
 .role-name { font-weight: 700; font-size: clamp(0.6rem, 1.1vmin, 0.78rem); }
+.role-desc { margin: 0; font-size: clamp(0.55rem, 1vmin, 0.7rem); line-height: 1.45; color: var(--text-muted); }
 
 .setup-objective { color: var(--text-muted); line-height: 1.5; font-size: clamp(0.68rem, 1.2vmin, 0.84rem); }
 .setup-rules { list-style: none; margin-top: clamp(0.3rem, 0.7vh, 0.6rem); display: flex; flex-direction: column; gap: clamp(0.2rem, 0.5vh, 0.4rem); }
@@ -2454,7 +2455,7 @@ input, select { font-family: inherit; }
 .tutorial-overlay-done { background: #5a7a3a; color: #fff; border-color: var(--px-dark); }
 .tutorial-overlay-done:hover { background: #6a8f48; }
 
-/* ── Role overlay ───────────────────────────────────────────── */
+/* ── Game Log panel ─────────────────────────────────────────── */
 .role-overlay-panel {
   width: min(520px, 92vw);
   background: var(--surface);
@@ -2463,36 +2464,6 @@ input, select { font-family: inherit; }
   padding: 1.25rem 1.5rem 1rem;
   display: flex; flex-direction: column; gap: 0.75rem;
 }
-.role-overlay-tabs {
-  display: flex; gap: 4px; flex-wrap: wrap;
-}
-.role-overlay-tab {
-  flex: 1; padding: 0.3rem 0.5rem;
-  background: var(--surface2); border: 2px solid var(--border);
-  color: var(--text-muted); font-size: 0.6rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; transition: all 0.1s;
-  white-space: nowrap;
-}
-.role-overlay-tab.active { background: var(--surface); }
-.role-overlay-tab:hover:not(.active) { border-color: var(--text-muted); color: var(--text); }
-.role-overlay-card { border: 2px solid; overflow: hidden; }
-.role-overlay-card-header {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
-}
-.role-overlay-emoji { font-size: 1.6rem; flex-shrink: 0; }
-.role-overlay-name { font-size: 0.8rem; font-weight: 700; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
-.role-overlay-home { font-size: 0.6rem; color: rgba(255,255,255,0.8); margin-top: 1px; }
-.role-overlay-active-badge {
-  margin-left: auto; background: rgba(0,0,0,0.3); color: #fff;
-  font-size: 0.55rem; font-weight: 700; padding: 2px 6px; letter-spacing: 0.5px;
-}
-.role-overlay-body { padding: 0.75rem; }
-.role-overlay-section-label {
-  font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.3rem;
-}
-.role-overlay-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.6; }
 
 /* ── Intro story overlay (start of a new game) ──────────────── */
 .intro-overlay {

@@ -101,6 +101,7 @@ export interface Role {
   emoji: string;
   colorHex: string;
   characterImage?: string;
+  description: string;
 }
 
 export interface Neighborhood {

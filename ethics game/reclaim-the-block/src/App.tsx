@@ -15,7 +15,6 @@ import GameLog from './components/GameLog';
 import RevealedCards from './components/RevealedCards';
 import TutorialOverlay from './components/TutorialOverlay';
 import CenterDiceRoll from './components/CenterDiceRoll';
-import RoleOverlay from './components/RoleOverlay';
 
 const DRAWN_CARD_LABELS: Record<string, string> = {
   blue: 'Legal', yellow: 'Organizing', green: 'Media', red: 'Political', purple: 'Neighborhood',
@@ -305,7 +304,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
   const [showSettings, setShowSettings] = useState<'top' | 'bottom' | null>(null);
   const [rotatedOverlay, setRotatedOverlay] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [showRoles, setShowRoles] = useState(false);
   const [flashTarget, setFlashTarget] = useState<{ neighborhood: string; slot: number } | null>(null);
   const [isApplyingBoardPhase, setIsApplyingBoardPhase] = useState(false);
   // Intro story — shown once when a fresh game mounts, before Round 1.
@@ -460,7 +458,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
               <div className="settings-dropdown">
                 <button className="btn-quit" onClick={() => { setShowLog(true); setRotatedOverlay(true); setShowSettings(null); }}>Game Log</button>
                 <button className="btn-quit" onClick={onNewGame}>New Game</button>
-                <button className="btn-quit" onClick={() => { setShowRoles(true); setRotatedOverlay(true); setShowSettings(null); }}>Role</button>
                 <button className="btn-quit" onClick={() => { setShowTutorial(true); setRotatedOverlay(true); setShowSettings(null); }}>Tutorial</button>
                 <button className="btn-quit" onClick={onRestart}>Exit</button>
               </div>
@@ -683,7 +680,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                 <div className="settings-dropdown">
                   <button className="btn-quit" onClick={() => { setShowLog(true); setRotatedOverlay(false); setShowSettings(null); }}>Game Log</button>
                   <button className="btn-quit" onClick={onNewGame}>New Game</button>
-                  <button className="btn-quit" onClick={() => { setShowRoles(true); setRotatedOverlay(false); setShowSettings(null); }}>Role</button>
                   <button className="btn-quit" onClick={() => { setShowTutorial(true); setRotatedOverlay(false); setShowSettings(null); }}>Tutorial</button>
                   <button className="btn-quit" onClick={onRestart}>Exit</button>
                 </div>
@@ -758,8 +754,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {/* ── In-game tutorial overlay ─────────────────────────────── */}
       {showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} rotated={rotatedOverlay} />}
 
-      {/* ── Role overview overlay ────────────────────────────────── */}
-      {showRoles && <RoleOverlay state={state} onClose={() => setShowRoles(false)} rotated={rotatedOverlay} />}
 
       {/* ── Board phase overlay ──────────────────────────────── */}
       {state.phase === 'board-phase' && !state.pendingIncident && !flashTarget && !isApplyingBoardPhase && (

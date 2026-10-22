@@ -160,6 +160,7 @@ export default function GameSetup({ onStart }: Props) {
                 </div>
                 <div className="role-preview-body">
                   <div className="role-name" style={{ color: r.colorHex }}>{r.name}</div>
+                  <p className="role-desc">{r.description}</p>
                 </div>
               </div>
             ))}

@@ -94,19 +94,14 @@ export default function ActionPanel({
     removeCardIds.length === 2 &&
     state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null;
 
-  const depositRequired = state.reducedNextDeposit ? 2 : 4;
-  // Pick the best subset: one card per unique color, wildcards fill remaining slots
+  const depositRequired = 4;
+  // Pick the best subset: one card per unique color
   const pickDepositIds = (cards: typeof player.hand): string[] => {
     const colorMap = new Map<string, string>(); // category → cardId
-    const wildcardIds: string[] = [];
     for (const card of cards) {
-      if (card.effectType === 'wildcard-deposit') {
-        wildcardIds.push(card.id);
-      } else if (!colorMap.has(card.category)) {
-        colorMap.set(card.category, card.id);
-      }
+      if (!colorMap.has(card.category)) colorMap.set(card.category, card.id);
     }
-    return [...colorMap.values(), ...wildcardIds].slice(0, depositRequired);
+    return [...colorMap.values()].slice(0, depositRequired);
   };
   // Use the player's selection if it is already a valid set; otherwise fall back
   // to the best set in their whole hand, so Deposit is ready as soon as they

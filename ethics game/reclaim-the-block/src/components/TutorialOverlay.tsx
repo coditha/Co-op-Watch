@@ -1,112 +1,214 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { ROLES } from '../data/roles';
+import { asset } from '../utils/asset';
 
 interface Props {
   onClose: () => void;
   rotated?: boolean;
+  // Start on the first tab instead of the last one viewed (used on the start screen).
+  fromStart?: boolean;
 }
 
-function renderBold(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) =>
-    part.startsWith('**') && part.endsWith('**')
-      ? <strong key={i}>{part.slice(2, -2)}</strong>
-      : part
+const DISTRICT_NAMES: Record<string, string> = {
+  suburb: 'Neighborhood',
+  courthouse: 'Courthouse',
+  media: 'Downtown',
+  politics: 'Civic Center',
+};
+
+// Colour key: card colour → card type → district it clears.
+const COLOR_KEY = [
+  { color: '#f59e0b', name: 'Yellow', type: 'Organizing', icon: '/community.png', district: 'suburb', landmark: '/community-center.png' },
+  { color: '#3b82f6', name: 'Blue', type: 'Legal', icon: '/law.png', district: 'courthouse', landmark: '/courthouse.png' },
+  { color: '#22c55e', name: 'Green', type: 'Media', icon: '/news.png', district: 'media', landmark: '/news-agency.png' },
+  { color: '#ef4444', name: 'Red', type: 'Political', icon: '/civil.png', district: 'politics', landmark: '/cityhall.png' },
+];
+
+function Img({ src, className = '' }: { src: string; className?: string }) {
+  return <img src={asset(src)} alt="" className={`tut-img ${className}`} />;
+}
+
+function Row({ img, title, children }: { img?: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <div className="tut-row">
+      {img && <div className="tut-row-img">{img}</div>}
+      <div className="tut-row-text">
+        <div className="tut-row-title">{title}</div>
+        <div className="tut-row-body">{children}</div>
+      </div>
+    </div>
   );
 }
 
-const STEPS = [
+const TABS: { id: string; label: string; content: ReactNode }[] = [
   {
-    title: 'The Situation',
-    body: 'Your city is installing **surveillance cameras**, license plate readers, and smart devices across every neighborhood. Privacy is eroding and community trust is falling. You and your neighbors must **work together** to push back.',
+    id: 'goal',
+    label: 'Goal',
+    content: (
+      <>
+        <p className="tut-lead">
+          The city is filling your town with surveillance devices. Work together to push back. Everyone wins or loses together.
+        </p>
+        <Row title="How you win">
+          Clear <strong>every device from all 4 districts</strong>. You win as soon as the whole board is empty.
+        </Row>
+        <Row title="How you lose">
+          The <strong>Privacy &amp; Community Trust</strong> meter hits 0, or <strong>Round 8</strong> ends before the board is clear.
+        </Row>
+        <Row title="The meter">
+          Starts at 20 out of 30. New devices and some Incident results lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
+        </Row>
+      </>
+    ),
   },
   {
-    title: 'Your Goal',
-    body: '**Remove all excess surveillance devices** from all 4 neighborhoods before the Privacy & Community Trust meter bottoms out — or before the **governor signs a surveillance contract at the end of Round 8**. All players win or lose together — coordinate your moves!',
+    id: 'roles',
+    label: 'Roles',
+    content: (
+      <>
+        <div className="tut-roles">
+          {ROLES.map((r) => (
+            <div key={r.id} className="tut-role" style={{ borderColor: r.colorHex }}>
+              <div className="tut-role-head" style={{ background: r.colorHex }}>
+                {r.characterImage && <img src={r.characterImage} alt="" className="tut-role-img" />}
+              </div>
+              <div className="tut-role-body">
+                <div className="tut-role-name" style={{ color: r.colorHex }}>{r.name}</div>
+                <div className="tut-role-home">Home: {DISTRICT_NAMES[r.homeNeighborhood]}</div>
+                <p className="tut-role-desc">{r.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="tut-note">
+          Each player starts on the top house of their home district with 4 cards. With 2 players, use the Parent and Lawyer. With 3, add the Activist.
+        </p>
+      </>
+    ),
   },
   {
-    title: 'Taking Your Turn',
-    body: '**Roll the dice** to earn actions for your turn. Use them to **move**, **remove devices**, **deposit cards**, or **transfer a card** to a teammate. Each of these costs 1 action. When you are done, press **End Turn** to draw 2 new Community Cards.',
+    id: 'turn',
+    label: 'Your Turn',
+    content: (
+      <>
+        <Row title="1. Roll the dice">
+          Your roll (1–6) is how many <strong>actions</strong> you get this turn.
+        </Row>
+        <Row title="2. Spend your actions">
+          Moving one step, removing a device, depositing, and transferring a card each cost <strong>1 action</strong>.
+          Tiles with a <strong>white outline</strong> show where you can move. Your pawn glows <strong>gold</strong> on your turn.
+        </Row>
+        <Row title="3. End your turn">
+          <strong>End Turn</strong> is free and draws <strong>2 cards</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
+        </Row>
+      </>
+    ),
   },
   {
-    title: 'Moving Around',
-    body: 'Moving to an adjacent road tile or device slot costs **1 action**. **Highlighted tiles** show where you can go. Navigate through the neighborhoods to reach devices you want to remove, or head to the **Town Square** in the center.',
+    id: 'actions',
+    label: 'Actions',
+    content: (
+      <>
+        <Row title="Remove Device: 2 same color cards">
+          Stand on any house in that district and tap the house with the device (or stand on it).
+          You need <strong>2 cards in that district's color</strong>. The game uses matching cards from your hand automatically.
+          Raises the meter by 1.
+        </Row>
+        <Row title="Deposit Cards: 4 colors at Town Square">
+          At the Town Square, spend <strong>4 cards of different colors</strong> (one of each).
+          This clears <strong>every device</strong> in the most crowded district and raises the meter by 5.
+        </Row>
+        <Row title="Transfer Card: give 1 card to teammate">
+          When you share a tile with a teammate, give them 1 card. They need room in their hand (fewer than 7).
+        </Row>
+      </>
+    ),
   },
   {
-    title: 'Remove Device',
-    body: 'To remove a surveillance device: move into the neighborhood, tap the **device slot** to target it, select **2 Community Cards** that match the neighborhood color, then press **Remove Device**. Costs 1 action. Removing a device **raises the Privacy Meter**!',
+    id: 'cards',
+    label: 'Cards & Colors',
+    content: (
+      <>
+        <p className="tut-lead">Each card color matches one district. Use that color to remove devices there.</p>
+        <div className="tut-key">
+          {COLOR_KEY.map((k) => (
+            <div key={k.name} className="tut-key-row" style={{ borderColor: k.color }}>
+              <span className="tut-key-swatch" style={{ background: k.color }}><Img src={k.icon} /></span>
+              <span className="tut-key-type" style={{ color: k.color }}>{k.type}</span>
+              <span className="tut-key-arrow">→</span>
+              <Img src={k.landmark} className="tut-key-landmark" />
+              <span className="tut-key-district">{DISTRICT_NAMES[k.district]}</span>
+            </div>
+          ))}
+        </div>
+        <p className="tut-note">Cards have no special powers. They're what you spend to remove devices and deposit.</p>
+      </>
+    ),
   },
   {
-    title: 'Community Cards',
-    body: 'Cards come in 4 colors: **Legal (blue)**, **Organizing (yellow)**, **Media (green)**, and **Political (red)**. You can hold up to **7 cards**. Match colors to neighborhoods — Neighborhood needs yellow, Courthouse needs blue, Downtown needs green, Civic Center needs red. Cards have no special effects — they are the resources you spend to remove devices and deposit.',
-  },
-  {
-    title: 'Transfer Card',
-    body: 'You can give a teammate **1 Community Card** if you are both on the **exact same tile**. Press **Transfer Card**, choose your teammate, then pick which card to give. Costs 1 action. Your teammate must have room in their hand (max 7). Use this to pass the right color card to the right player!',
-  },
-  {
-    title: 'Town Square',
-    body: 'The **Town Square** is the center of the board. When you are there, select **4 cards** (one of each color: blue, yellow, green, red) and press **Deposit Cards**. This clears ALL devices from the most crowded neighborhood and gives the Privacy Meter a **big boost**!',
-  },
-  {
-    title: 'Board Phase',
-    body: 'After all players have taken their turns, the Board Phase happens. The city either carries out the result of that round\'s **Incident** or places a **new surveillance device**. A flash highlights exactly which slot gets the device. The more neighborhoods fill up, the worse the devices get — **keep clearing them**!',
-  },
-  {
-    title: 'Incident Cards',
-    body: 'Rounds 1–7 each end with a **Surveillance Incident**, after the last player\'s turn. Your community decides together: **Support** or **Push Back**. Each choice has a different outcome — more devices, a change to the Privacy Meter, or both. The result is revealed and applied in the Board Phase. Round 8 has no decision at all.',
-  },
-  {
-    title: 'Privacy Meter',
-    body: 'Surveillance devices and Incident outcomes can **drop** the Privacy & Community Trust meter — and some choices can raise it. If it falls **all the way down**, everyone loses. Keep it healthy by removing devices and depositing at the Town Square. Watch for the **red pulse** — it means danger!',
-  },
-  {
-    title: 'Ready to Play!',
-    body: 'Work together, **transfer cards**, and **clear all 4 neighborhoods** before time runs out or the Privacy Meter bottoms out. Good luck — your community is counting on you!',
+    id: 'round',
+    label: 'End of Round',
+    content: (
+      <>
+        <Row img={<Img src="/warning.png" />} title="Surveillance Incident (Rounds 1–7)">
+          After the last player's turn, the city makes a proposal. Pick <strong>Support</strong> or <strong>Push Back</strong> on either card.
+          Your pick shows on both, so decide together, then press <strong>Confirm</strong>.
+        </Row>
+        <Row img={<Img src="/caution.png" />} title="Board Phase">
+          In Rounds 1–7, your Incident choice plays out. It can add devices, change the meter, or both.
+          In Round 8, the city places one more device. A flash shows where it lands.
+        </Row>
+        <Row img={<Img src="/ring.png" />} title="Surveillance keeps growing">
+          Each round, newly placed devices get stronger and cost more trust (−1 at first, up to −3 later).
+          A district filling all 4 houses speeds this up, and a deposit slows it down. All devices look the same on the board.
+        </Row>
+      </>
+    ),
   },
 ];
 
-export default function TutorialOverlay({ onClose, rotated }: Props) {
-  const [step, setStep] = useState(0);
-  const current = STEPS[step];
-  const isLast = step === STEPS.length - 1;
+// In-game, reopen on the tab the players last looked at.
+let lastTab = 0;
+
+export default function TutorialOverlay({ onClose, rotated, fromStart }: Props) {
+  const [tab, setTabState] = useState(fromStart ? 0 : lastTab);
+  const setTab = (i: number) => { lastTab = i; setTabState(i); };
 
   return (
     <div className={`tutorial-overlay${rotated ? ' overlay-rotated' : ''}`} onClick={onClose}>
-      <div className="tutorial-overlay-panel" onClick={e => e.stopPropagation()}>
+      <div className="tutorial-overlay-panel tut-panel" onClick={e => e.stopPropagation()}>
         <div className="tutorial-overlay-header">
           <span className="tutorial-overlay-title">How to Play</span>
           <button className="tutorial-overlay-close" onClick={onClose}>✕</button>
         </div>
 
-        <div className="tutorial-overlay-step">
-          <div className="tutorial-overlay-step-title">{current.title}</div>
-          <p className="tutorial-overlay-step-body">{renderBold(current.body)}</p>
+        <div className="tut-tabs" role="tablist">
+          {TABS.map((t, i) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={i === tab}
+              className={`tut-tab${i === tab ? ' active' : ''}`}
+              onClick={() => setTab(i)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
+        <div className="tut-content" role="tabpanel">{TABS[tab].content}</div>
+
         <div className="tutorial-overlay-nav">
-          <button
-            className="tutorial-overlay-nav-btn"
-            onClick={() => setStep(s => Math.max(0, s - 1))}
-            disabled={step === 0}
-          >
-            ←
+          <button className="tutorial-overlay-nav-btn" onClick={() => setTab(tab - 1)} disabled={tab === 0}>
+            ← {tab > 0 ? TABS[tab - 1].label : ''}
           </button>
-          <div className="tutorial-dots">
-            {STEPS.map((_, i) => (
-              <button
-                key={i}
-                className={`tutorial-dot ${i === step ? 'active' : ''}`}
-                onClick={() => setStep(i)}
-              />
-            ))}
-          </div>
-          {isLast ? (
-            <button className="tutorial-overlay-nav-btn tutorial-overlay-done" onClick={onClose}>
-              Done
+          {tab < TABS.length - 1 ? (
+            <button className="tutorial-overlay-nav-btn" onClick={() => setTab(tab + 1)}>
+              {TABS[tab + 1].label} →
             </button>
           ) : (
-            <button className="tutorial-overlay-nav-btn" onClick={() => setStep(s => s + 1)}>
-              →
+            <button className="tutorial-overlay-nav-btn tutorial-overlay-done" onClick={onClose}>
+              Done
             </button>
           )}
         </div>

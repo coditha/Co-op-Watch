@@ -3,7 +3,6 @@ import type {
   CommunityCard,
   IncidentCard,
   IncidentOutcome,
-  Card,
   NeighborhoodId,
   DeviceType,
   SlotIndex,
@@ -66,7 +65,7 @@ function shiftMeter(state: GameState, delta: number, reason: string): GameState 
   return log(s, `Meter ${sign} (${reason}) → ${newVal}`);
 }
 
-function buildCommunityDeck(): Card[] {
+function buildCommunityDeck(): CommunityCard[] {
   return shuffle([...COMMUNITY_CARDS]);
 }
 
@@ -131,15 +130,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
 
   // Deal 4 starting cards each
   let deck = [...communityDeck];
-  const dealtPlayers = players.map((p) => {
-    const hand: CommunityCard[] = [];
-    while (hand.length < 4 && deck.length > 0) {
-      const card = deck.shift()!;
-      if (card.type === 'community') hand.push(card);
-      else deck.push(card); // put incident back at end
-    }
-    return { ...p, hand };
-  });
+  const dealtPlayers = players.map((p) => ({ ...p, hand: deck.splice(0, 4) }));
 
   // Randomly place 4 starting ring devices; skip slot 0 (N1) because all players start there
   const eligibleSlots: { nhIdx: number; slot: SlotIndex }[] = [];
@@ -179,21 +170,11 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
     surveillanceDeck: shuffle([...SURVEILLANCE_CARDS]),
     surveillanceDiscard: [],
 
-    revealedSurveillanceCards: [],
-
     pendingIncident: null,
-    pendingDeferredIncident: null,
     resolvedIncident: null,
     clearBanner: null,
     pendingDrawnCards: null,
     pendingDiscard: null,
-
-    blockedBoardPhases: 0,
-    reducedBoardPhaseRounds: 0,
-    reducedNextDeposit: false,
-    cancelNextSurveillance: 0,
-    cancelNextIncident: false,
-    pendingExtraActions: 0,
 
     pendingDiceRoll: true,
     lastDiceRoll: null,
@@ -211,7 +192,6 @@ export type GameAction =
   | { type: 'ROLL_DIE'; precomputedRoll?: number }
   | { type: 'MOVE'; to: Position }
   | { type: 'REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string] }
-  | { type: 'SWAP_CARDS'; withPlayerId: number; giveCardIds: string[]; takeCardIds: string[] }
   | { type: 'TRANSFER_CARD'; fromPlayerId: number; toPlayerId: number; cardId: string }
   | { type: 'DEPOSIT_AT_CITY_HALL'; cardIds: string[] }
   | { type: 'END_TURN' }
@@ -219,8 +199,7 @@ export type GameAction =
   | { type: 'DISCARD_TO_HAND_LIMIT'; cardIds: string[] }
   | { type: 'BOARD_PHASE' }
   | { type: 'ADVANCE_ROUND' }
-  | { type: 'INCIDENT_VOTE'; choice: 'support' | 'pushback'; discardCardId?: string }
-  | { type: 'DISCARD_CARD'; cardId: string };
+  | { type: 'INCIDENT_VOTE'; choice: 'support' | 'pushback' };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -230,43 +209,19 @@ function peekDrawCards(state: GameState, count: number): { state: GameState; dra
   let s = { ...state };
   let deck = [...s.communityDeck];
   let discard = [...s.communityDiscard];
-  let deferredIncident: IncidentCard | null = null;
   const drawnCards: CommunityCard[] = [];
 
-  let communityDrawn = 0;
-  const maxIterations = count + 20;
-  let iterations = 0;
-  while (communityDrawn < count && iterations < maxIterations) {
-    iterations++;
+  while (drawnCards.length < count) {
     if (deck.length === 0) {
       if (discard.length === 0) break;
       deck = shuffle(discard);
       discard = [];
       s = log(s, 'Community deck reshuffled from discard.');
     }
-    const card = deck.shift()!;
-    if (card.type === 'incident') {
-      discard.push(card);
-      if (s.cancelNextIncident) {
-        s = { ...s, cancelNextIncident: false };
-        s = log(s, `Incident "${card.name}" cancelled by Class Action.`);
-      } else if (!deferredIncident) {
-        deferredIncident = card as IncidentCard;
-      }
-    } else {
-      drawnCards.push(card as CommunityCard);
-      communityDrawn++;
-    }
+    drawnCards.push(deck.shift()!);
   }
 
   s = { ...s, communityDeck: deck, communityDiscard: discard };
-
-  if (deferredIncident) {
-    s = shiftMeter(s, -1, `Incident card drawn: ${deferredIncident.name}`);
-    s = { ...s, pendingIncident: { card: deferredIncident, triggeredByRoleId: s.players[s.currentPlayerIndex]?.role.id } };
-    s = log(s, `⚠️ INCIDENT: ${deferredIncident.name}`);
-  }
-
   return { state: s, drawnCards };
 }
 
@@ -479,9 +434,6 @@ function pickRegularSlot(
 export function previewRegularBoardPhase(
   state: GameState
 ): { deviceCount: number; meterDelta: number; target: { neighborhood: NeighborhoodId; slot: SlotIndex } | null } | null {
-  if (state.blockedBoardPhases > 0 || state.cancelNextSurveillance > 0) {
-    return { deviceCount: 0, meterDelta: 0, target: null };
-  }
   const card = state.surveillanceDeck[0];
   if (!card) return null;
   const target = pickRegularSlot(state, card);
@@ -519,12 +471,6 @@ function advanceTurnWithIncident(s: GameState, playerRoleId: string): GameState 
   if (!isLastPlayer) return advanceTurn(s);
 
   s = { ...s, incidentFiredThisRound: true };
-
-  if (s.cancelNextIncident) {
-    s = { ...s, cancelNextIncident: false };
-    s = log(s, `Incident "${incidentCard.name}" cancelled by Class Action.`);
-    return advanceTurn(s);
-  }
 
   s = advanceTurn(s);
   s = { ...s, pendingIncident: { card: incidentCard, triggeredByRoleId: playerRoleId } };
@@ -565,8 +511,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const roll = action.precomputedRoll ?? (Math.floor(Math.random() * 6) + 1);
       let s: GameState = {
         ...state,
-        actionsRemaining: roll + state.pendingExtraActions,
-        pendingExtraActions: 0,
+        actionsRemaining: roll,
         pendingDiceRoll: false,
         lastDiceRoll: roll,
       };
@@ -610,40 +555,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return checkWinLoss(s);
     }
 
-    // ── Swap cards ────────────────────────────────────────────────────
-    case 'SWAP_CARDS': {
-      if (state.actionsRemaining < 1) return state;
-      const player = state.players[state.currentPlayerIndex];
-      const other = state.players.find((p) => p.id === action.withPlayerId);
-      if (!other) return state;
-      if (player.position !== other.position) return state;
-
-      const giveCards = player.hand.filter((c) => action.giveCardIds.includes(c.id));
-      const takeCards = other.hand.filter((c) => action.takeCardIds.includes(c.id));
-
-      const players = state.players.map((p) => {
-        if (p.id === player.id) {
-          const hand = [
-            ...p.hand.filter((c) => !action.giveCardIds.includes(c.id)),
-            ...takeCards,
-          ];
-          return { ...p, hand };
-        }
-        if (p.id === action.withPlayerId) {
-          const hand = [
-            ...p.hand.filter((c) => !action.takeCardIds.includes(c.id)),
-            ...giveCards,
-          ];
-          return { ...p, hand };
-        }
-        return p;
-      });
-
-      let s = spendActions({ ...state, players }, 1);
-      s = log(s, `${player.role.name} swapped cards with ${other.role.name}`);
-      return s;
-    }
-
     // ── Transfer Card (give 1 card to co-located player, costs 1 action) ──
     case 'TRANSFER_CARD': {
       if (state.actionsRemaining < 1) return state;
@@ -671,16 +582,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const player = state.players[state.currentPlayerIndex];
       if (player.position !== 'city-hall') return state;
 
-      const required = state.reducedNextDeposit ? 2 : 4;
       const cards = action.cardIds.map((id) => player.hand.find((c) => c.id === id)!).filter(Boolean);
+      if (cards.length < 4) return state;
 
-      if (cards.length < required) return state;
-
-      // Validate: one of each color (blue, yellow, green, red — purple removed)
+      // Validate: one of each color (blue, yellow, green, red)
       const colors = new Set(cards.map((c) => c.category));
-      const wildcards = cards.filter((c) => c.effectType === 'wildcard-deposit').length;
-      if (colors.size + wildcards < required) {
-        return log(state, `Deposit failed: need ${required} different colors (have ${colors.size + wildcards}).`);
+      if (colors.size < 4) {
+        return log(state, `Deposit failed: need 4 different colors (have ${colors.size}).`);
       }
 
       // Find which neighborhood to clear (must be decided by UI — for now clear least dense)
@@ -689,7 +597,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const removedCount = target.densityTrack;
       let s = removeCardFromHand(state, player.id, action.cardIds);
-      if (s.reducedNextDeposit) s = { ...s, reducedNextDeposit: false };
       // Remove all devices
       for (let i = 0; i < 4; i++) {
         if (target.slots[i] !== null) {
@@ -709,12 +616,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'END_TURN': {
       const player = state.players[state.currentPlayerIndex];
       let s = state;
-
-      // Promote any deferred incident (from card play) to active incident before end-of-turn draw
-      if (s.pendingDeferredIncident) {
-        s = { ...s, pendingIncident: s.pendingDeferredIncident, pendingDeferredIncident: null };
-        return s;
-      }
 
       // Peek 2 community cards — hold them for display before adding to hand
       const { state: s2, drawnCards } = peekDrawCards(s, 2);
@@ -769,17 +670,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // The incident's chosen outcome already fully describes this round's
         // board effect (that's what the button label states) — skip the
         // separate regular per-round device draw so nothing extra happens.
-      } else if (s.blockedBoardPhases > 0) {
-        s = { ...s, blockedBoardPhases: s.blockedBoardPhases - 1 };
-        s = log(s, 'Board Phase blocked by community action!');
-      } else if (s.cancelNextSurveillance > 0) {
-        s = { ...s, cancelNextSurveillance: s.cancelNextSurveillance - 1 };
-        const top = s.surveillanceDeck[0];
-        if (top) {
-          const deck = s.surveillanceDeck.slice(1);
-          s = { ...s, surveillanceDeck: deck, surveillanceDiscard: [...s.surveillanceDiscard, top] };
-          s = log(s, `Surveillance Card cancelled: ${top.neighborhood} slot ${top.slot + 1}`);
-        }
       } else {
         let deck = [...s.surveillanceDeck];
         if (deck.length === 0) {
@@ -800,14 +690,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           s = log(s, 'Board Phase: every slot is already full, no device placed.');
         }
       }
-
-      if (s.reducedBoardPhaseRounds > 0) {
-        s = { ...s, reducedBoardPhaseRounds: s.reducedBoardPhaseRounds - 1 };
-        s = log(s, `Board Phase reduced (${s.reducedBoardPhaseRounds} round(s) remaining).`);
-      }
-
-      // Clear revealed surveillance cards after board phase
-      s = { ...s, revealedSurveillanceCards: [] };
 
       // Stay in 'board-phase' here — the device placement / meter shift above
       // needs to be visible on the board before the round actually advances.
@@ -839,12 +721,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.pendingIncident) return state;
       const incident = state.pendingIncident.card;
       return resolveIncident(state, incident, action.choice);
-    }
-
-    // ── Discard card ──────────────────────────────────────────────────
-    case 'DISCARD_CARD': {
-      const player = state.players[state.currentPlayerIndex];
-      return removeCardFromHand(state, player.id, [action.cardId]);
     }
 
     default:

@@ -15,7 +15,6 @@ export const CATEGORY_COLORS: Record<string, string> = {
   yellow: '#f59e0b',
   green: '#22c55e',
   red: '#ef4444',
-  purple: '#a855f7',
 };
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -23,7 +22,6 @@ export const CATEGORY_LABELS: Record<string, string> = {
   yellow: 'Organizing',
   green: 'Media',
   red: 'Political',
-  purple: 'Neighborhood',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -31,7 +29,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   yellow: '🤝',
   green: '📰',
   red: '🏛️',
-  purple: '🏘️',
 };
 
 // Categories with a dedicated pixel-art image instead of an emoji.

@@ -12,15 +12,14 @@ import NeighborhoodTile from './components/NeighborhoodTile';
 import CardDisplay from './components/CardDisplay';
 import ActionPanel from './components/ActionPanel';
 import GameLog from './components/GameLog';
-import RevealedCards from './components/RevealedCards';
 import TutorialOverlay from './components/TutorialOverlay';
 import CenterDiceRoll from './components/CenterDiceRoll';
 
 const DRAWN_CARD_LABELS: Record<string, string> = {
-  blue: 'Legal', yellow: 'Organizing', green: 'Media', red: 'Political', purple: 'Neighborhood',
+  blue: 'Legal', yellow: 'Organizing', green: 'Media', red: 'Political',
 };
 const DRAWN_CARD_ICONS: Record<string, string> = {
-  blue: '⚖️', yellow: '🤝', green: '📰', red: '🏛️', purple: '🏘️',
+  blue: '⚖️', yellow: '🤝', green: '📰', red: '🏛️',
 };
 // Categories with a dedicated pixel-art image instead of an emoji.
 const DRAWN_CARD_ICON_IMAGES: Partial<Record<string, string>> = {
@@ -30,7 +29,7 @@ const DRAWN_CARD_ICON_IMAGES: Partial<Record<string, string>> = {
   yellow: 'community.png',
 };
 const DRAWN_CARD_COLORS: Record<string, string> = {
-  blue: '#3b82f6', yellow: '#f59e0b', green: '#22c55e', red: '#ef4444', purple: '#a855f7',
+  blue: '#3b82f6', yellow: '#f59e0b', green: '#22c55e', red: '#ef4444',
 };
 
 // ── Corner hand tray ───────────────────────────────────────────────────────
@@ -469,7 +468,6 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
         <div className="board-trackers board-trackers-header">
           <DensityTracker value={state.densityTracker} vertical blocked={!!state.pendingIncident} round={state.round} />
         </div>
-        <RevealedCards cards={state.revealedSurveillanceCards} />
       </div>
 
       {/* ── Game Log dropdown — one copy per side, both toggled by the Log button.

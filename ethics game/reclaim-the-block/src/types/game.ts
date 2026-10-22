@@ -1,7 +1,7 @@
 export type NeighborhoodId = 'suburb' | 'courthouse' | 'media' | 'politics';
 export type RoleId = 'organizer' | 'legal' | 'captain' | 'council';
 export type DeviceType = 'ring' | 'smart-speaker' | 'traffic-camera' | 'flock-reader';
-export type CardCategory = 'blue' | 'yellow' | 'green' | 'red' | 'purple';
+export type CardCategory = 'blue' | 'yellow' | 'green' | 'red';
 export type SlotIndex = 0 | 1 | 2 | 3;
 
 export type Position =
@@ -27,36 +27,8 @@ export interface CommunityCard {
   name: string;
   educationalContent: string;
   effect: string;
-  effectType: CommunityCardEffectType;
-  effectValue?: number;
 }
 
-export type CommunityCardEffectType =
-  | 'meter-plus'
-  | 'draw-cards'
-  | 'draw-cards-all'
-  | 'remove-device-own'
-  | 'remove-device-any'
-  | 'remove-devices-any'
-  | 'remove-all-own'
-  | 'cancel-footage-request'
-  | 'block-board-phase'
-  | 'cancel-next-surveillance'
-  | 'cancel-next-incident'
-  | 'cancel-next-2-surveillance'
-  | 'wildcard-deposit'
-  | 'actions-all'
-  | 'actions-current'
-  | 'move-any'
-  | 'move-player-here'
-  | 'swap-cards'
-  | 'reveal-surveillance'
-  | 'reveal-top-surveillance'
-  | 'reduced-deposit'
-  | 'board-phase-reduced'
-  | 'meter-plus-immediate'
-  | 'draw-cards-swap'
-  | 'none';
 
 export interface IncidentOutcome {
   text: string;            // what happens, shown on the card for this branch
@@ -158,25 +130,15 @@ export interface GameState {
   neighborhoods: Neighborhood[];
   players: Player[];
 
-  communityDeck: Card[];
-  communityDiscard: Card[];
+  communityDeck: CommunityCard[];
+  communityDiscard: CommunityCard[];
   surveillanceDeck: SurveillanceCard[];
   surveillanceDiscard: SurveillanceCard[];
 
-  revealedSurveillanceCards: SurveillanceCard[];
-
   pendingIncident: PendingIncident | null;
-  pendingDeferredIncident: PendingIncident | null;
   resolvedIncident: ResolvedIncident | null;
   pendingDrawnCards: { playerId: number; cards: CommunityCard[] } | null;
   pendingDiscard: { playerId: number; count: number; advanceAfter: boolean } | null;
-
-  blockedBoardPhases: number;
-  reducedBoardPhaseRounds: number;
-  reducedNextDeposit: boolean;
-  cancelNextSurveillance: number;
-  cancelNextIncident: boolean;
-  pendingExtraActions: number;
 
   pendingDiceRoll: boolean;
   lastDiceRoll: number | null;

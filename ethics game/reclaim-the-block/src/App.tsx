@@ -222,19 +222,23 @@ function ClearedBanner({ banner }: { banner: NonNullable<GameState['clearBanner'
     return () => clearTimeout(t);
   }, [banner.id]);
   if (!visible) return null;
+  const title = banner.kind === 'cleared' ? `${banner.neighborhood} Cleared!` : 'Device Removed!';
+  // One copy per side of the table: upright for the Lawyer & City Council (bottom),
+  // flipped for the Parent & Activist (top).
   return (
-    <div
-      className="clear-banner"
-      key={banner.id}
-      style={{ ['--nh-color' as string]: NEIGHBORHOOD_BANNER_COLORS[banner.neighborhoodId] }}
-    >
-      {/* Parent (top-left) and Activist (top-right) sit across the table, so flip the text for them */}
-      <div className={['organizer', 'captain'].includes(banner.byRoleId) ? 'clear-banner-flipped' : ''}>
-        <div className="clear-banner-title">
-          {banner.kind === 'cleared' ? `${banner.neighborhood} Cleared!` : 'Device Removed!'}
+    <>
+      {[false, true].map((facesTop) => (
+        <div
+          key={`${banner.id}-${facesTop}`}
+          className={`clear-banner${facesTop ? ' clear-banner-top' : ''}`}
+          style={{ ['--nh-color' as string]: NEIGHBORHOOD_BANNER_COLORS[banner.neighborhoodId] }}
+        >
+          <div className={facesTop ? 'clear-banner-flipped' : ''}>
+            <div className="clear-banner-title">{title}</div>
+          </div>
         </div>
-      </div>
-    </div>
+      ))}
+    </>
   );
 }
 

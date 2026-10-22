@@ -2552,7 +2552,7 @@ input, select { font-family: inherit; }
 
 /* ── "Neighborhood cleared" banner (shows after a Town Square deposit, then fades) ── */
 .clear-banner {
-  position: fixed; left: 50%; top: 42%; z-index: 250;
+  position: fixed; left: 50%; top: 64%; z-index: 250;
   transform: translate(-50%, -50%);
   padding: 1.1rem 2.2rem; text-align: center;
   background: #f5f0e8; border: 4px solid var(--nh-color, var(--px-gold));
@@ -2574,3 +2574,13 @@ input, select { font-family: inherit; }
   100% { transform: translate(-50%, -62%) scale(1); opacity: 0; }
 }
 .clear-banner-flipped { transform: rotate(180deg); }
+/* The copy facing the top players sits above the middle. Its fade-out drift is
+   mirrored (down the screen) so it floats "up" from their side of the table. */
+.clear-banner-top { top: 30%; animation-name: clear-banner-life-top; }
+@keyframes clear-banner-life-top {
+  0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  12%  { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+  20%  { transform: translate(-50%, -50%) scale(1); }
+  78%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -38%) scale(1); opacity: 0; }
+}

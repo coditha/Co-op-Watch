@@ -849,6 +849,14 @@ input, select { font-family: inherit; }
 .pawn-img { width: 3rem; height: 3rem; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
 /* Board pawns face whoever's turn it is, like the neighborhood signs. */
 .board-grid.faces-top .pawn-img { transform: rotate(180deg); }
+/* The active player's pawn gets a pulsing gold outline so it's easy to find;
+   distinct from the white "you can move here" and red warning highlights. */
+.board-grid { --active-color: #ffd23f; }
+.board-grid .active-pawn .pawn-img { animation: active-pawn-glow 1.1s ease-in-out infinite; }
+@keyframes active-pawn-glow {
+  0%, 100% { filter: drop-shadow(2px 0 0 var(--active-color)) drop-shadow(-2px 0 0 var(--active-color)) drop-shadow(0 2px 0 var(--active-color)) drop-shadow(0 -2px 0 var(--active-color)); }
+  50% { filter: drop-shadow(2px 0 0 var(--active-color)) drop-shadow(-2px 0 0 var(--active-color)) drop-shadow(0 2px 0 var(--active-color)) drop-shadow(0 -2px 0 var(--active-color)) drop-shadow(0 0 6px var(--active-color)); }
+}
 .device-token-img { width: 2.4rem; height: 2.4rem; object-fit: contain; image-rendering: pixelated; display: block; }
 .corner-pawn-circle { display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; background: rgba(255,255,255,0.85); border-radius: 50%; flex-shrink: 0; }
 .corner-pawn-img { width: 1.6rem; height: 1.6rem; object-fit: contain; display: block; transform: translateY(-8%); }
@@ -1134,6 +1142,7 @@ input, select { font-family: inherit; }
 .ap-incident-effect { font-size: 0.7rem; line-height: 1.4; }
 .ap-incident-edu { color: var(--text-muted); font-size: 0.63rem; font-style: italic; line-height: 1.4; }
 .ap-discard-label { font-size: 0.68rem; font-weight: 600; }
+.ap-discard-confirm { font-family: 'Nunito', system-ui, sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; }
 .ap-discard-options { display: flex; flex-direction: column; gap: 0.25rem; }
 
 .ap-phase-box {
@@ -2186,7 +2195,6 @@ input, select { font-family: inherit; }
   flex-shrink: 0;
 }
 .corner-emoji { font-size: 1.1rem; flex-shrink: 0; transition: transform 0.2s, filter 0.2s; }
-.active-pawn { }
 .corner-info { flex: 1; min-width: 0; }
 .corner-name {
   display: block;

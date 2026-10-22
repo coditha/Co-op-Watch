@@ -225,7 +225,7 @@ export default function ActionPanel({
             Remove {pendingDiscard.count} card{pendingDiscard.count > 1 ? 's' : ''} to not exceed max 7 hand limit.
             ({selectedCardIds.length}/{pendingDiscard.count} selected)
           </div>
-          <button className="btn btn-danger"
+          <button className="btn btn-danger ap-discard-confirm"
             disabled={selectedCardIds.length !== pendingDiscard.count}
             onClick={() => { dispatch({ type: 'DISCARD_TO_HAND_LIMIT', cardIds: selectedCardIds }); onClearSelection(); }}>
             Confirm Discard

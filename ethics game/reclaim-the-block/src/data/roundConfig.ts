@@ -36,6 +36,7 @@ export const ROUND_CONFIG: Record<number, RoundConfig> = {
     boardPhaseEvent: 'The city proposes predicting where incidents are likely to occur.',
   },
   8: {
+    incidentId: 'incident-08',
     boardPhaseEvent: 'No theft. No accident. No proposal. Maplewood is safe now. At least, that is what the cameras say. No decision. No vote. The end.',
   },
 };

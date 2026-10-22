@@ -30,31 +30,28 @@ export interface CommunityCard {
 }
 
 
+// What one Incident choice does when the Board Phase plays it out. Meter values
+// are the full intended change: devices placed here skip their usual penalty.
 export interface IncidentOutcome {
-  text: string;            // what happens, shown on the card for this branch
-  // Devices added when this outcome resolves (omit for none).
-  // 'all' = every neighborhood. deviceCount defaults to 1 per target.
-  deviceTarget?: NeighborhoodId | 'all';
-  deviceCount?: number;
-  // Explicit meter change applied on top of any per-device penalties.
-  // Negative moves the meter toward zero (worse for the players).
-  meterDelta?: number;
-  // Skip the usual per-device Trust penalty for devices placed by this
-  // outcome (e.g. when the outcome's own meterDelta already accounts for
-  // the full intended cost, or the branch is meant to be device-only).
-  skipDeviceMeterPenalty?: boolean;
+  text: string;                                   // what happened, shown in the Board Phase
+  addTo?: (NeighborhoodId | 'any')[];             // one device per entry; 'any' lands like a regular Board Phase device
+  removeFrom?: (NeighborhoodId | 'most-crowded')[]; // one device per entry
+  meterDelta?: number;                            // negative moves the meter toward zero
+}
+
+// One option the community can pick on an Incident card.
+export interface IncidentChoice extends IncidentOutcome {
+  label: string;    // the option itself, e.g. "Support it fully"
+  reason?: string;  // the argument for it, shown under the label
 }
 
 export interface IncidentCard {
   id: string;
   type: 'incident';
   name: string;
-  effect: string;          // prompt shown on the card, e.g. "Does your community support it?"
-  educationalNote: string; // flavor / real-world description of the situation
-  // ── Data-driven resolution ──
-  // The group must choose one of these two branches; each resolves independently.
-  support: IncidentOutcome;
-  pushBack: IncidentOutcome;
+  effect: string;          // prompt shown on the card, e.g. "Does your community:"
+  educationalNote: string; // the situation
+  choices: IncidentChoice[];
 }
 
 export type Card = CommunityCard | IncidentCard;
@@ -109,13 +106,11 @@ export interface PendingIncident {
 // click actually applies it — the choice and the consequence are separate.
 export interface ResolvedIncident {
   name: string;
-  choice: 'support' | 'pushback';
+  choiceLabel: string;
   text: string;
-  effectSummary: string;
-  deviceTarget?: NeighborhoodId | 'all';
-  deviceCount?: number;
+  addTo?: (NeighborhoodId | 'any')[];
+  removeFrom?: (NeighborhoodId | 'most-crowded')[];
   meterDelta?: number;
-  skipDeviceMeterPenalty?: boolean;
 }
 
 export interface GameState {

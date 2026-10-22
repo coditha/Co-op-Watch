@@ -113,18 +113,23 @@ function CornerPanel({
 
 function boardPhaseActionLabel(state: GameState): string {
   // Incident rounds apply the chosen outcome; otherwise the city places a regular device.
-  const effect = state.resolvedIncident
-    ? previewResolvedIncidentEffect(state)
-    : previewRegularBoardPhase(state);
-  if (!effect) return '+1 Surveillance Device';
-  if (effect.deviceCount === 0 && effect.meterDelta === 0) return 'No Change';
-
-  const lines: string[] = [];
-  if (effect.deviceCount > 0) {
-    lines.push(`+${effect.deviceCount} Surveillance Device${effect.deviceCount > 1 ? 's' : ''}`);
+  let added = 0, removed = 0, meterDelta = 0;
+  if (state.resolvedIncident) {
+    const e = previewResolvedIncidentEffect(state);
+    if (e) ({ added, removed, meterDelta } = e);
+  } else {
+    const e = previewRegularBoardPhase(state);
+    if (!e) return '+1 Surveillance Device';
+    added = e.deviceCount; meterDelta = e.meterDelta;
   }
-  if (effect.meterDelta !== 0) {
-    lines.push(`${effect.meterDelta > 0 ? '+' : '-'}${Math.abs(effect.meterDelta)} Privacy & Trust Meter`);
+  if (added === 0 && removed === 0 && meterDelta === 0) return 'No Change';
+
+  const devices = (n: number) => `${n} Surveillance Device${n > 1 ? 's' : ''}`;
+  const lines: string[] = [];
+  if (added > 0) lines.push(`+${devices(added)}`);
+  if (removed > 0) lines.push(`-${devices(removed)}`);
+  if (meterDelta !== 0) {
+    lines.push(`${meterDelta > 0 ? '+' : '-'}${Math.abs(meterDelta)} Privacy & Trust Meter`);
   }
   return lines.join('\n');
 }
@@ -139,7 +144,8 @@ function IncidentOverlay({
   dispatch: (a: GameAction) => void;
 }) {
   // Shared between both copies: the table makes one choice together, then confirms.
-  const [choice, setChoice] = useState<'support' | 'pushback' | null>(null);
+  const [choice, setChoice] = useState<number | null>(null);
+  const choices = incident.card.choices;
   return (
     <div className="incident-overlay">
       <div className="incident-flash" />
@@ -168,21 +174,17 @@ function IncidentOverlay({
 
         {/* Action footer */}
         <div className="incident-card-footer">
-          <button className={`btn incident-card-btn incident-btn-support${choice === 'support' ? ' chosen' : choice ? ' not-chosen' : ''}`}
-            onClick={() => setChoice('support')}>
-            Support
-          </button>
-          <button className={`btn incident-card-btn incident-btn-pushback${choice === 'pushback' ? ' chosen' : choice ? ' not-chosen' : ''}`}
-            onClick={() => setChoice('pushback')}>
-            Push Back
-          </button>
-          {/* Placeholder slots for two more answers (not wired up yet) */}
-          <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
-          <button className="btn incident-card-btn incident-btn-placeholder" disabled aria-label="Answer slot (empty)" />
+          {choices.map((c, i) => (
+            <button key={i} className={`btn incident-choice${choice === i ? ' chosen' : choice !== null ? ' not-chosen' : ''}`}
+              onClick={() => setChoice(i)}>
+              <span className="incident-choice-label">{c.label}</span>
+              {c.reason && <span className="incident-choice-reason">{c.reason}</span>}
+            </button>
+          ))}
           <button className="btn incident-card-btn incident-btn-confirm"
-            disabled={!choice}
-            onClick={() => { if (choice) dispatch({ type: 'INCIDENT_VOTE', choice }); }}>
-            {choice ? 'Confirm' : 'Choose together'}
+            disabled={choice === null}
+            onClick={() => { if (choice !== null) dispatch({ type: 'INCIDENT_VOTE', choiceIndex: choice }); }}>
+            {choice !== null ? 'Confirm' : 'Choose together'}
           </button>
         </div>
       </div>
@@ -774,7 +776,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   <div className="board-phase-incident-choice">
                     <div className="board-phase-incident-choice-label">Your community chose to:</div>
                     <div className="board-phase-incident-choice-value">
-                      {state.resolvedIncident.choice === 'support' ? 'Support' : 'Push Back'}
+                      {state.resolvedIncident.choiceLabel}
                     </div>
                   </div>
                   <div className="board-phase-incident-text">
@@ -796,11 +798,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   if (r) {
                     // Incident already fully determines this round's board effect —
                     // only flash a tile if that effect actually places a device.
-                    if (r.deviceTarget && r.deviceTarget !== 'all' && (r.deviceCount ?? 1) > 0) {
-                      const nhd = state.neighborhoods.find((n) => n.id === r.deviceTarget);
-                      const emptySlot = nhd?.slots.findIndex((sl) => sl === null) ?? -1;
-                      if (emptySlot !== -1) target = { neighborhood: r.deviceTarget, slot: emptySlot };
-                    }
+                    target = previewResolvedIncidentEffect(state)?.target ?? null;
                   } else {
                     const regular = previewRegularBoardPhase(state);
                     if (regular?.target) {

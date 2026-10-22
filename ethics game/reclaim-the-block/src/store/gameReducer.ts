@@ -2,7 +2,6 @@ import type {
   GameState,
   CommunityCard,
   IncidentCard,
-  IncidentOutcome,
   NeighborhoodId,
   DeviceType,
   SlotIndex,
@@ -199,7 +198,7 @@ export type GameAction =
   | { type: 'DISCARD_TO_HAND_LIMIT'; cardIds: string[] }
   | { type: 'BOARD_PHASE' }
   | { type: 'ADVANCE_ROUND' }
-  | { type: 'INCIDENT_VOTE'; choice: 'support' | 'pushback' };
+  | { type: 'INCIDENT_VOTE'; choiceIndex: number };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -323,64 +322,69 @@ function placeDevice(
 
 // ── Incident Resolution ───────────────────────────────────────────────────
 
-function summarizeIncidentOutcome(outcome: IncidentOutcome): string {
-  const parts: string[] = [];
-  if (outcome.deviceTarget) {
-    const count = outcome.deviceCount ?? 1;
-    parts.push(`+${count} device${count > 1 ? 's' : ''}`);
-  }
-  if (outcome.meterDelta) {
-    parts.push(`${outcome.meterDelta > 0 ? '+' : ''}${outcome.meterDelta} trust`);
-  }
-  return parts.join(' · ');
-}
-
 // Records the community's choice only — the actual device/meter consequence
 // isn't applied until the player clicks the Board Phase button (see
 // applyResolvedIncidentEffect), so nothing changes on the board from a
-// mere Support/Push Back click.
-function resolveIncident(state: GameState, incident: IncidentCard, choice: 'support' | 'pushback'): GameState {
+// mere choice click.
+function resolveIncident(state: GameState, incident: IncidentCard, choiceIndex: number): GameState {
+  const outcome = incident.choices[choiceIndex];
+  if (!outcome) return state;
   let s: GameState = { ...state, pendingIncident: null };
-  const outcome = choice === 'support' ? incident.support : incident.pushBack;
   s = {
     ...s,
     resolvedIncident: {
       name: incident.name,
-      choice,
+      choiceLabel: outcome.label,
       text: outcome.text,
-      effectSummary: summarizeIncidentOutcome(outcome),
-      deviceTarget: outcome.deviceTarget,
-      deviceCount: outcome.deviceCount,
+      addTo: outcome.addTo,
+      removeFrom: outcome.removeFrom,
       meterDelta: outcome.meterDelta,
-      skipDeviceMeterPenalty: outcome.skipDeviceMeterPenalty,
     },
   };
-  s = log(s, `${incident.name} — ${choice === 'support' ? 'Support' : 'Push Back'}: ${outcome.text}`);
+  s = log(s, `${incident.name} — ${outcome.label}: ${outcome.text}`);
   return s;
 }
 
 // Applies the effect of a resolved incident choice — called from BOARD_PHASE
 // so the consequence lands exactly when the player clicks the board button.
+// Devices placed here skip their usual trust penalty: the choice's meterDelta
+// is the full intended change.
 function applyResolvedIncidentEffect(state: GameState): GameState {
   const r = state.resolvedIncident;
   if (!r) return state;
   let s = state;
 
-  if (r.deviceTarget) {
-    const targetIds: NeighborhoodId[] =
-      r.deviceTarget === 'all' ? s.neighborhoods.map((n) => n.id) : [r.deviceTarget];
-    const count = r.deviceCount ?? 1;
-    for (const nId of targetIds) {
-      for (let i = 0; i < count; i++) {
-        const emptySlot = s.neighborhoods
-          .find((n) => n.id === nId)!
-          .slots.findIndex((sl) => sl === null);
-        if (emptySlot === -1) break;
-        s = placeDevice(s, nId, emptySlot as SlotIndex, deviceForTracker(s.densityTracker), {
-          skipMeterPenalty: r.skipDeviceMeterPenalty,
-        });
+  for (const where of r.addTo ?? []) {
+    let target: { neighborhood: NeighborhoodId; slot: SlotIndex } | null = null;
+    if (where === 'any') {
+      // Lands like a regular Board Phase device: the next Surveillance Card picks the spot.
+      let deck = [...s.surveillanceDeck];
+      let discard = [...s.surveillanceDiscard];
+      if (deck.length === 0) { deck = shuffle(discard); discard = []; }
+      const card = deck.shift();
+      if (card) {
+        s = { ...s, surveillanceDeck: deck, surveillanceDiscard: [...discard, card] };
+        target = pickRegularSlot(s, card);
       }
+    } else {
+      const open = s.neighborhoods.find((n) => n.id === where)!.slots.findIndex((sl) => sl === null);
+      if (open !== -1) target = { neighborhood: where, slot: open as SlotIndex };
     }
+    if (target) {
+      s = placeDevice(s, target.neighborhood, target.slot, deviceForTracker(s.densityTracker), { skipMeterPenalty: true });
+    } else {
+      s = log(s, `${r.name}: no open slot, device skipped.`);
+    }
+  }
+
+  for (const from of r.removeFrom ?? []) {
+    const n = from === 'most-crowded'
+      ? [...s.neighborhoods].sort((a, b) => b.densityTrack - a.densityTrack)[0]
+      : s.neighborhoods.find((nb) => nb.id === from)!;
+    const slot = n.slots.findIndex((sl) => sl !== null);
+    if (slot === -1) continue;
+    s = removeDeviceFromSlot(s, n.id, slot as SlotIndex);
+    s = log(s, `${r.name}: device removed from ${n.name}.`);
   }
 
   if (r.meterDelta) {
@@ -390,25 +394,30 @@ function applyResolvedIncidentEffect(state: GameState): GameState {
   return s;
 }
 
-// True combined effect of the resolved incident choice — the chosen device
-// count, plus the trust cost each of those devices carries on its own (via
-// placeDevice's built-in per-device penalty, unless the outcome opts out via
-// skipDeviceMeterPenalty), so the Board Phase button can state the real
-// total instead of just the device count.
-export function previewResolvedIncidentEffect(
-  state: GameState
-): { deviceCount: number; meterDelta: number } | null {
-  const r = state.resolvedIncident;
-  if (!r) return null;
-  let deviceCount = 0;
-  let meterDelta = r.meterDelta ?? 0;
-  if (r.deviceTarget) {
-    deviceCount = r.deviceCount ?? 1;
-    if (!r.skipDeviceMeterPenalty) {
-      meterDelta += meterShiftForDevice(deviceForTracker(state.densityTracker)) * deviceCount;
-    }
-  }
-  return { deviceCount, meterDelta };
+// What the resolved incident choice will actually do right now — found by
+// applying it to a copy of the state — so the Board Phase button can state it
+// and flash the first slot that gets a device.
+export function previewResolvedIncidentEffect(state: GameState): {
+  added: number;
+  removed: number;
+  meterDelta: number;
+  target: { neighborhood: NeighborhoodId; slot: SlotIndex } | null;
+} | null {
+  if (!state.resolvedIncident) return null;
+  const after = applyResolvedIncidentEffect(state);
+  let added = 0, removed = 0;
+  let target: { neighborhood: NeighborhoodId; slot: SlotIndex } | null = null;
+  state.neighborhoods.forEach((n, ni) => {
+    n.slots.forEach((was, si) => {
+      const now = after.neighborhoods[ni].slots[si];
+      if (was === null && now !== null) {
+        added++;
+        if (!target) target = { neighborhood: n.id, slot: si as SlotIndex };
+      }
+      if (was !== null && now === null) removed++;
+    });
+  });
+  return { added, removed, meterDelta: after.privacyMeter - state.privacyMeter, target };
 }
 
 // Where a regular (non-incident) Board Phase device lands. The drawn card names
@@ -720,7 +729,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'INCIDENT_VOTE': {
       if (!state.pendingIncident) return state;
       const incident = state.pendingIncident.card;
-      return resolveIncident(state, incident, action.choice);
+      return resolveIncident(state, incident, action.choiceIndex);
     }
 
     default:

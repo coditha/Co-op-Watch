@@ -56,7 +56,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
           The <strong>Privacy &amp; Community Trust</strong> meter hits 0, or <strong>Round 8</strong> ends before the board is clear.
         </Row>
         <Row title="The meter">
-          Starts at 20 out of 30. New devices and some Incident results lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
+          Starts at 20 out of 30. Incident choices can raise or lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
         </Row>
       </>
     ),
@@ -146,17 +146,13 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     label: 'End of Round',
     content: (
       <>
-        <Row img={<Img src="/warning.png" />} title="Surveillance Incident (Rounds 1–7)">
-          After the last player's turn, the city makes a proposal. Pick <strong>Support</strong> or <strong>Push Back</strong> on either card.
+        <Row img={<Img src="/warning.png" />} title="Surveillance Incident (every round)">
+          After the last player's turn, the city makes a proposal. Pick one of the <strong>4 responses</strong> on either card.
           Your pick shows on both, so decide together, then press <strong>Confirm</strong>.
         </Row>
         <Row img={<Img src="/caution.png" />} title="Board Phase">
-          In Rounds 1–7, your Incident choice plays out. It can add devices, change the meter, or both.
-          In Round 8, the city places one more device. A flash shows where it lands.
-        </Row>
-        <Row img={<Img src="/ring.png" />} title="Surveillance keeps growing">
-          Each round, newly placed devices get stronger and cost more trust (−1 at first, up to −3 later).
-          A district filling all 4 houses speeds this up, and a deposit slows it down. All devices look the same on the board.
+          Your choice plays out. It can <strong>add devices</strong>, <strong>remove devices</strong>, change the meter, or a mix.
+          Removed devices come from the district the card names, or the most crowded one. A flash shows where a new device lands.
         </Row>
       </>
     ),

@@ -1691,6 +1691,8 @@ input, select { font-family: inherit; }
 }
 .dual-card { width: min(400px, 44vw); }
 .dual-card.faces-top { transform: rotate(180deg); }
+/* Incident cards are wider to fit the longer choice options. */
+.incident-overlay .dual-card { width: min(520px, 47vw); }
 /* Red header band */
 .incident-card-header {
   background: #ef4444;
@@ -1732,22 +1734,29 @@ input, select { font-family: inherit; }
 /* Footer actions */
 .incident-card-footer {
   padding: 0.75rem 1rem 0.85rem;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
 }
 .incident-card-discard-label {
   font-size: 0.72rem; font-weight: 700; color: var(--text); text-align: center;
 }
 .incident-card-discard-options { display: flex; flex-direction: column; gap: 0.35rem; }
-.incident-btn-placeholder { background: transparent; border: 2px dashed rgba(0,0,0,0.25); box-shadow: none; cursor: default; min-height: 2.4rem; }
 .incident-card-btn { width: 100%; font-family: 'Press Start 2P', monospace; font-size: 0.7rem; padding: 0.65rem 1rem; }
-/* Support / Push Back share the same neutral tone — neither choice should
-   read as "correct" or "safe" via color alone. */
-.incident-btn-support, .incident-btn-pushback { background: var(--yellow); color: #fff; }
-/* The chosen option shows on both copies; the other dims. Still neutral — the
+/* Every choice shares the same neutral tone — no option should read as
+   "correct" or "safe" via color alone. */
+.incident-choice {
+  width: 100%; text-align: left;
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 0.45rem 0.7rem;
+  background: var(--yellow); color: #fff;
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+.incident-choice-label { font-size: 0.92rem; font-weight: 700; line-height: 1.25; }
+.incident-choice-reason { font-size: 0.78rem; font-weight: 400; line-height: 1.3; opacity: 0.92; }
+/* The chosen option shows on both copies; the others dim. Still neutral — the
    highlight is an outline, not a colour that implies right or wrong. */
-.incident-card-btn.chosen { outline: 3px solid var(--px-dark); outline-offset: 2px; }
-.incident-card-btn.not-chosen { opacity: 0.45; }
-.incident-btn-confirm { grid-column: 1 / -1; background: var(--px-dark); color: #fff; }
+.incident-choice.chosen { outline: 3px solid var(--px-dark); outline-offset: 2px; }
+.incident-choice.not-chosen { opacity: 0.45; }
+.incident-btn-confirm { background: var(--px-dark); color: #fff; }
 
 /* ── Drawn Cards Overlay ─────────────────────────────────── */
 .drawn-cards-overlay {

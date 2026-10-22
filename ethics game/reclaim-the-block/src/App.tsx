@@ -574,7 +574,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   <div className="city-hall-sublabel">Deposit Zone</div>
                   <div className="city-hall-players">
                     {state.players.filter((p) => p.position === 'city-hall').map((p) => (
-                      <span key={p.id} className={p.id === activePlayer.id ? 'active-pawn' : ''} title={p.role.name}>
+                      <span key={p.id} className={`ts-spot ts-spot-${p.role.id}${p.id === activePlayer.id ? ' active-pawn' : ''}`} title={p.role.name}>
                         {p.role.characterImage ? <img src={p.role.characterImage} alt={p.role.name} className="pawn-img" /> : p.role.emoji}
                       </span>
                     ))}

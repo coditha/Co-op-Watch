@@ -179,6 +179,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
     lastDiceRoll: null,
 
     incidentFiredThisRound: false,
+    transferredThisRound: [],
 
     gameLog: ['Game started! Good luck reclaiming the block.'],
     lossReason: undefined,
@@ -272,7 +273,7 @@ function transferCard(state: GameState, fromPlayerId: number, toPlayerId: number
     if (p.id === toPlayerId) return { ...p, hand: [...p.hand, card] };
     return p;
   });
-  const s = spendActions({ ...state, players }, 1);
+  const s = spendActions({ ...state, players, transferredThisRound: [...state.transferredThisRound, fromPlayerId] }, 1);
   return log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`);
 }
 
@@ -587,6 +588,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const to = state.players.find((p) => p.id === action.toPlayerId);
       if (!to || from.position !== to.position) return state;
       if (!from.hand.some((c) => c.id === action.cardId)) return state;
+      if (state.transferredThisRound.includes(from.id)) return state; // once per round
 
       // A full receiver first chooses a card to discard; the transfer completes after.
       if (to.hand.length >= 7) {
@@ -742,6 +744,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         pendingDiceRoll: true,
         densityTracker: Math.min(8, state.densityTracker + 1),
         incidentFiredThisRound: false,
+        transferredThisRound: [],
         resolvedIncident: null,
       };
       s = log(s, `--- Round ${s.round} begins — ${s.players[0].role.name}, roll the dice! ---`);

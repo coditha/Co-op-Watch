@@ -117,7 +117,8 @@ export default function ActionPanel({
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
   // Any teammate on the same tile; a full hand discards 1 before receiving.
   const transferTargets = colocatedPlayers;
-  const canShare = canAct && transferTargets.length > 0 && player.hand.length > 0;
+  const alreadyTransferred = state.transferredThisRound.includes(player.id);
+  const canShare = canAct && !alreadyTransferred && transferTargets.length > 0 && player.hand.length > 0;
 
   // ── Action button definitions ────────────────────────────────────────────
   const nhColorNeeded = selectedNeighborhood ? NHCOLOR[selectedNeighborhood] : null;
@@ -174,7 +175,7 @@ export default function ActionPanel({
       label: 'Transfer Card',
       sub: 'Give 1 card to teammate',
       tooltip: [
-        'Cost: 1 action.',
+        'Cost: 1 action. Once per round.',
         'Give 1 Community Card to a teammate on your tile.',
         'Both players must occupy the exact same space.',
       ].join('\n'),

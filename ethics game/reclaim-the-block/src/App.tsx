@@ -136,15 +136,6 @@ function boardPhaseActionLabel(state: GameState): string {
 
 // ── Surveillance incident overlay ──────────────────────────────────────────
 
-// Scenario text marks its key part with **...**; render that part highlighted.
-function highlightKeyText(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**')
-      ? <mark key={i} className="incident-card-key">{part.slice(2, -2)}</mark>
-      : part
-  );
-}
-
 function IncidentOverlay({
   incident,
   dispatch,
@@ -176,8 +167,8 @@ function IncidentOverlay({
         {/* Inner frame body */}
         <div className="incident-card-body">
           <div className="incident-card-name">{incident.card.name}</div>
-          <div className="incident-card-flavor">{highlightKeyText(incident.card.educationalNote)}</div>
-          <div className="incident-card-rule">{incident.card.effect}</div>
+          <div className="incident-card-flavor">{incident.card.educationalNote}</div>
+          <div className="incident-card-rule"><mark className="incident-card-key">{incident.card.effect}</mark></div>
 
         </div>
 

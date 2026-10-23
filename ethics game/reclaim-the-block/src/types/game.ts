@@ -49,7 +49,7 @@ export interface IncidentCard {
   id: string;
   type: 'incident';
   name: string;
-  effect: string;          // prompt shown on the card, e.g. "Does your community:"
+  effect: string;          // the proposal or reveal players respond to, shown above the choices
   educationalNote: string; // the situation
   choices: IncidentChoice[];
 }

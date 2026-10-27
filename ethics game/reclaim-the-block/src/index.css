@@ -863,7 +863,7 @@ input, select { font-family: inherit; }
 }
 .incident-title { color: var(--red); font-weight: 700; font-size: 0.75rem; margin-bottom: 4px; text-shadow: 1px 1px 0 var(--px-dark); }
 .incident-effect { font-size: 0.78rem; margin-bottom: 6px; }
-.incident-edu { color: var(--text-muted); font-size: 0.72rem; font-style: italic; margin-bottom: 8px; line-height: 1.4; }
+.incident-edu { color: var(--text-muted); font-size: 0.72rem; font-style: normal; margin-bottom: 8px; line-height: 1.4; }
 .incident-vote { display: flex; flex-direction: column; gap: 6px; }
 .incident-vote p { font-size: 0.78rem; color: var(--text-muted); }
 .incident-discard p { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
@@ -1095,7 +1095,7 @@ input, select { font-family: inherit; }
 }
 .ap-incident-title { color: var(--red); font-weight: 700; font-size: 0.75rem; }
 .ap-incident-effect { font-size: 0.7rem; line-height: 1.4; }
-.ap-incident-edu { color: var(--text-muted); font-size: 0.63rem; font-style: italic; line-height: 1.4; }
+.ap-incident-edu { color: var(--text-muted); font-size: 0.63rem; font-style: normal; line-height: 1.4; }
 .ap-discard-label { font-size: 0.68rem; font-weight: 600; }
 .ap-discard-confirm { font-family: 'Nunito', system-ui, sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; }
 .ap-discard-options { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -1656,7 +1656,7 @@ input, select { font-family: inherit; }
   font-size: 0.95rem; letter-spacing: 0.5px;
   color: #d97706;
 }
-.board-phase-incident-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; font-style: italic; }
+.board-phase-incident-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; font-style: normal; }
 .board-phase-footer { padding: 0 0.75rem 0.75rem; }
 .board-phase-btn { width: 100%; background: var(--yellow); color: #fff; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; white-space: pre-line; line-height: 1.6; }
 .board-phase-btn:hover { background: #b06e00; }

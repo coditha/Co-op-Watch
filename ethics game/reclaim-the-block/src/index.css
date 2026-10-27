@@ -1724,7 +1724,7 @@ input, select { font-family: inherit; }
 }
 .incident-card-flavor {
   font-size: 1.05rem; color: var(--text-muted); line-height: 1.55;
-  font-style: italic; font-weight: 700; text-align: center;
+  font-style: normal; font-weight: 700; text-align: center;
 }
 /* The proposal or reveal players respond to — the readable focus of the card */
 .incident-card-rule {

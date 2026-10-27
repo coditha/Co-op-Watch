@@ -520,6 +520,8 @@ input, select { font-family: inherit; }
 .board-roads-top .road-line-v:last-child { flex: 0 0 16px; }
 .board-roads-bottom .road-line-v:first-child { flex: 0 0 16px; }
 .board-roads-bottom .road-line-v:last-child { flex: 1; }
+.city-hall-row .road-segment-h:first-child .road-line-h:first-child,
+.city-hall-row .road-segment-h:last-child .road-line-h:last-child { width: 40px; } /* extra gap between the neighborhood tile and the road stop */
 .road-segment-v { display: flex; flex-direction: column; align-items: center; height: 100%; }
 .road-segment-h { display: flex; flex-direction: row; align-items: center; }
 /* Connecting roads — same tan street + dark pixel outline as neighborhood roads */
@@ -2093,7 +2095,7 @@ input, select { font-family: inherit; }
 }
 .tv-game .board-roads-top,
 .tv-game .board-roads-bottom {
-  height: 78px;
+  height: 104px; /* extra room between a district's house and the road stop */
 }
 /* ── Connect the inter-district roads to each neighbourhood ──────────────
    Purely cosmetic nudges (margins + transform). The movement graph, the

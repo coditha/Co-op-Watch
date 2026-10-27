@@ -75,9 +75,9 @@ function schedule() {
     if (track === 'tense') {
       const b = TENSE_BASS[step % TENSE_BASS.length];
       const l = TENSE_LEAD[step % TENSE_LEAD.length];
-      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.9, 'sawtooth', 0.8);
-      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'square', 0.45);
-      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'square', 0.3); // tick
+      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.6, 'triangle', 0.55); // soft bass, short so it doesn't boom
+      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'triangle', 0.5);
+      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'triangle', 0.25); // tick
       nextTime += TENSE_STEP;
       step++;
       continue;
@@ -105,7 +105,11 @@ export function startMusic() {
       ctx = new AudioContext();
       master = ctx.createGain();
       master.gain.value = VOLUME;
-      master.connect(ctx.destination);
+      // Gentle low-pass takes the harsh edge off the square/saw waves.
+      const soften = ctx.createBiquadFilter();
+      soften.type = 'lowpass';
+      soften.frequency.value = 2200;
+      master.connect(soften).connect(ctx.destination);
     }
     void ctx.resume();
     nextTime = ctx.currentTime + 0.05;

@@ -3,33 +3,38 @@
 
 const VOLUME = 0.05;
 
-// Calm track: an upbeat, determined groove. Am – F – C – G with a punchy bass, a bright
-// square-wave lead, a kick on beats 1 and 3 and a light hi-hat.
-const BPM = 108;
+// Note name -> frequency, e.g. 'C5', 'Bb2'.
+const SEMI: Record<string, number> = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+function nf(name: string): number {
+  const letter = name[0];
+  const flat = name[1] === 'b' ? -1 : 0;
+  const oct = Number(name[name.length - 1]);
+  return 440 * Math.pow(2, (SEMI[letter] + flat + (oct - 4) * 12) / 12);
+}
+
+// Calm track: hopeful and playful. C – G – Am – F, a bouncy "oom-pah" bass and a plucky
+// square-wave tune. No drums, so it skips along without feeling like a dance beat.
+const BPM = 104;
 const STEP = 60 / BPM / 2; // eighth note, in seconds
-const hz = (semitonesFromA4: number) => 440 * Math.pow(2, semitonesFromA4 / 12);
-const N: Record<string, number> = {
-  A2: hz(-24), F2: hz(-28), C3: hz(-21), G2: hz(-26),
-  F4: hz(-4), G4: hz(-2), A4: hz(0), B4: hz(2), C5: hz(3), D5: hz(5), E5: hz(7), G5: hz(10),
-};
-// One chord per bar (8 eighth-note steps); 4 bars = 32 steps.
-const ROOTS = ['A2', 'F2', 'C3', 'G2'];
+const ROOTS = ['C3', 'G2', 'A2', 'F2'];
+const FIFTHS = ['G3', 'D3', 'E3', 'C3'];
+// 4 bars x 8 eighth-note steps, '' = rest
 const MELODY = [
-  'A4', 'C5', 'E5', 'C5', 'A4', 'C5', 'E5', '',
-  'F4', 'A4', 'C5', 'A4', 'F4', 'A4', 'C5', '',
-  'G4', 'C5', 'E5', 'C5', 'G4', 'C5', 'E5', 'G5',
-  'D5', 'B4', 'G4', 'B4', 'D5', 'B4', 'G4', '',
+  'E5', '', 'G5', 'E5', 'C5', '', 'E5', 'D5',
+  'D5', '', 'G5', 'D5', 'B4', '', 'D5', 'C5',
+  'C5', '', 'E5', 'C5', 'A4', '', 'C5', 'B4',
+  'A4', '', 'C5', 'A4', 'F5', 'E5', 'D5', 'C5',
 ];
 
-// Tense track for surveillance incidents: slow and ominous. A low drone, a heartbeat thump,
-// a ticking clock and sparse dissonant stings. No beat, nothing to dance to.
-const TENSE_STEP = 60 / 66 / 2; // eighth note at 66 BPM
-const TENSE_NOTES: Record<string, number> = {
-  A1: 55.0, F1: 43.65, E1: 41.2, Bb1: 58.27,
-  A4: 440.0, Bb4: 466.16, E4: 329.63, F4: 349.23, Eb4: 311.13, Ab4: 415.3,
-};
-// One drone per 2 bars (16 steps); 4 steps cycle = 64 steps total
-const DRONES = ['A1', 'F1', 'A1', 'E1'];
+// Tense track for surveillance incidents: dark and heavy. Slow, brooding minor chords that
+// swell in like brass (Dm – Bb – Gm – A), a deep drum boom on each bar, and nothing to dance to.
+const TENSE_STEP = 60 / 54 / 2; // eighth note at 54 BPM
+const TENSE_CHORDS = [
+  ['D2', 'A2', 'F3'], // Dm
+  ['Bb1', 'F2', 'D3'], // Bb
+  ['G1', 'D2', 'Bb2'], // Gm
+  ['A1', 'E2', 'C3'], // A with a minor third: dark
+];
 export type Track = 'calm' | 'tense';
 let track: Track = 'calm';
 
@@ -40,36 +45,18 @@ let nextTime = 0;
 let step = 0;
 let enabled = true;
 
-function note(freq: number, start: number, dur: number, type: OscillatorType, gain: number) {
+function note(freq: number, start: number, dur: number, type: OscillatorType, gain: number, attack = 0.01) {
   if (!ctx || !master) return;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = type;
   osc.frequency.value = freq;
   g.gain.setValueAtTime(0, start);
-  g.gain.linearRampToValueAtTime(gain, start + 0.01);
+  g.gain.linearRampToValueAtTime(gain, start + attack);
   g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
   osc.connect(g).connect(master);
   osc.start(start);
   osc.stop(start + dur + 0.02);
-}
-
-function hat(start: number) {
-  if (!ctx || !master) return;
-  const len = Math.floor(ctx.sampleRate * 0.04);
-  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-  const src = ctx.createBufferSource();
-  const hp = ctx.createBiquadFilter();
-  const g = ctx.createGain();
-  hp.type = 'highpass';
-  hp.frequency.value = 7000;
-  src.buffer = buf;
-  g.gain.setValueAtTime(0.12, start);
-  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.04);
-  src.connect(hp).connect(g).connect(master);
-  src.start(start);
 }
 
 function thump(start: number, vol = 1) {
@@ -89,30 +76,28 @@ function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
     if (track === 'tense') {
-      const pos = step % 16;
-      const drone = DRONES[Math.floor(step / 16) % 4];
+      const bar = Math.floor(step / 8) % 4;
+      const pos = step % 8;
       if (pos === 0) {
-        note(TENSE_NOTES[drone], nextTime, TENSE_STEP * 16, 'sawtooth', 0.5);
-        note(TENSE_NOTES[drone] * 2.005, nextTime, TENSE_STEP * 16, 'sine', 0.35); // slightly detuned for unease
+        const [root, fifth, third] = TENSE_CHORDS[bar];
+        const len = TENSE_STEP * 8;
+        note(nf(root), nextTime, len, 'sawtooth', 0.55, 1.4);
+        note(nf(fifth), nextTime, len, 'sawtooth', 0.3, 1.8);
+        note(nf(third), nextTime, len, 'sawtooth', 0.25, 2.2);
+        note(nf(root) / 2, nextTime, len, 'sine', 0.7, 0.3); // sub rumble
+        thump(nextTime, 1);
       }
-      if (pos % 8 === 0) { thump(nextTime); thump(nextTime + TENSE_STEP * 1.5, 0.6); } // heartbeat: lub-dub
-      if (pos % 2 === 0) note(2200, nextTime, 0.02, 'square', 0.12); // clock tick
-      if (pos === 10) { // dissonant sting: minor second
-        note(TENSE_NOTES.A4, nextTime, TENSE_STEP * 4, 'triangle', 0.4);
-        note(TENSE_NOTES.Bb4, nextTime, TENSE_STEP * 4, 'triangle', 0.4);
-      }
-      if (pos === 14 && Math.floor(step / 16) % 2 === 1) note(TENSE_NOTES.Eb4, nextTime, TENSE_STEP * 2, 'triangle', 0.35);
+      if (pos === 6 && bar === 3) thump(nextTime, 0.7); // extra hit before the loop restarts
       nextTime += TENSE_STEP;
       step++;
       continue;
     }
     const bar = Math.floor(step / 8) % 4;
     const pos = step % 8;
-    if (pos === 0 || pos === 2 || pos === 3 || pos === 4 || pos === 6) note(N[ROOTS[bar]], nextTime, STEP * 1.6, 'triangle', 0.95);
+    if (pos === 0 || pos === 4) note(nf(ROOTS[bar]), nextTime, STEP * 1.2, 'triangle', 0.95);
+    if (pos === 2 || pos === 6) note(nf(FIFTHS[bar]), nextTime, STEP * 0.9, 'triangle', 0.6);
     const m = MELODY[step % MELODY.length];
-    if (m) note(N[m], nextTime, STEP * 1.5, 'square', 0.4);
-    if (pos === 0 || pos === 4) thump(nextTime, 0.8);
-    if (pos % 2 === 1) hat(nextTime);
+    if (m) note(nf(m), nextTime, STEP * 1.1, 'square', 0.38);
     nextTime += STEP;
     step++;
   }

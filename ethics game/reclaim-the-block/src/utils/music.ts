@@ -3,26 +3,22 @@
 
 const VOLUME = 0.05;
 
-// Calm track: a slow, warm lo-fi groove. Fmaj7 – Em7 – Dm7 – Cmaj7 with soft pads,
-// a round bass, a sparse plucked melody and a gentle hi-hat.
-const BPM = 78;
+// Calm track: an upbeat, determined groove. Am – F – C – G with a punchy bass, a bright
+// square-wave lead, a kick on beats 1 and 3 and a light hi-hat.
+const BPM = 108;
 const STEP = 60 / BPM / 2; // eighth note, in seconds
 const hz = (semitonesFromA4: number) => 440 * Math.pow(2, semitonesFromA4 / 12);
 const N: Record<string, number> = {
-  C2: hz(-33), D2: hz(-31), E2: hz(-29), F2: hz(-28),
-  C3: hz(-21), E3: hz(-17), G3: hz(-14), B3: hz(-10), D3: hz(-19), F3: hz(-16), A3: hz(-12), Bb3: hz(-11),
-  E4: hz(-5), G4: hz(-2), A4: hz(0), C5: hz(3), D5: hz(5), E5: hz(7), B4: hz(2), F4: hz(-4), D4: hz(-7),
+  A2: hz(-24), F2: hz(-28), C3: hz(-21), G2: hz(-26),
+  F4: hz(-4), G4: hz(-2), A4: hz(0), B4: hz(2), C5: hz(3), D5: hz(5), E5: hz(7), G5: hz(10),
 };
 // One chord per bar (8 eighth-note steps); 4 bars = 32 steps.
-const CHORDS = [
-  { root: 'F2', pad: ['A3', 'C5', 'E4'] },
-  { root: 'E2', pad: ['G3', 'B3', 'D4'] },
-  { root: 'D2', pad: ['F3', 'A3', 'C5'] },
-  { root: 'C2', pad: ['E3', 'G3', 'B3'] },
-];
+const ROOTS = ['A2', 'F2', 'C3', 'G2'];
 const MELODY = [
-  'C5', '', '', 'A4', '', 'G4', '', '', 'B4', '', '', 'G4', '', 'E4', '', '',
-  'A4', '', '', 'F4', '', 'A4', '', '', 'G4', '', 'E4', '', 'D4', '', '', '',
+  'A4', 'C5', 'E5', 'C5', 'A4', 'C5', 'E5', '',
+  'F4', 'A4', 'C5', 'A4', 'F4', 'A4', 'C5', '',
+  'G4', 'C5', 'E5', 'C5', 'G4', 'C5', 'E5', 'G5',
+  'D5', 'B4', 'G4', 'B4', 'D5', 'B4', 'G4', '',
 ];
 
 // Tense track for surveillance incidents: slow and ominous. A low drone, a heartbeat thump,
@@ -112,11 +108,10 @@ function schedule() {
     }
     const bar = Math.floor(step / 8) % 4;
     const pos = step % 8;
-    const chord = CHORDS[bar];
-    if (pos === 0) chord.pad.forEach((k) => note(N[k], nextTime, STEP * 8, 'triangle', 0.22));
-    if (pos === 0 || pos === 5) note(N[chord.root], nextTime, STEP * 2.5, 'sine', 1.0);
+    if (pos === 0 || pos === 2 || pos === 3 || pos === 4 || pos === 6) note(N[ROOTS[bar]], nextTime, STEP * 1.6, 'triangle', 0.95);
     const m = MELODY[step % MELODY.length];
-    if (m) note(N[m], nextTime, STEP * 2.5, 'triangle', 0.55);
+    if (m) note(N[m], nextTime, STEP * 1.5, 'square', 0.4);
+    if (pos === 0 || pos === 4) thump(nextTime, 0.8);
     if (pos % 2 === 1) hat(nextTime);
     nextTime += STEP;
     step++;

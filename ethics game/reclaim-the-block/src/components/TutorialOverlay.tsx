@@ -90,14 +90,14 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     content: (
       <>
         <Row img={<Img src="/tutorial/turn-dice.png" />} shot title="1. Roll the dice">
-          Your roll (3–8) is how many <strong>actions</strong> you get this turn.
+          Your roll (1–6) is how many <strong>actions</strong> you get this turn.
         </Row>
         <Row img={<Img src="/tutorial/turn-move.png" />} shot title="2. Spend your actions">
           Moving one step, removing a device, depositing, and transferring a card each cost <strong>1 action</strong>.
           Tiles with a <strong>white outline</strong> show where you can move. Your pawn glows <strong>gold</strong> on your turn.
         </Row>
         <Row img={<Img src="/tutorial/turn-cards.png" />} shot title="3. End your turn">
-          <strong>End Turn</strong> is free and draws <strong>2 cards</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
+          <strong>End Turn</strong> is free and draws <strong>1 card</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
         </Row>
       </>
     ),
@@ -107,9 +107,9 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     label: 'Actions',
     content: (
       <>
-        <Row title="Remove Device: 2 same color cards">
+        <Row title="Remove Device: 3 same color cards">
           Stand on any house in that district and tap the house with the device (or stand on it).
-          You need <strong>2 cards in that district's color</strong>. The game uses matching cards from your hand automatically.
+          You need <strong>3 cards in that district's color</strong>. The game uses matching cards from your hand automatically.
           Raises the meter by 1.
         </Row>
         <Row title="Deposit Cards: 4 colors at Town Square">

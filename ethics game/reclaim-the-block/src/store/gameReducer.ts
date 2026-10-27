@@ -191,7 +191,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
 export type GameAction =
   | { type: 'ROLL_DIE'; precomputedRoll?: number }
   | { type: 'MOVE'; to: Position }
-  | { type: 'REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string] }
+  | { type: 'REMOVE_DEVICE'; neighborhoodId: NeighborhoodId; slotIndex: SlotIndex; cardIds: [string, string, string] }
   | { type: 'TRANSFER_CARD'; fromPlayerId: number; toPlayerId: number; cardId: string }
   | { type: 'DEPOSIT_AT_CITY_HALL'; cardIds: string[] }
   | { type: 'END_TURN' }
@@ -557,14 +557,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return s;
     }
 
-    // ── Remove device (standard: 1 action + 2 cards matching neighborhood color) ──────
+    // ── Remove device (standard: 1 action + 3 cards matching neighborhood color) ──────
     case 'REMOVE_DEVICE': {
       if (state.actionsRemaining < 1) return state;
       const player = state.players[state.currentPlayerIndex];
       const hand = player.hand;
       const cards = action.cardIds.map((id) => hand.find((c) => c.id === id)!).filter(Boolean);
-      if (cards.length < 2) return state;
-      if (cards[0].category !== cards[1].category) return state;
+      if (cards.length < 3) return state;
+      if (cards.some((c) => c.category !== cards[0].category)) return state;
       const NHCOLOR: Record<string, string> = { suburb: 'yellow', courthouse: 'blue', media: 'green', politics: 'red' };
       if (cards[0].category !== NHCOLOR[action.neighborhoodId]) return state;
 
@@ -647,8 +647,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const player = state.players[state.currentPlayerIndex];
       let s = state;
 
-      // Peek 2 community cards — hold them for display before adding to hand
-      const { state: s2, drawnCards } = peekDrawCards(s, 2);
+      // Peek 1 community card — hold it for display before adding to hand
+      const { state: s2, drawnCards } = peekDrawCards(s, 1);
       s = s2;
 
       const allDrawn = drawnCards;

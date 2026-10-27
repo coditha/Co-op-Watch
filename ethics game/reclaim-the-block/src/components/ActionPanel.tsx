@@ -69,29 +69,29 @@ export default function ActionPanel({
   const autoSlot = posMatch ? SLOT_INDEX[posMatch[2]] : null;
   const effectiveNeighborhood = selectedNeighborhood ?? autoNeighborhood;
   const effectiveSlot = selectedSlot !== null ? selectedSlot : autoSlot;
-  const twoSameColor = selectedCards.length >= 2 && selectedCards[0].category === selectedCards[1].category;
+  const threeSameColor = selectedCards.length >= 3 && selectedCards.slice(0, 3).every((c) => c.category === selectedCards[0].category);
   const cardsMatchNeighborhood =
     effectiveNeighborhood !== null &&
-    selectedCards.length >= 2 &&
+    selectedCards.length >= 3 &&
     selectedCards[0].category === NHCOLOR[effectiveNeighborhood];
   const playerInSelectedNeighborhood =
     effectiveNeighborhood !== null &&
     (player.position === effectiveNeighborhood || player.position.startsWith(`${effectiveNeighborhood}-n`));
 
-  // Cards to spend: the player's selection if it is already a valid matching pair,
-  // otherwise the first two cards in their hand that match the neighborhood color —
+  // Cards to spend: the player's selection if it is already a valid matching set of three,
+  // otherwise the first three cards in their hand that match the neighborhood color —
   // so Remove Device is ready as soon as they stand on a device holding the right cards.
-  const validSelectedPair = twoSameColor && cardsMatchNeighborhood;
+  const validSelectedSet = threeSameColor && cardsMatchNeighborhood;
   const handMatches = effectiveNeighborhood !== null
     ? player.hand.filter((c) => c.category === NHCOLOR[effectiveNeighborhood])
     : [];
-  const removeCardIds: string[] = validSelectedPair
-    ? [selectedCards[0].id, selectedCards[1].id]
-    : handMatches.slice(0, 2).map((c) => c.id);
+  const removeCardIds: string[] = validSelectedSet
+    ? [selectedCards[0].id, selectedCards[1].id, selectedCards[2].id]
+    : handMatches.slice(0, 3).map((c) => c.id);
 
   const canRemove =
     canAct && playerInSelectedNeighborhood && effectiveSlot !== null && effectiveNeighborhood !== null &&
-    removeCardIds.length === 2 &&
+    removeCardIds.length === 3 &&
     state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null;
 
   const depositRequired = 4;
@@ -128,16 +128,16 @@ export default function ActionPanel({
       id: 'remove',
       icon: '🗑️',
       label: 'Remove Device',
-      sub: 'Spend 2 same color cards',
+      sub: 'Spend 3 same color cards',
       tooltip: [
-        'Cost: 1 action + 2 matching-color cards.',
+        'Cost: 1 action + 3 matching-color cards.',
         'Selected cards are used first; otherwise matching cards from your hand.',
         'You must be inside the neighborhood.',
         'Color key:',
         'Neighborhood → yellow   Courthouse → blue',
         'Media → green     Politics → red',
         nhColorNeeded
-          ? `Currently need: 2 ${nhColorNeeded} cards.`
+          ? `Currently need: 3 ${nhColorNeeded} cards.`
           : 'Stand on a device (or select its slot) first.',
       ].join('\n'),
       available: canRemove,
@@ -146,7 +146,7 @@ export default function ActionPanel({
           type: 'REMOVE_DEVICE',
           neighborhoodId: effectiveNeighborhood!,
           slotIndex: effectiveSlot!,
-          cardIds: [removeCardIds[0], removeCardIds[1]] as [string, string],
+          cardIds: [removeCardIds[0], removeCardIds[1], removeCardIds[2]] as [string, string, string],
         });
         onClearSelection();
       },
@@ -190,7 +190,7 @@ export default function ActionPanel({
   tooltipMap['endturn'] = {
     icon: '✅',
     label: 'End Turn',
-    tooltip: 'Draw 2 community cards and pass the turn.\nNo action cost — always available.',
+    tooltip: 'Draw 1 community card and pass the turn.\nNo action cost — always available.',
   };
 
   const tooltipEntry = activeTooltip ? tooltipMap[activeTooltip] : null;
@@ -342,7 +342,7 @@ export default function ActionPanel({
                   onClick={() => { if (!tooltipShown.current) { dispatch({ type: 'END_TURN' }); onClearSelection(); } }}
                 >
                   End Turn
-                  <span className="ap-end-sub">DRAW 2 CARDS</span>
+                  <span className="ap-end-sub">DRAW 1 CARD</span>
                 </button>
               </div>
 

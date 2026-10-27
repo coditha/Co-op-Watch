@@ -2,23 +2,22 @@ import { useState, useRef } from 'react';
 import type { GameState } from '../types/game';
 import type { GameAction } from '../store/gameReducer';
 
-// 6-sided cube die, numbered 3–8 (the game's actual roll range) instead of
-// the usual 1–6 — same cube geometry as a standard CSS 3D die.
+// Standard 6-sided cube die, numbered 1–6 — same cube geometry as a standard CSS 3D die.
 const CUBE_SIZE = 35; // half the die's width/height, matches .die3d-cube's 70px
 const CUBE_FACES: { value: number; transform: string }[] = [
-  { value: 3, transform: `translateZ(${CUBE_SIZE}px)` },
-  { value: 8, transform: `rotateY(180deg) translateZ(${CUBE_SIZE}px)` },
-  { value: 5, transform: `rotateY(90deg) translateZ(${CUBE_SIZE}px)` },
-  { value: 6, transform: `rotateY(-90deg) translateZ(${CUBE_SIZE}px)` },
-  { value: 4, transform: `rotateX(-90deg) translateZ(${CUBE_SIZE}px)` },
-  { value: 7, transform: `rotateX(90deg) translateZ(${CUBE_SIZE}px)` },
+  { value: 1, transform: `translateZ(${CUBE_SIZE}px)` },
+  { value: 6, transform: `rotateY(180deg) translateZ(${CUBE_SIZE}px)` },
+  { value: 3, transform: `rotateY(90deg) translateZ(${CUBE_SIZE}px)` },
+  { value: 4, transform: `rotateY(-90deg) translateZ(${CUBE_SIZE}px)` },
+  { value: 2, transform: `rotateX(-90deg) translateZ(${CUBE_SIZE}px)` },
+  { value: 5, transform: `rotateX(90deg) translateZ(${CUBE_SIZE}px)` },
 ];
 
 // Landing pose per rolled value — just a resting orientation for the whole
 // die once it settles; the true result is shown via a separate number overlay.
 const FACE_LANDING: Record<number, { rx: number; ry: number }> = {
-  3: { rx: 0, ry: 0 }, 4: { rx: 90, ry: 0 }, 5: { rx: 0, ry: -90 },
-  6: { rx: 0, ry: 90 }, 7: { rx: -90, ry: 0 }, 8: { rx: 0, ry: 180 },
+  1: { rx: 0, ry: 0 }, 2: { rx: 90, ry: 0 }, 3: { rx: 0, ry: -90 },
+  4: { rx: 0, ry: 90 }, 5: { rx: -90, ry: 0 }, 6: { rx: 0, ry: 180 },
 };
 const SPARKLE_DIRS = [
   { tx: 0, ty: -56 }, { tx: 40, ty: -40 }, { tx: 56, ty: 0 }, { tx: 40, ty: 40 },
@@ -58,7 +57,7 @@ export default function CenterDiceRoll({ state, dispatch }: Props) {
 
   function handleDiceTap() {
     if (rolling || landed) return;
-    const finalRoll = Math.floor(Math.random() * 6) + 3;
+    const finalRoll = Math.floor(Math.random() * 6) + 1;
     setRolling(true);
     setLanded(false);
     rotAccum.current = { rx: 0, ry: 0, rz: 0 };

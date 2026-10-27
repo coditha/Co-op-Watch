@@ -1722,6 +1722,7 @@ input, select { font-family: inherit; }
   font-size: 0.95rem; color: var(--red);
   text-align: center; letter-spacing: 0.5px; line-height: 1.6;
 }
+.incident-card-step { text-align: center; font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
 .incident-card-flavor {
   font-size: 1.05rem; color: var(--text-muted); line-height: 1.55;
   font-style: normal; font-weight: 700; text-align: center;

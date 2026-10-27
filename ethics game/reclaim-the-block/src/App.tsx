@@ -321,7 +321,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
   // Intro story — shown once when a fresh game mounts, before Round 1.
   const [showIntro, setShowIntro] = useState(true);
   const [musicOn, setMusicOn] = useState(isMusicOn());
-  const incidentActive = !!state.pendingIncident;
+  const incidentActive = !!state.pendingIncident || state.phase === 'board-phase';
   useEffect(() => {
     setTrack(incidentActive ? 'tense' : 'calm');
     return () => setTrack('calm');

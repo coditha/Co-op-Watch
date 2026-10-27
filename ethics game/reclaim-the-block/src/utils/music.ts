@@ -7,7 +7,7 @@ const VOLUME = 0.05;
 const SEMI: Record<string, number> = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
 function nf(name: string): number {
   const letter = name[0];
-  const flat = name[1] === 'b' ? -1 : 0;
+  const flat = name[1] === 'b' ? -1 : name[1] === '#' ? 1 : 0;
   const oct = Number(name[name.length - 1]);
   return 440 * Math.pow(2, (SEMI[letter] + flat + (oct - 4) * 12) / 12);
 }
@@ -30,20 +30,20 @@ const MELODY = [
   'D5', '', '', '', 'A4', '', 'B4', '',
 ];
 
-// Tense track for surveillance incidents: driving A-minor pulse. A pounding saw bass,
-// a nervous square-wave lead with dissonant stabs, and a ticking pulse.
-const TENSE_STEP = 60 / 138 / 2; // eighth note at 138 BPM
-const TENSE_NOTES: Record<string, number> = {
-  A2: 110.0, F2: 87.31, E2: 82.41, D2: 73.42,
-  A4: 440.0, B4: 493.88, C5: 523.25, E5: 659.25, F5: 698.46, Ab4: 415.3, Eb5: 622.25,
-};
-const TENSE_BASS = [
-  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'F2', 'F2', 'F2', 'F2', 'E2', 'E2', 'E2', 'E2',
-  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'D2', 'D2', 'D2', 'D2', 'E2', 'E2', 'E2', 'E2',
+// Tense track for surveillance incidents and the board phase: the same folky instruments and
+// tempo as the calm track, turned dark. Em – C – Am – B7 (the relative minor of G, so the
+// two tracks flow into each other), with a pulsing bass and a lonely, uneasy melody.
+const TENSE_CHORDS = [
+  { root: 'E2', tones: ['G3', 'B3', 'E4'] },
+  { root: 'C3', tones: ['G3', 'C4', 'E4'] },
+  { root: 'A2', tones: ['C4', 'E4', 'A4'] },
+  { root: 'B2', tones: ['D#4', 'F#4', 'A4'] },
 ];
-const TENSE_LEAD = [
-  'A4', '', 'C5', '', 'E5', '', 'C5', '', 'F5', '', 'E5', '', 'C5', '', 'A4', '',
-  'A4', '', 'C5', 'E5', 'Eb5', '', 'E5', '', 'Ab4', '', 'B4', '', 'E5', 'E5', 'E5', '',
+const TENSE_MELODY = [
+  'E5', '', 'B4', '', 'G4', 'B4', 'E5', '',
+  'E5', '', 'G4', '', 'C5', '', 'B4', '',
+  'C5', '', 'A4', '', 'E4', 'A4', 'C5', '',
+  'D#5', '', 'B4', '', 'A4', '', 'F#4', '',
 ];
 export type Track = 'calm' | 'tense';
 let track: Track = 'calm';
@@ -73,12 +73,17 @@ function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
     if (track === 'tense') {
-      const b = TENSE_BASS[step % TENSE_BASS.length];
-      const l = TENSE_LEAD[step % TENSE_LEAD.length];
-      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.6, 'triangle', 0.55); // soft bass, short so it doesn't boom
-      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'triangle', 0.5);
-      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'triangle', 0.25); // tick
-      nextTime += TENSE_STEP;
+      const bar = Math.floor(step / 8) % 4;
+      const pos = step % 8;
+      const chord = TENSE_CHORDS[bar];
+      if (pos % 2 === 0) note(nf(chord.root), nextTime, STEP * 1.6, 'sine', 0.85); // pulsing bass
+      if (pos !== 0) {
+        const idx = [0, 1, 0, 2, 0, 1, 2, 1][pos];
+        note(nf(chord.tones[idx]), nextTime, STEP * 1.6, 'triangle', 0.45);
+      }
+      const m = TENSE_MELODY[step % TENSE_MELODY.length];
+      if (m) note(nf(m), nextTime, STEP * 2.6, 'sine', 0.55, 0.07);
+      nextTime += STEP;
       step++;
       continue;
     }

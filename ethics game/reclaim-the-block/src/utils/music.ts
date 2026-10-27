@@ -25,9 +25,10 @@ const BASS = [
   'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
 ];
 
-// Tense track for surveillance incidents and the board phase: the same folky instruments and
-// tempo as the calm track, turned dark. Em – C – Am – B7 (the relative minor of G, so the
+// Tense track for surveillance incidents and the board phase: deep, slow and brooding.
+// Low sustained chords, a sub-bass and a sparse low melody, with no bright arpeggio. Em – C – Am – B7 (the relative minor of G, so the
 // two tracks flow into each other), with a pulsing bass and a lonely, uneasy melody.
+const TENSE_STEP = 60 / 66 / 2; // slower than the calm track, eighth note at 66 BPM
 const TENSE_CHORDS = [
   { root: 'E2', tones: ['G3', 'B3', 'E4'] },
   { root: 'C3', tones: ['G3', 'C4', 'E4'] },
@@ -71,14 +72,17 @@ function schedule() {
       const bar = Math.floor(step / 8) % 4;
       const pos = step % 8;
       const chord = TENSE_CHORDS[bar];
-      if (pos % 2 === 0) note(nf(chord.root), nextTime, STEP * 1.6, 'sine', 0.85); // pulsing bass
-      if (pos !== 0) {
-        const idx = [0, 1, 0, 2, 0, 1, 2, 1][pos];
-        note(nf(chord.tones[idx]), nextTime, STEP * 1.6, 'triangle', 0.45);
+      const len = TENSE_STEP * 8;
+      if (pos === 0) {
+        note(nf(chord.root) / 2, nextTime, len, 'sine', 1.0, 0.5); // sub-bass
+        note(nf(chord.root), nextTime, len, 'triangle', 0.5, 1.2); // low sustained root
+        note(nf(chord.tones[0]) / 2, nextTime, len, 'triangle', 0.3, 1.8); // dark pad
+        note(nf(chord.tones[1]) / 2, nextTime, len, 'triangle', 0.25, 2.2);
       }
+      if (pos === 0 || pos === 4) note(nf(chord.root) / 2, nextTime, TENSE_STEP * 3, 'sine', 0.9, 0.02); // slow low pulse
       const m = TENSE_MELODY[step % TENSE_MELODY.length];
-      if (m) note(nf(m), nextTime, STEP * 2.6, 'sine', 0.55, 0.07);
-      nextTime += STEP;
+      if (m) note(nf(m) / 2, nextTime, TENSE_STEP * 3.2, 'sine', 0.55, 0.12);
+      nextTime += TENSE_STEP;
       step++;
       continue;
     }

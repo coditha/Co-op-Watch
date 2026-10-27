@@ -152,8 +152,6 @@ function IncidentOverlay({
 }) {
   // Shared between both copies: the table makes one choice together, then confirms.
   const [choice, setChoice] = useState<number | null>(null);
-  // Step 1: the situation (e.g. the theft wave). Step 2: the proposal, the question and the answers.
-  const [step, setStep] = useState<1 | 2>(1);
   const choices = incident.card.choices;
   return (
     <div className="incident-overlay">
@@ -176,36 +174,25 @@ function IncidentOverlay({
         {/* Inner frame body */}
         <div className="incident-card-body">
           <div className="incident-card-name">{incident.card.name}</div>
-          <div className="incident-card-step">Step {step} of 2</div>
-          {step === 1 ? (
-            <div className="incident-card-flavor">{incident.card.educationalNote}</div>
-          ) : (
-            <div className="incident-card-rule"><mark className="incident-card-key">{incident.card.effect}</mark></div>
-          )}
+          <div className="incident-card-flavor">{incident.card.educationalNote}</div>
+          <div className="incident-card-rule"><mark className="incident-card-key">{incident.card.effect}</mark></div>
+
         </div>
 
         {/* Action footer */}
         <div className="incident-card-footer">
-          {step === 1 ? (
-            <button className="btn incident-card-btn incident-btn-confirm" onClick={() => setStep(2)}>
-              Next
+          {choices.map((c, i) => (
+            <button key={i} className={`btn incident-choice${choice === i ? ' chosen' : choice !== null ? ' not-chosen' : ''}`}
+              onClick={() => setChoice(i)}>
+              <span className="incident-choice-label">{c.label}</span>
+              {c.reason && <span className="incident-choice-reason">{c.reason}</span>}
             </button>
-          ) : (
-            <>
-              {choices.map((c, i) => (
-                <button key={i} className={`btn incident-choice${choice === i ? ' chosen' : choice !== null ? ' not-chosen' : ''}`}
-                  onClick={() => setChoice(i)}>
-                  <span className="incident-choice-label">{c.label}</span>
-                  {c.reason && <span className="incident-choice-reason">{c.reason}</span>}
-                </button>
-              ))}
-              <button className="btn incident-card-btn incident-btn-confirm"
-                disabled={choice === null}
-                onClick={() => { if (choice !== null) dispatch({ type: 'INCIDENT_VOTE', choiceIndex: choice }); }}>
-                Confirm
-              </button>
-            </>
-          )}
+          ))}
+          <button className="btn incident-card-btn incident-btn-confirm"
+            disabled={choice === null}
+            onClick={() => { if (choice !== null) dispatch({ type: 'INCIDENT_VOTE', choiceIndex: choice }); }}>
+            Confirm
+          </button>
         </div>
       </div>
       </div>

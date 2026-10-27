@@ -25,18 +25,15 @@ const MELODY = [
   'A4', '', '', 'F4', '', 'A4', '', '', 'G4', '', 'E4', '', 'D4', '', '', '',
 ];
 
-// Tense track for surveillance incidents: 160 BPM, D minor, racing sixteenth-note arpeggio over a
-// pounding kick and snare, with a two-tone alarm every other bar.
-const TENSE_STEP = 60 / 160 / 4; // sixteenth note
+// Tense track for surveillance incidents: slow and ominous. A low drone, a heartbeat thump,
+// a ticking clock and sparse dissonant stings. No beat, nothing to dance to.
+const TENSE_STEP = 60 / 66 / 2; // eighth note at 66 BPM
 const TENSE_NOTES: Record<string, number> = {
-  D3: 146.83, Bb2: 116.54, G2: 98.0, A2: 110.0,
-  D4: 293.66, F4: 349.23, A4: 440.0, D5: 587.33, Bb4: 466.16, G4: 392.0, E4: 329.63, Cs5: 554.37, E5: 659.25,
+  A1: 55.0, F1: 43.65, E1: 41.2, Bb1: 58.27,
+  A4: 440.0, Bb4: 466.16, E4: 329.63, F4: 349.23, Eb4: 311.13, Ab4: 415.3,
 };
-// 4 bars x 16 sixteenths: Dm – Bb – Gm – A
-const ARP = [
-  ['D4', 'F4', 'A4', 'D5'], ['Bb4', 'D5', 'F4', 'D4'], ['G4', 'Bb4', 'D5', 'Bb4'], ['A4', 'Cs5', 'E5', 'Cs5'],
-];
-const ARP_ROOT = ['D3', 'Bb2', 'G2', 'A2'];
+// One drone per 2 bars (16 steps); 4 steps cycle = 64 steps total
+const DRONES = ['A1', 'F1', 'A1', 'E1'];
 export type Track = 'calm' | 'tense';
 let track: Track = 'calm';
 
@@ -79,45 +76,36 @@ function hat(start: number) {
   src.start(start);
 }
 
-function kick(start: number) {
+function thump(start: number, vol = 1) {
   if (!ctx || !master) return;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
-  osc.frequency.setValueAtTime(150, start);
-  osc.frequency.exponentialRampToValueAtTime(40, start + 0.12);
-  g.gain.setValueAtTime(1.1, start);
+  osc.frequency.setValueAtTime(90, start);
+  osc.frequency.exponentialRampToValueAtTime(38, start + 0.15);
+  g.gain.setValueAtTime(vol * 0.9, start);
   g.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
   osc.connect(g).connect(master);
   osc.start(start);
   osc.stop(start + 0.18);
 }
 
-function snare(start: number) {
-  if (!ctx || !master) return;
-  const len = Math.floor(ctx.sampleRate * 0.12);
-  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-  const src = ctx.createBufferSource();
-  const g = ctx.createGain();
-  src.buffer = buf;
-  g.gain.setValueAtTime(0.6, start);
-  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
-  src.connect(g).connect(master);
-  src.start(start);
-}
-
 function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
     if (track === 'tense') {
-      const bar = Math.floor(step / 16) % 4;
       const pos = step % 16;
-      note(TENSE_NOTES[ARP[bar][pos % 4]], nextTime, TENSE_STEP * 0.9, 'square', 0.35);
-      if (pos % 2 === 0) note(TENSE_NOTES[ARP_ROOT[bar]], nextTime, TENSE_STEP * 1.8, 'sawtooth', 0.7);
-      if (pos % 4 === 0) kick(nextTime);
-      if (pos === 4 || pos === 12) snare(nextTime);
-      if (bar % 2 === 1 && (pos === 8 || pos === 10)) note(pos === 8 ? 880 : 740, nextTime, TENSE_STEP * 1.8, 'square', 0.3); // alarm
+      const drone = DRONES[Math.floor(step / 16) % 4];
+      if (pos === 0) {
+        note(TENSE_NOTES[drone], nextTime, TENSE_STEP * 16, 'sawtooth', 0.5);
+        note(TENSE_NOTES[drone] * 2.005, nextTime, TENSE_STEP * 16, 'sine', 0.35); // slightly detuned for unease
+      }
+      if (pos % 8 === 0) { thump(nextTime); thump(nextTime + TENSE_STEP * 1.5, 0.6); } // heartbeat: lub-dub
+      if (pos % 2 === 0) note(2200, nextTime, 0.02, 'square', 0.12); // clock tick
+      if (pos === 10) { // dissonant sting: minor second
+        note(TENSE_NOTES.A4, nextTime, TENSE_STEP * 4, 'triangle', 0.4);
+        note(TENSE_NOTES.Bb4, nextTime, TENSE_STEP * 4, 'triangle', 0.4);
+      }
+      if (pos === 14 && Math.floor(step / 16) % 2 === 1) note(TENSE_NOTES.Eb4, nextTime, TENSE_STEP * 2, 'triangle', 0.35);
       nextTime += TENSE_STEP;
       step++;
       continue;

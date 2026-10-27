@@ -12,22 +12,17 @@ function nf(name: string): number {
   return 440 * Math.pow(2, (SEMI[letter] + flat + (oct - 4) * 12) / 12);
 }
 
-// Calm track: a gentle, folky "farm town" feel. G – Em – C – D with fingerpicked
-// guitar-style arpeggios under a soft, breathy flute melody. No drums.
-const BPM = 92;
+// Calm track: the original upbeat chiptune loop. C – Am – F – G, a square-wave lead
+// over a triangle bass. '' = rest.
+const BPM = 96;
 const STEP = 60 / BPM / 2; // eighth note, in seconds
-const CHORDS = [
-  { root: 'G2', tones: ['B3', 'D4', 'G4'] },
-  { root: 'E2', tones: ['G3', 'B3', 'E4'] },
-  { root: 'C3', tones: ['E4', 'G4', 'C5'] },
-  { root: 'D3', tones: ['A3', 'D4', 'A4'] },
-];
-// 4 bars x 8 eighth-note steps, '' = rest. Pentatonic so it never clashes.
 const MELODY = [
-  'D5', '', 'B4', '', 'G4', '', 'A4', 'B4',
-  'D5', '', '', '', 'B4', '', 'A4', '',
-  'E5', '', 'D5', '', 'C5', '', 'D5', 'E5',
-  'D5', '', '', '', 'A4', '', 'B4', '',
+  'E4', '', 'G4', '', 'C5', '', 'G4', '', 'A4', '', 'C5', '', 'E5', '', 'C5', '',
+  'A4', '', 'C5', '', 'F4', '', 'A4', '', 'G4', '', 'D5', '', 'G4', '', 'D4', '',
+];
+const BASS = [
+  'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
+  'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
 ];
 
 // Tense track for surveillance incidents and the board phase: the same folky instruments and
@@ -87,17 +82,9 @@ function schedule() {
       step++;
       continue;
     }
-    const bar = Math.floor(step / 8) % 4;
-    const pos = step % 8;
-    const chord = CHORDS[bar];
-    // fingerpicked arpeggio: bass note, then a rolling pattern over the chord tones
-    if (pos === 0) note(nf(chord.root), nextTime, STEP * 3, 'sine', 0.9);
-    else {
-      const idx = [0, 0, 1, 2, 1, 2, 1, 0][pos];
-      note(nf(chord.tones[idx]), nextTime, STEP * 2.2, 'triangle', 0.45);
-    }
     const m = MELODY[step % MELODY.length];
-    if (m) note(nf(m), nextTime, STEP * 2.6, 'sine', 0.55, 0.07); // flute
+    if (m) note(nf(m), nextTime, STEP * 1.8, 'square', 0.5);
+    if (step % 2 === 0) note(nf(BASS[step % BASS.length]), nextTime, STEP * 1.9, 'triangle', 0.9);
     nextTime += STEP;
     step++;
   }

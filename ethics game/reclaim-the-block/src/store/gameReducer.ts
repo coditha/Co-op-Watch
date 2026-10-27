@@ -131,14 +131,14 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
   let deck = [...communityDeck];
   const dealtPlayers = players.map((p) => ({ ...p, hand: deck.splice(0, 4) }));
 
-  // Randomly place 4 starting ring devices; skip slot 0 (N1) because all players start there
+  // Randomly place starting ring devices (4 for 2 players, 8 for 3–4); skip slot 0 (N1) because all players start there
   const eligibleSlots: { nhIdx: number; slot: SlotIndex }[] = [];
   for (let nhIdx = 0; nhIdx < 4; nhIdx++) {
     for (let slot = 1; slot <= 3; slot++) {
       eligibleSlots.push({ nhIdx, slot: slot as SlotIndex });
     }
   }
-  const startingPlacements = shuffle(eligibleSlots).slice(0, 4);
+  const startingPlacements = shuffle(eligibleSlots).slice(0, playerCount === 2 ? 4 : 8);
 
   const NEIGHBORHOOD_DEFS = [
     { id: 'suburb' as NeighborhoodId, name: 'Neighborhood' },

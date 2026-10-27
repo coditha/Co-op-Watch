@@ -15,7 +15,7 @@ export default function GameOver({ won, reason, round, privacyMeter, onRestart }
         </div>
         <div className="gameover-message">
           {won
-            ? 'All neighborhoods have been cleared of excess surveillance devices. The community reclaimed the block!'
+            ? 'Every neighborhood is clear of surveillance devices and every role completed its objective. The community reclaimed the block!'
             : (reason ?? 'The Privacy and Community Trust Meter hit 0.')}
         </div>
         <div className="gameover-stats">

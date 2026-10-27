@@ -153,6 +153,9 @@ export interface GameState {
   // `id` increments each time so the same neighborhood clearing twice re-triggers it.
   clearBanner: { id: number; kind: 'removed' | 'cleared'; neighborhoodId: NeighborhoodId; neighborhood: string; removed: number; byRoleId: string } | null;
 
+  // Role objectives in play (keyed by role id); true once completed.
+  objectives: Record<string, boolean>;
+
   gameLog: string[];
   lossReason?: string;
 }

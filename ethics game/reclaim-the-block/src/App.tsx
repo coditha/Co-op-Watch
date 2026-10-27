@@ -1,6 +1,7 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect, previewRegularBoardPhase } from './store/gameReducer';
 import { asset } from './utils/asset';
+import { OBJECTIVES } from './data/objectives';
 import { startMusic, toggleMusic, isMusicOn, setTrack } from './utils/music';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
@@ -43,8 +44,10 @@ function CornerPanel({
   onCardClick,
   pendingDiscard,
   pendingDiscardCount,
+  objectiveDone,
 }: {
   player: Player;
+  objectiveDone?: boolean;
   isActive: boolean;
   hasMoved?: boolean;
   pendingDiscard?: boolean;
@@ -69,6 +72,9 @@ function CornerPanel({
           : <span className="corner-emoji">{player.role.emoji}</span>}
         <div className="corner-info">
           <span className="corner-name">{player.role.name}</span>
+          <span className={`corner-objective${objectiveDone ? ' done' : ''}`} title="Objective: the group wins when the board is clear and every objective is done">
+            {objectiveDone ? '✔' : '☐'} {OBJECTIVES[player.role.id].short}
+          </span>
         </div>
         <span className="corner-hand-count">{player.hand.length}/7</span>
       </div>
@@ -448,6 +454,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             selectedCardIds={selFor(organizerPlayer)}
             onCardClick={clickFor(organizerPlayer)}
             pendingDiscard={isDiscarding(organizerPlayer)}
+            objectiveDone={state.objectives[organizerPlayer.role.id]}
             pendingDiscardCount={state.pendingDiscard?.count}
           />
         ) : (
@@ -515,6 +522,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             selectedCardIds={selFor(captainPlayer)}
             onCardClick={clickFor(captainPlayer)}
             pendingDiscard={isDiscarding(captainPlayer)}
+            objectiveDone={state.objectives[captainPlayer.role.id]}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>
@@ -720,6 +728,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             selectedCardIds={selFor(legalPlayer)}
             onCardClick={clickFor(legalPlayer)}
             pendingDiscard={isDiscarding(legalPlayer)}
+            objectiveDone={state.objectives[legalPlayer.role.id]}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>
@@ -736,6 +745,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
             selectedCardIds={selFor(councilPlayer)}
             onCardClick={clickFor(councilPlayer)}
             pendingDiscard={isDiscarding(councilPlayer)}
+            objectiveDone={state.objectives[councilPlayer.role.id]}
           />
         ) : (
           <div className="corner-empty-slot">No player</div>

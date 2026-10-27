@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ROLES } from '../data/roles';
+import { OBJECTIVES } from '../data/objectives';
 import { asset } from '../utils/asset';
 
 interface Props {
@@ -43,30 +44,13 @@ function Row({ img, shot, title, children }: { img?: ReactNode; shot?: boolean; 
 
 const TABS: { id: string; label: string; content: ReactNode }[] = [
   {
-    id: 'goal',
-    label: 'Goal',
+    id: 'players',
+    label: 'Players',
     content: (
       <>
         <p className="tut-lead">
-          The city is filling your town with surveillance devices. Work together to push back. Everyone wins or loses together.
+          2 to 4 players, each with a role and a personal objective. Everyone wins or loses together.
         </p>
-        <Row title="How you win">
-          Clear <strong>every device from all 4 districts</strong>. You win as soon as the whole board is empty. The game starts with <strong>4 devices</strong> (2 players) or <strong>8 devices</strong> (3 or 4 players).
-        </Row>
-        <Row title="How you lose">
-          The <strong>Privacy &amp; Community Trust</strong> meter hits 0, or <strong>Round 8</strong> ends before the board is clear.
-        </Row>
-        <Row title="The meter">
-          Starts at 20 out of 30. Incident choices can raise or lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
-        </Row>
-      </>
-    ),
-  },
-  {
-    id: 'roles',
-    label: 'Roles',
-    content: (
-      <>
         <div className="tut-roles">
           {ROLES.map((r) => (
             <div key={r.id} className="tut-role" style={{ borderColor: r.colorHex }}>
@@ -77,6 +61,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
                 <div className="tut-role-name" style={{ color: r.colorHex }}>{r.name}</div>
                 <div className="tut-role-home">Home: {DISTRICT_NAMES[r.homeNeighborhood]}</div>
                 <p className="tut-role-desc">{r.description}</p>
+                <p className="tut-role-desc"><strong>Objective:</strong> {OBJECTIVES[r.id].short}.</p>
               </div>
             </div>
           ))}
@@ -85,49 +70,27 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     ),
   },
   {
-    id: 'turn',
-    label: 'Your Turn',
+    id: 'actions',
+    label: 'Action Points',
     content: (
       <>
-        <Row img={<Img src="/tutorial/turn-dice.png" />} shot title="1. Roll the dice">
-          Your roll (1–6) is how many <strong>actions</strong> you get this turn.
+        <Row img={<Img src="/tutorial/turn-dice.png" />} shot title="Roll the dice">
+          At the start of your turn, your roll (1–6) is how many <strong>action points</strong> you get.
         </Row>
-        <Row img={<Img src="/tutorial/turn-move.png" />} shot title="2. Spend your actions">
-          Moving one step, removing a device, depositing, and transferring a card each cost <strong>1 action</strong>.
+        <Row img={<Img src="/tutorial/turn-move.png" />} shot title="Move: 1 action per step">
           Tiles with a <strong>white outline</strong> show where you can move. Your pawn glows <strong>gold</strong> on your turn.
         </Row>
-        <Row img={<Img src="/tutorial/turn-cards.png" />} shot title="3. End your turn">
-          <strong>End Turn</strong> is free and draws <strong>1 card</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
+        <Row title="Remove Device: 1 action + 3 same color cards">
+          Stand in a district and pick a device. You need <strong>3 cards in that district's color</strong>.
+          The game uses matching cards from your hand automatically. Raises the meter by 1.
         </Row>
-      </>
-    ),
-  },
-  {
-    id: 'actions',
-    label: 'Actions',
-    content: (
-      <>
-        <Row title="Remove Device: 3 same color cards">
-          Stand on any house in that district and tap the house with the device (or stand on it).
-          You need <strong>3 cards in that district's color</strong>. The game uses matching cards from your hand automatically.
-          Raises the meter by 1.
-        </Row>
-        <Row title="Deposit Cards: 4 colors at Town Square">
+        <Row title="Deposit Cards: 1 action + 4 colors">
           At the Town Square, spend <strong>4 cards of different colors</strong> (one of each).
           This clears <strong>every device</strong> in the most crowded district and raises the meter by 5.
         </Row>
-        <Row title="Transfer Card: give 1 card to teammate">
-          When you share a tile with a teammate, give them 1 card. You can do this <strong>once per round</strong>. If they already hold 7, they first choose 1 of their cards to remove.
+        <Row title="Transfer Card: 1 action">
+          On the same tile as a teammate, give them 1 card. Once per round. If they already hold 7, they first choose 1 card to discard.
         </Row>
-      </>
-    ),
-  },
-  {
-    id: 'cards',
-    label: 'Cards & Colors',
-    content: (
-      <>
-        <p className="tut-lead">Each card color matches one district. Use that color to remove devices there.</p>
         <div className="tut-key">
           {COLOR_KEY.map((k) => (
             <div key={k.name} className="tut-key-row" style={{ borderColor: k.color }}>
@@ -143,17 +106,66 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     ),
   },
   {
+    id: 'turns',
+    label: 'Turns',
+    content: (
+      <>
+        <Row title="Taking turns">
+          Players go one at a time around the table. On your turn you roll, spend your action points, then end your turn.
+        </Row>
+        <Row img={<Img src="/tutorial/turn-cards.png" />} shot title="End your turn">
+          <strong>End Turn</strong> is free and draws <strong>1 card</strong>. You can hold up to <strong>7</strong>. If you go over, you choose which to discard.
+        </Row>
+        <Row title="After the last player">
+          When everyone has had a turn, the round ends with a Surveillance Incident and a Board Event.
+        </Row>
+      </>
+    ),
+  },
+  {
     id: 'round',
-    label: 'End of Round',
+    label: 'Incident & Board Event',
     content: (
       <>
         <Row img={<Img src="/warning.png" />} title="Surveillance Incident (every round)">
           After the last player's turn, the city makes a proposal. Pick one of the <strong>4 responses</strong> on either card.
           Your pick shows on both, so decide together, then press <strong>Confirm</strong>.
         </Row>
-        <Row img={<Img src="/caution.png" />} title="Board Phase">
+        <Row img={<Img src="/caution.png" />} title="Board Event">
           Your choice plays out. It can <strong>add devices</strong>, <strong>remove devices</strong>, change the meter, or a mix.
           Removed devices come from the district the card names, or the most crowded one. A flash shows where a new device lands.
+        </Row>
+      </>
+    ),
+  },
+  {
+    id: 'win',
+    label: 'How to Win',
+    content: (
+      <>
+        <Row title="Clear the board">
+          Remove <strong>every device from all 4 districts</strong>. The game starts with <strong>4 devices</strong> (2 players) or <strong>8 devices</strong> (3 or 4 players).
+        </Row>
+        <Row title="Finish every objective">
+          Each role in play has one objective, shown on that player's panel with a checkbox. You win when the board is clear <strong>and</strong> every objective is done.
+          The last device can't be cleared while an objective is still open, so plan who clears what.
+        </Row>
+      </>
+    ),
+  },
+  {
+    id: 'lose',
+    label: 'How to Lose',
+    content: (
+      <>
+        <Row title="Trust hits 0">
+          The <strong>Privacy &amp; Community Trust</strong> meter hits 0.
+        </Row>
+        <Row title="Out of time">
+          <strong>Round 8</strong> ends before the board is clear and all objectives are done.
+        </Row>
+        <Row title="The meter">
+          Starts at 20 out of 30. Incident choices can raise or lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
         </Row>
       </>
     ),

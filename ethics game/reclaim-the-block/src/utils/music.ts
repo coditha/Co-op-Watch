@@ -22,20 +22,18 @@ const BASS = [
   'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
 ];
 
-// Tense track for surveillance incidents: A minor, faster, driving bass, dissonant stabs.
-const TENSE_STEP = 60 / 138 / 2;
+// Tense track for surveillance incidents: 160 BPM, D minor, racing sixteenth-note arpeggio over a
+// pounding kick and snare, with a two-tone alarm every other bar.
+const TENSE_STEP = 60 / 160 / 4; // sixteenth note
 const TENSE_NOTES: Record<string, number> = {
-  A2: 110.0, F2: 87.31, E2: 82.41, D2: 73.42,
-  A4: 440.0, B4: 493.88, C5: 523.25, E5: 659.25, F5: 698.46, Ab4: 415.3, Eb5: 622.25,
+  D3: 146.83, Bb2: 116.54, G2: 98.0, A2: 110.0,
+  D4: 293.66, F4: 349.23, A4: 440.0, D5: 587.33, Bb4: 466.16, G4: 392.0, E4: 329.63, Cs5: 554.37, E5: 659.25,
 };
-const TENSE_BASS = [
-  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'F2', 'F2', 'F2', 'F2', 'E2', 'E2', 'E2', 'E2',
-  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'D2', 'D2', 'D2', 'D2', 'E2', 'E2', 'E2', 'E2',
+// 4 bars x 16 sixteenths: Dm – Bb – Gm – A
+const ARP = [
+  ['D4', 'F4', 'A4', 'D5'], ['Bb4', 'D5', 'F4', 'D4'], ['G4', 'Bb4', 'D5', 'Bb4'], ['A4', 'Cs5', 'E5', 'Cs5'],
 ];
-const TENSE_LEAD = [
-  'A4', '', 'C5', '', 'E5', '', 'C5', '', 'F5', '', 'E5', '', 'C5', '', 'A4', '',
-  'A4', '', 'C5', 'E5', 'Eb5', '', 'E5', '', 'Ab4', '', 'B4', '', 'E5', 'E5', 'E5', '',
-];
+const ARP_ROOT = ['D3', 'Bb2', 'G2', 'A2'];
 export type Track = 'calm' | 'tense';
 let track: Track = 'calm';
 
@@ -60,15 +58,45 @@ function note(freq: number, start: number, dur: number, type: OscillatorType, ga
   osc.stop(start + dur + 0.02);
 }
 
+function kick(start: number) {
+  if (!ctx || !master) return;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.frequency.setValueAtTime(150, start);
+  osc.frequency.exponentialRampToValueAtTime(40, start + 0.12);
+  g.gain.setValueAtTime(1.1, start);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+  osc.connect(g).connect(master);
+  osc.start(start);
+  osc.stop(start + 0.18);
+}
+
+function snare(start: number) {
+  if (!ctx || !master) return;
+  const len = Math.floor(ctx.sampleRate * 0.12);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  const g = ctx.createGain();
+  src.buffer = buf;
+  g.gain.setValueAtTime(0.6, start);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+  src.connect(g).connect(master);
+  src.start(start);
+}
+
 function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
     if (track === 'tense') {
-      const b = TENSE_BASS[step % TENSE_BASS.length];
-      const l = TENSE_LEAD[step % TENSE_LEAD.length];
-      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.9, 'sawtooth', 0.8); // pulsing eighth-note bass
-      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'square', 0.45);
-      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'square', 0.3); // tick
+      const bar = Math.floor(step / 16) % 4;
+      const pos = step % 16;
+      note(TENSE_NOTES[ARP[bar][pos % 4]], nextTime, TENSE_STEP * 0.9, 'square', 0.35);
+      if (pos % 2 === 0) note(TENSE_NOTES[ARP_ROOT[bar]], nextTime, TENSE_STEP * 1.8, 'sawtooth', 0.7);
+      if (pos % 4 === 0) kick(nextTime);
+      if (pos === 4 || pos === 12) snare(nextTime);
+      if (bar % 2 === 1 && (pos === 8 || pos === 10)) note(pos === 8 ? 880 : 740, nextTime, TENSE_STEP * 1.8, 'square', 0.3); // alarm
       nextTime += TENSE_STEP;
       step++;
       continue;

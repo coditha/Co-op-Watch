@@ -6,10 +6,12 @@ import type {
   DeviceType,
   SlotIndex,
   Position,
+  RoleId,
 } from '../types/game';
 import { COMMUNITY_CARDS } from '../data/cards';
 import { SURVEILLANCE_CARDS } from '../data/surveillanceCards';
 import { ROLES } from '../data/roles';
+import { OBJECTIVES } from '../data/objectives';
 import { getIncidentForRound } from '../data/roundConfig';
 
 const MAX_ROUNDS = 8;
@@ -182,6 +184,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
     transferredThisRound: [],
 
     gameLog: ['Game started! Good luck reclaiming the block.'],
+    objectives: Object.fromEntries(roles.map((r) => [r.id, false])),
     lossReason: undefined,
   };
 }
@@ -273,8 +276,37 @@ function transferCard(state: GameState, fromPlayerId: number, toPlayerId: number
     if (p.id === toPlayerId) return { ...p, hand: [...p.hand, card] };
     return p;
   });
-  const s = spendActions({ ...state, players, transferredThisRound: [...state.transferredThisRound, fromPlayerId] }, 1);
-  return log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`);
+  let s = spendActions({ ...state, players, transferredThisRound: [...state.transferredThisRound, fromPlayerId] }, 1);
+  if (from.role.id === 'captain') s = completeObjective(s, 'captain');
+  return checkWinLoss(log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`));
+}
+
+// Objectives that this action would complete for the acting player.
+function objectiveCompletedBy(player: GameState['players'][number], kind: 'remove' | 'deposit', neighborhoodId?: NeighborhoodId): RoleId | null {
+  const r = player.role;
+  if (kind === 'deposit') return r.id === 'council' ? 'council' : null;
+  if (r.id === 'organizer' && neighborhoodId === r.homeNeighborhood) return 'organizer';
+  if (r.id === 'legal' && neighborhoodId !== r.homeNeighborhood) return 'legal';
+  return null;
+}
+
+// The last device can't be cleared while another role's objective is still open,
+// otherwise a removal objective could become impossible to finish.
+export function clearBlockedByObjectives(state: GameState, kind: 'remove' | 'deposit', neighborhoodId: NeighborhoodId): boolean {
+  const player = state.players[state.currentPlayerIndex];
+  const total = state.neighborhoods.reduce((sum, n) => sum + n.densityTrack, 0);
+  let cleared = 1;
+  if (kind === 'deposit') {
+    cleared = Math.max(...state.neighborhoods.map((n) => n.densityTrack));
+  }
+  if (total === 0 || total - cleared > 0) return false;
+  const done = objectiveCompletedBy(player, kind, neighborhoodId);
+  return Object.entries(state.objectives).some(([id, d]) => !d && id !== done);
+}
+
+function completeObjective(state: GameState, roleId: string): GameState {
+  if (state.objectives[roleId] !== false) return state; // not in play, or already done
+  return log({ ...state, objectives: { ...state.objectives, [roleId]: true } }, `Objective complete: ${OBJECTIVES[roleId as RoleId].short}`);
 }
 
 function spendActions(state: GameState, count: number): GameState {
@@ -480,7 +512,8 @@ function checkWinLoss(state: GameState): GameState {
   // genuine win. (Don't gate on the surveillance deck having been drawn from:
   // incident rounds skip that draw, which made the game unwinnable.)
   const allClear = state.neighborhoods.every((n) => n.densityTrack === 0);
-  if (allClear) {
+  const objectivesDone = Object.values(state.objectives).every(Boolean);
+  if (allClear && objectivesDone) {
     return { ...state, phase: 'won' };
   }
   return state;
@@ -571,10 +604,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const n = state.neighborhoods.find((nb) => nb.id === action.neighborhoodId);
       if (!n || n.slots[action.slotIndex] === null) return state;
 
+      if (clearBlockedByObjectives(state, 'remove', action.neighborhoodId)) {
+        return log(state, 'That is the last device, but not every objective is done yet. Finish the objectives first.');
+      }
       let s = removeCardFromHand(state, player.id, action.cardIds);
       s = removeDeviceFromSlot(s, action.neighborhoodId, action.slotIndex);
       s = shiftMeter(s, 1, `Device removed from ${n.name}`);
       s = spendActions(s, 1);
+      if (player.role.id === 'organizer' && n.id === player.role.homeNeighborhood) s = completeObjective(s, 'organizer');
+      if (player.role.id === 'legal' && n.id !== player.role.homeNeighborhood) s = completeObjective(s, 'legal');
       s = log(s, `${player.role.name} removed device from ${n.name} slot ${action.slotIndex + 1}`);
       s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, kind: 'removed', neighborhoodId: n.id, neighborhood: n.name, removed: 1, byRoleId: player.role.id } };
       return checkWinLoss(s);
@@ -625,6 +663,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // In practice UI should pass targetNeighborhoodId — we'll clear the most dense
       const target = [...state.neighborhoods].sort((a, b) => b.densityTrack - a.densityTrack)[0];
 
+      if (clearBlockedByObjectives(state, 'deposit', target.id)) {
+        return log(state, 'That would clear the last devices, but not every objective is done yet. Finish the objectives first.');
+      }
       const removedCount = target.densityTrack;
       let s = removeCardFromHand(state, player.id, action.cardIds);
       // Remove all devices
@@ -637,6 +678,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       s = { ...s, densityTracker: Math.max(1, s.densityTracker - 1) };
       s = shiftMeter(s, 1, 'Density Tracker decreased');
       s = spendActions(s, 1);
+      if (player.role.id === 'council') s = completeObjective(s, 'council');
       s = log(s, `${player.role.name} deposited at the Town Square — ${target.name} cleared!`);
       s = { ...s, clearBanner: { id: (state.clearBanner?.id ?? 0) + 1, kind: 'cleared', neighborhoodId: target.id, neighborhood: target.name, removed: removedCount, byRoleId: player.role.id } };
       return checkWinLoss(s);

@@ -2177,6 +2177,12 @@ input, select { font-family: inherit; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.corner-objective {
+  display: block; font-size: 0.58rem; font-weight: 700; line-height: 1.2;
+  color: rgba(255,255,255,0.92); text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.corner-objective.done { color: #d9ffd0; text-decoration: line-through; }
 .corner-pos {
   display: block;
   font-size: 0.55rem;

@@ -2488,7 +2488,7 @@ input, select { font-family: inherit; }
 .intro-overlay {
   position: fixed; inset: 0; z-index: 500;
   display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 1.5rem;
+  flex-direction: row; gap: 1.5rem;
   padding: 1rem;
   background: rgba(18,10,2,0.42);     /* slight dim — board stays visible behind */
 }
@@ -2506,11 +2506,11 @@ input, select { font-family: inherit; }
   padding: clamp(0.75rem, 1.6vw, 1.4rem);
   text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
-  max-height: 44vh; box-sizing: border-box;
+  width: min(46vw, 560px); max-height: 80vh; box-sizing: border-box;
 }
 /* Far-side copy: flipped to face the Activist & Parent at the top edge. */
 .intro-panel-flipped { transform: rotate(180deg); }
-.intro-panel .intro-icon { width: min(64px, 14%); }
+.intro-panel .intro-icon { width: min(88px, 22%); }
 .intro-panel .intro-body { line-height: 2; }
 .intro-title {
   font-family: 'Press Start 2P', monospace;

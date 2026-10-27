@@ -1,7 +1,7 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect, previewRegularBoardPhase } from './store/gameReducer';
 import { asset } from './utils/asset';
-import { startMusic, toggleMusic, isMusicOn } from './utils/music';
+import { startMusic, toggleMusic, isMusicOn, setTrack } from './utils/music';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
 import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState } from './types/game';
@@ -315,6 +315,11 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
   // Intro story — shown once when a fresh game mounts, before Round 1.
   const [showIntro, setShowIntro] = useState(true);
   const [musicOn, setMusicOn] = useState(isMusicOn());
+  const incidentActive = !!state.pendingIncident;
+  useEffect(() => {
+    setTrack(incidentActive ? 'tense' : 'calm');
+    return () => setTrack('calm');
+  }, [incidentActive]);
 
   // Auto-fit the board into the vertical band BETWEEN the top trackers and the
   // bottom trackers, centered in that band, scaling up to fill large TV/TUI

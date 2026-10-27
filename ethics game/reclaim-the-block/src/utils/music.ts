@@ -22,6 +22,23 @@ const BASS = [
   'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
 ];
 
+// Tense track for surveillance incidents: A minor, faster, driving bass, dissonant stabs.
+const TENSE_STEP = 60 / 138 / 2;
+const TENSE_NOTES: Record<string, number> = {
+  A2: 110.0, F2: 87.31, E2: 82.41, D2: 73.42,
+  A4: 440.0, B4: 493.88, C5: 523.25, E5: 659.25, F5: 698.46, Ab4: 415.3, Eb5: 622.25,
+};
+const TENSE_BASS = [
+  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'F2', 'F2', 'F2', 'F2', 'E2', 'E2', 'E2', 'E2',
+  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'D2', 'D2', 'D2', 'D2', 'E2', 'E2', 'E2', 'E2',
+];
+const TENSE_LEAD = [
+  'A4', '', 'C5', '', 'E5', '', 'C5', '', 'F5', '', 'E5', '', 'C5', '', 'A4', '',
+  'A4', '', 'C5', 'E5', 'Eb5', '', 'E5', '', 'Ab4', '', 'B4', '', 'E5', 'E5', 'E5', '',
+];
+export type Track = 'calm' | 'tense';
+let track: Track = 'calm';
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let timer: number | null = null;
@@ -46,6 +63,16 @@ function note(freq: number, start: number, dur: number, type: OscillatorType, ga
 function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
+    if (track === 'tense') {
+      const b = TENSE_BASS[step % TENSE_BASS.length];
+      const l = TENSE_LEAD[step % TENSE_LEAD.length];
+      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.9, 'sawtooth', 0.8); // pulsing eighth-note bass
+      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'square', 0.45);
+      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'square', 0.3); // tick
+      nextTime += TENSE_STEP;
+      step++;
+      continue;
+    }
     const m = MELODY[step % MELODY.length];
     const b = BASS[step % BASS.length];
     if (m) note(N[m], nextTime, STEP * 1.8, 'square', 0.5);
@@ -84,4 +111,11 @@ export function toggleMusic(): boolean {
   enabled = !enabled;
   if (enabled) startMusic(); else stopMusic();
   return enabled;
+}
+
+export function setTrack(t: Track) {
+  if (t === track) return;
+  track = t;
+  step = 0;
+  if (ctx) nextTime = ctx.currentTime + 0.05;
 }

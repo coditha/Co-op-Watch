@@ -2351,6 +2351,9 @@ input, select { font-family: inherit; }
   font-size: 0.7rem; font-weight: 700; color: #fff;
   text-transform: uppercase; letter-spacing: 0.5px;
 }
+.center-dice-cta { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; animation: dice-cta-pulse 1.1s ease-in-out infinite; }
+.center-dice-cta-name { font-size: 1rem; text-shadow: 1px 1px 0 rgba(0,0,0,0.45); }
+@keyframes dice-cta-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 .center-dice-result {
   position: absolute; left: 50%; top: -48px;
   transform: translateX(-50%);

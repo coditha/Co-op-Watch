@@ -161,8 +161,7 @@ export default function CenterDiceRoll({ state, dispatch }: Props) {
         </div>
         {!rolling && !landed && (
           <div className="center-dice-cta" style={{ background: player.role.colorHex, borderColor: player.role.colorHex, cursor: 'pointer' }} onClick={handleDiceTap}>
-            <span className="center-dice-cta-name">{player.role.name}'s turn</span>
-            <span>Click dice to roll</span>
+            {player.role.name}'s turn to roll dice
           </div>
         )}
       </div>

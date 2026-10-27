@@ -12,28 +12,38 @@ function nf(name: string): number {
   return 440 * Math.pow(2, (SEMI[letter] + flat + (oct - 4) * 12) / 12);
 }
 
-// Calm track: hopeful and playful. C – G – Am – F, a bouncy "oom-pah" bass and a plucky
-// square-wave tune. No drums, so it skips along without feeling like a dance beat.
-const BPM = 104;
+// Calm track: a gentle, folky "farm town" feel. G – Em – C – D with fingerpicked
+// guitar-style arpeggios under a soft, breathy flute melody. No drums.
+const BPM = 92;
 const STEP = 60 / BPM / 2; // eighth note, in seconds
-const ROOTS = ['C3', 'G2', 'A2', 'F2'];
-const FIFTHS = ['G3', 'D3', 'E3', 'C3'];
-// 4 bars x 8 eighth-note steps, '' = rest
+const CHORDS = [
+  { root: 'G2', tones: ['B3', 'D4', 'G4'] },
+  { root: 'E2', tones: ['G3', 'B3', 'E4'] },
+  { root: 'C3', tones: ['E4', 'G4', 'C5'] },
+  { root: 'D3', tones: ['A3', 'D4', 'A4'] },
+];
+// 4 bars x 8 eighth-note steps, '' = rest. Pentatonic so it never clashes.
 const MELODY = [
-  'E5', '', 'G5', 'E5', 'C5', '', 'E5', 'D5',
-  'D5', '', 'G5', 'D5', 'B4', '', 'D5', 'C5',
-  'C5', '', 'E5', 'C5', 'A4', '', 'C5', 'B4',
-  'A4', '', 'C5', 'A4', 'F5', 'E5', 'D5', 'C5',
+  'D5', '', 'B4', '', 'G4', '', 'A4', 'B4',
+  'D5', '', '', '', 'B4', '', 'A4', '',
+  'E5', '', 'D5', '', 'C5', '', 'D5', 'E5',
+  'D5', '', '', '', 'A4', '', 'B4', '',
 ];
 
-// Tense track for surveillance incidents: dark and heavy. Slow, brooding minor chords that
-// swell in like brass (Dm – Bb – Gm – A), a deep drum boom on each bar, and nothing to dance to.
-const TENSE_STEP = 60 / 54 / 2; // eighth note at 54 BPM
-const TENSE_CHORDS = [
-  ['D2', 'A2', 'F3'], // Dm
-  ['Bb1', 'F2', 'D3'], // Bb
-  ['G1', 'D2', 'Bb2'], // Gm
-  ['A1', 'E2', 'C3'], // A with a minor third: dark
+// Tense track for surveillance incidents: driving A-minor pulse. A pounding saw bass,
+// a nervous square-wave lead with dissonant stabs, and a ticking pulse.
+const TENSE_STEP = 60 / 138 / 2; // eighth note at 138 BPM
+const TENSE_NOTES: Record<string, number> = {
+  A2: 110.0, F2: 87.31, E2: 82.41, D2: 73.42,
+  A4: 440.0, B4: 493.88, C5: 523.25, E5: 659.25, F5: 698.46, Ab4: 415.3, Eb5: 622.25,
+};
+const TENSE_BASS = [
+  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'F2', 'F2', 'F2', 'F2', 'E2', 'E2', 'E2', 'E2',
+  'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2', 'D2', 'D2', 'D2', 'D2', 'E2', 'E2', 'E2', 'E2',
+];
+const TENSE_LEAD = [
+  'A4', '', 'C5', '', 'E5', '', 'C5', '', 'F5', '', 'E5', '', 'C5', '', 'A4', '',
+  'A4', '', 'C5', 'E5', 'Eb5', '', 'E5', '', 'Ab4', '', 'B4', '', 'E5', 'E5', 'E5', '',
 ];
 export type Track = 'calm' | 'tense';
 let track: Track = 'calm';
@@ -59,45 +69,30 @@ function note(freq: number, start: number, dur: number, type: OscillatorType, ga
   osc.stop(start + dur + 0.02);
 }
 
-function thump(start: number, vol = 1) {
-  if (!ctx || !master) return;
-  const osc = ctx.createOscillator();
-  const g = ctx.createGain();
-  osc.frequency.setValueAtTime(90, start);
-  osc.frequency.exponentialRampToValueAtTime(38, start + 0.15);
-  g.gain.setValueAtTime(vol * 0.9, start);
-  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
-  osc.connect(g).connect(master);
-  osc.start(start);
-  osc.stop(start + 0.18);
-}
-
 function schedule() {
   if (!ctx) return;
   while (nextTime < ctx.currentTime + 0.4) {
     if (track === 'tense') {
-      const bar = Math.floor(step / 8) % 4;
-      const pos = step % 8;
-      if (pos === 0) {
-        const [root, fifth, third] = TENSE_CHORDS[bar];
-        const len = TENSE_STEP * 8;
-        note(nf(root), nextTime, len, 'sawtooth', 0.55, 1.4);
-        note(nf(fifth), nextTime, len, 'sawtooth', 0.3, 1.8);
-        note(nf(third), nextTime, len, 'sawtooth', 0.25, 2.2);
-        note(nf(root) / 2, nextTime, len, 'sine', 0.7, 0.3); // sub rumble
-        thump(nextTime, 1);
-      }
-      if (pos === 6 && bar === 3) thump(nextTime, 0.7); // extra hit before the loop restarts
+      const b = TENSE_BASS[step % TENSE_BASS.length];
+      const l = TENSE_LEAD[step % TENSE_LEAD.length];
+      note(TENSE_NOTES[b], nextTime, TENSE_STEP * 0.9, 'sawtooth', 0.8);
+      if (l) note(TENSE_NOTES[l], nextTime, TENSE_STEP * 0.8, 'square', 0.45);
+      if (step % 4 === 2) note(TENSE_NOTES.A4 / 2, nextTime, TENSE_STEP * 0.3, 'square', 0.3); // tick
       nextTime += TENSE_STEP;
       step++;
       continue;
     }
     const bar = Math.floor(step / 8) % 4;
     const pos = step % 8;
-    if (pos === 0 || pos === 4) note(nf(ROOTS[bar]), nextTime, STEP * 1.2, 'triangle', 0.95);
-    if (pos === 2 || pos === 6) note(nf(FIFTHS[bar]), nextTime, STEP * 0.9, 'triangle', 0.6);
+    const chord = CHORDS[bar];
+    // fingerpicked arpeggio: bass note, then a rolling pattern over the chord tones
+    if (pos === 0) note(nf(chord.root), nextTime, STEP * 3, 'sine', 0.9);
+    else {
+      const idx = [0, 0, 1, 2, 1, 2, 1, 0][pos];
+      note(nf(chord.tones[idx]), nextTime, STEP * 2.2, 'triangle', 0.45);
+    }
     const m = MELODY[step % MELODY.length];
-    if (m) note(nf(m), nextTime, STEP * 1.1, 'square', 0.38);
+    if (m) note(nf(m), nextTime, STEP * 2.6, 'sine', 0.55, 0.07); // flute
     nextTime += STEP;
     step++;
   }

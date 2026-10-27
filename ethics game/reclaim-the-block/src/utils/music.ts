@@ -1,25 +1,28 @@
-// Background music: a short synthesized chiptune loop (Web Audio, no audio files).
+// Background music: synthesized loops (Web Audio, no audio files).
 // Browsers only allow audio after a user gesture, so call startMusic() from a click handler.
 
-const BPM = 96;
-const STEP = 60 / BPM / 2; // eighth note, in seconds
 const VOLUME = 0.05;
 
-// Frequencies (Hz)
+// Calm track: a slow, warm lo-fi groove. Fmaj7 – Em7 – Dm7 – Cmaj7 with soft pads,
+// a round bass, a sparse plucked melody and a gentle hi-hat.
+const BPM = 78;
+const STEP = 60 / BPM / 2; // eighth note, in seconds
+const hz = (semitonesFromA4: number) => 440 * Math.pow(2, semitonesFromA4 / 12);
 const N: Record<string, number> = {
-  C3: 130.81, F3: 174.61, G3: 196.0, A3: 220.0,
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.0, A4: 440.0,
-  C5: 523.25, D5: 587.33, E5: 659.25,
+  C2: hz(-33), D2: hz(-31), E2: hz(-29), F2: hz(-28),
+  C3: hz(-21), E3: hz(-17), G3: hz(-14), B3: hz(-10), D3: hz(-19), F3: hz(-16), A3: hz(-12), Bb3: hz(-11),
+  E4: hz(-5), G4: hz(-2), A4: hz(0), C5: hz(3), D5: hz(5), E5: hz(7), B4: hz(2), F4: hz(-4), D4: hz(-7),
 };
-
-// 32 eighth-note steps (4 bars): C – Am – F – G, '' = rest
-const MELODY = [
-  'E4', '', 'G4', '', 'C5', '', 'G4', '', 'A4', '', 'C5', '', 'E5', '', 'C5', '',
-  'A4', '', 'C5', '', 'F4', '', 'A4', '', 'G4', '', 'D5', '', 'G4', '', 'D4', '',
+// One chord per bar (8 eighth-note steps); 4 bars = 32 steps.
+const CHORDS = [
+  { root: 'F2', pad: ['A3', 'C5', 'E4'] },
+  { root: 'E2', pad: ['G3', 'B3', 'D4'] },
+  { root: 'D2', pad: ['F3', 'A3', 'C5'] },
+  { root: 'C2', pad: ['E3', 'G3', 'B3'] },
 ];
-const BASS = [
-  'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
-  'C3', 'C3', 'C3', 'C3', 'A3', 'A3', 'A3', 'A3', 'F3', 'F3', 'F3', 'F3', 'G3', 'G3', 'G3', 'G3',
+const MELODY = [
+  'C5', '', '', 'A4', '', 'G4', '', '', 'B4', '', '', 'G4', '', 'E4', '', '',
+  'A4', '', '', 'F4', '', 'A4', '', '', 'G4', '', 'E4', '', 'D4', '', '', '',
 ];
 
 // Tense track for surveillance incidents: 160 BPM, D minor, racing sixteenth-note arpeggio over a
@@ -56,6 +59,24 @@ function note(freq: number, start: number, dur: number, type: OscillatorType, ga
   osc.connect(g).connect(master);
   osc.start(start);
   osc.stop(start + dur + 0.02);
+}
+
+function hat(start: number) {
+  if (!ctx || !master) return;
+  const len = Math.floor(ctx.sampleRate * 0.04);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  const hp = ctx.createBiquadFilter();
+  const g = ctx.createGain();
+  hp.type = 'highpass';
+  hp.frequency.value = 7000;
+  src.buffer = buf;
+  g.gain.setValueAtTime(0.12, start);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.04);
+  src.connect(hp).connect(g).connect(master);
+  src.start(start);
 }
 
 function kick(start: number) {
@@ -101,10 +122,14 @@ function schedule() {
       step++;
       continue;
     }
+    const bar = Math.floor(step / 8) % 4;
+    const pos = step % 8;
+    const chord = CHORDS[bar];
+    if (pos === 0) chord.pad.forEach((k) => note(N[k], nextTime, STEP * 8, 'triangle', 0.22));
+    if (pos === 0 || pos === 5) note(N[chord.root], nextTime, STEP * 2.5, 'sine', 1.0);
     const m = MELODY[step % MELODY.length];
-    const b = BASS[step % BASS.length];
-    if (m) note(N[m], nextTime, STEP * 1.8, 'square', 0.5);
-    if (step % 2 === 0) note(N[b], nextTime, STEP * 1.9, 'triangle', 0.9);
+    if (m) note(N[m], nextTime, STEP * 2.5, 'triangle', 0.55);
+    if (pos % 2 === 1) hat(nextTime);
     nextTime += STEP;
     step++;
   }

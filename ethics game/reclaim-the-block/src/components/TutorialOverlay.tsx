@@ -51,7 +51,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
           The city is filling your town with surveillance devices. Work together to push back. Everyone wins or loses together.
         </p>
         <Row title="How you win">
-          Clear <strong>every device from all 4 districts</strong>. You win as soon as the whole board is empty.
+          Clear <strong>every device from all 4 districts</strong>. You win as soon as the whole board is empty. The game starts with <strong>4 devices</strong> (2 players) or <strong>8 devices</strong> (3 or 4 players).
         </Row>
         <Row title="How you lose">
           The <strong>Privacy &amp; Community Trust</strong> meter hits 0, or <strong>Round 8</strong> ends before the board is clear.

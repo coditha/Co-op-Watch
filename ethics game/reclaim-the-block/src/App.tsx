@@ -1,6 +1,7 @@
 import { useReducer, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { gameReducer, buildInitialState, getReachablePositions, previewResolvedIncidentEffect, previewRegularBoardPhase } from './store/gameReducer';
 import { asset } from './utils/asset';
+import { startMusic, toggleMusic, isMusicOn } from './utils/music';
 import { getBoardPhaseEvent } from './data/roundConfig';
 import type { GameAction } from './store/gameReducer';
 import type { NeighborhoodId, SlotIndex, CommunityCard, Player, GameState } from './types/game';
@@ -313,6 +314,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
   const [isApplyingBoardPhase, setIsApplyingBoardPhase] = useState(false);
   // Intro story — shown once when a fresh game mounts, before Round 1.
   const [showIntro, setShowIntro] = useState(true);
+  const [musicOn, setMusicOn] = useState(isMusicOn());
 
   // Auto-fit the board into the vertical band BETWEEN the top trackers and the
   // bottom trackers, centered in that band, scaling up to fill large TV/TUI
@@ -469,6 +471,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                 <button className="btn-quit" onClick={() => { setShowLog(true); setRotatedOverlay(true); setShowSettings(null); }}>Game Log</button>
                 <button className="btn-quit" onClick={onNewGame}>New Game</button>
                 <button className="btn-quit" onClick={() => { setShowTutorial(true); setRotatedOverlay(true); setShowSettings(null); }}>Tutorial</button>
+                <button className="btn-quit" onClick={() => setMusicOn(toggleMusic())}>Music: {musicOn ? 'On' : 'Off'}</button>
                 <button className="btn-quit" onClick={onRestart}>Exit</button>
               </div>
             )}
@@ -690,6 +693,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                   <button className="btn-quit" onClick={() => { setShowLog(true); setRotatedOverlay(false); setShowSettings(null); }}>Game Log</button>
                   <button className="btn-quit" onClick={onNewGame}>New Game</button>
                   <button className="btn-quit" onClick={() => { setShowTutorial(true); setRotatedOverlay(false); setShowSettings(null); }}>Tutorial</button>
+                  <button className="btn-quit" onClick={() => setMusicOn(toggleMusic())}>Music: {musicOn ? 'On' : 'Off'}</button>
                   <button className="btn-quit" onClick={onRestart}>Exit</button>
                 </div>
               )}
@@ -913,19 +917,21 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
       {/* ── Intro story overlay (shown once at the start of a new game) ── */}
       {showIntro && (
         <div className="intro-overlay">
-          <div className="intro-panel">
-            <img src={asset('/letter.png')} alt="" className="intro-icon" />
-            <p className="intro-salutation">Dear Maplewood,</p>
-            <p className="intro-body">
-              Something is changing in our neighborhood. You've seen the news. You've heard the
-              debates. Each week brings a new proposal, a new device, a new reason to feel watched.
-              As a parent, lawyer, council member, and advocate, we have a responsibility to get this
-              right. Together.
-            </p>
-            <button className="intro-btn" onClick={() => setShowIntro(false)}>
-              Start
-            </button>
-          </div>
+          {[true, false].map((flipped) => (
+            <div key={String(flipped)} className={`intro-panel${flipped ? ' intro-panel-flipped' : ''}`}>
+              <img src={asset('/letter.png')} alt="" className="intro-icon" />
+              <p className="intro-salutation">Dear Maplewood,</p>
+              <p className="intro-body">
+                Something is changing in our neighborhood. You've seen the news. You've heard the
+                debates. Each week brings a new proposal, a new device, a new reason to feel watched.
+                As a parent, lawyer, council member, and advocate, we have a responsibility to get this
+                right. Together.
+              </p>
+              <button className="intro-btn" onClick={() => setShowIntro(false)}>
+                Start
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -938,6 +944,7 @@ export default function App() {
   const [session, setSession] = useState<{ count: 2 | 3 | 4; key: number } | null>(null);
 
   const handleStart = (count: 2 | 3 | 4) => {
+    startMusic(); // user gesture: browsers allow audio now
     setSession((prev) => ({ count, key: (prev?.key ?? 0) + 1 }));
   };
 

@@ -384,7 +384,8 @@ function resolveIncident(state: GameState, incident: IncidentCard, choiceIndex: 
       name: incident.name,
       choiceLabel: outcome.label,
       text: outcome.text,
-      addTo: outcome.addTo,
+      // 4 players clear the board fastest, so a choice that adds devices adds one extra.
+      addTo: outcome.addTo?.length && state.players.length === 4 ? [...outcome.addTo, outcome.addTo[0]] : outcome.addTo,
       removeFrom: outcome.removeFrom,
       meterDelta: outcome.meterDelta,
     },

@@ -2,7 +2,9 @@ import { useState, useRef } from 'react';
 import type { GameState } from '../types/game';
 import type { GameAction } from '../store/gameReducer';
 
-// Standard 6-sided cube die, numbered 1–6 — same cube geometry as a standard CSS 3D die.
+// 6-sided cube die with faces 2, 2, 4, 4, 6, 6 — same cube geometry as a standard CSS 3D die.
+// `value` below is the face's position (1–6, used for the landing pose); FACE_VALUE is what's printed and rolled.
+const FACE_VALUE: Record<number, number> = { 1: 2, 2: 2, 3: 4, 4: 4, 5: 6, 6: 6 };
 const CUBE_SIZE = 35; // half the die's width/height, matches .die3d-cube's 70px
 const CUBE_FACES: { value: number; transform: string }[] = [
   { value: 1, transform: `translateZ(${CUBE_SIZE}px)` },
@@ -30,7 +32,7 @@ function DieCube() {
     <div className="die3d-cube">
       {CUBE_FACES.map((f) => (
         <div key={f.value} className="die3d-face" style={{ transform: f.transform }}>
-          <span className="die3d-face-num">{f.value}</span>
+          <span className="die3d-face-num">{FACE_VALUE[f.value]}</span>
         </div>
       ))}
     </div>
@@ -57,7 +59,8 @@ export default function CenterDiceRoll({ state, dispatch }: Props) {
 
   function handleDiceTap() {
     if (rolling || landed) return;
-    const finalRoll = Math.floor(Math.random() * 6) + 1;
+    const finalFace = Math.floor(Math.random() * 6) + 1; // which face lands up
+    const finalRoll = FACE_VALUE[finalFace]; // the rolled value (2, 4 or 6)
     setRolling(true);
     setLanded(false);
     rotAccum.current = { rx: 0, ry: 0, rz: 0 };
@@ -84,7 +87,7 @@ export default function CenterDiceRoll({ state, dispatch }: Props) {
       const delay = 45 + t * t * 240;
       rollTimer.current = setTimeout(() => {
         if (step >= totalSteps) {
-          const target = FACE_LANDING[finalRoll];
+          const target = FACE_LANDING[finalFace];
           const nearest = (acc: number, tt: number) => Math.round((acc - tt) / 360) * 360 + tt;
           const finalRot = {
             rx: nearest(rotAccum.current.rx, target.rx),

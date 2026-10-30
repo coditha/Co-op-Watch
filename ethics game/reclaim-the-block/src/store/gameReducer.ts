@@ -543,7 +543,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     // ── Roll die (start of player turn) ───────────────────────────────
     case 'ROLL_DIE': {
       if (!state.pendingDiceRoll) return state;
-      const roll = action.precomputedRoll ?? (Math.floor(Math.random() * 6) + 1);
+      const roll = action.precomputedRoll ?? ([2, 2, 4, 4, 6, 6][Math.floor(Math.random() * 6)]);
       let s: GameState = {
         ...state,
         actionsRemaining: roll,

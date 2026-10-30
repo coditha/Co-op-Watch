@@ -75,7 +75,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     content: (
       <>
         <Row img={<Img src="/tutorial/turn-dice.png" />} shot title="Roll the dice">
-          At the start of your turn, your roll (1–6) is how many <strong>action points</strong> you get.
+          At the start of your turn, your roll (2, 4 or 6) is how many <strong>action points</strong> you get.
         </Row>
         <Row img={<Img src="/tutorial/turn-move.png" />} shot title="Move: 1 action per step">
           Tiles with a <strong>white outline</strong> show where you can move. Your pawn glows <strong>gold</strong> on your turn.

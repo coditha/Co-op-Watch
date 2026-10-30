@@ -152,6 +152,9 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
         <Row title="Survived">
           Clear the board with some objectives missed and the community still survives. Objectives are a bonus, not a requirement.
         </Row>
+        <Row title="Win early for a story ending">
+          Clear the board before round 8 and the council vote never has to happen. You get a story ending that shows how Maplewood's story finishes.
+        </Row>
       </>
     ),
   },

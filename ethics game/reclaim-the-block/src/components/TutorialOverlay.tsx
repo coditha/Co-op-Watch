@@ -148,7 +148,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
         </Row>
         <Row title="Finish every objective">
           Each role in play has one objective, shown on that player's panel with a checkbox. You win when the board is clear <strong>and</strong> every objective is done.
-          The last device can't be cleared while an objective is still open, so plan who clears what.
+          If the board empties while a removal objective is open, the city redeploys a device so it can still be finished.
         </Row>
       </>
     ),

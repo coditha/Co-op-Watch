@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import type { GameState, NeighborhoodId, SlotIndex } from '../types/game';
 import type { GameAction } from '../store/gameReducer';
-import { clearBlockedByObjectives } from '../store/gameReducer';
 import { CategoryIcon, CATEGORY_COLORS, CATEGORY_LABELS } from './CardDisplay';
 
 interface Props {
@@ -93,8 +92,7 @@ export default function ActionPanel({
   const canRemove =
     canAct && playerInSelectedNeighborhood && effectiveSlot !== null && effectiveNeighborhood !== null &&
     removeCardIds.length === 3 &&
-    state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null &&
-    !clearBlockedByObjectives(state, 'remove', effectiveNeighborhood);
+    state.neighborhoods.find((n) => n.id === effectiveNeighborhood)?.slots[effectiveSlot] !== null;
 
   const depositRequired = 4;
   // Pick the best subset: one card per unique color
@@ -114,8 +112,7 @@ export default function ActionPanel({
     : pickDepositIds(player.hand);
   const canDeposit =
     canAct && player.position === 'city-hall' &&
-    bestDepositIds.length >= depositRequired &&
-    !clearBlockedByObjectives(state, 'deposit', [...state.neighborhoods].sort((a, b) => b.densityTrack - a.densityTrack)[0].id);
+    bestDepositIds.length >= depositRequired;
 
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
   // Any teammate on the same tile; a full hand discards 1 before receiving.

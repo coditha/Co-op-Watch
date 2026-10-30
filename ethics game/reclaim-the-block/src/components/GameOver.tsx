@@ -19,12 +19,19 @@ export default function GameOver({ won, objectives, reason, round, privacyMeter,
     : full
       ? 'Every neighborhood is clear of surveillance devices and every role completed its objective. The community reclaimed the block!'
       : 'Every neighborhood is clear of surveillance devices, but not every role completed its objective. The community survived.';
+  // Clearing the board before round 8 means the council vote never has to happen: show a story ending.
+  const earlyStory = won && round < 8
+    ? (full
+        ? 'The cameras come down before the council ever has to vote. There is no ordinance and no last-minute campaign, because Maplewood acted early. Parent, lawyer, advocate and council member each did their part, and the block is yours again. The next time someone proposes a new device, this community will already know how to answer.'
+        : 'The cameras come down before the council ever has to vote, but not everyone got what they came for. Some promises stayed unkept, and some neighbors still feel unheard. The block is clear for now. How long it stays that way depends on whether Maplewood keeps showing up.')
+    : null;
   const inPlay = ROLES.filter((r) => r.id in objectives);
   return (
     <div className="gameover-screen">
       <div className="gameover-card">
         <div className={`gameover-title ${won ? 'won' : 'lost'}`}>{title}</div>
         <div className="gameover-message">{message}</div>
+        {earlyStory && <p className="gameover-story">{earlyStory}</p>}
         <ul className="gameover-objectives">
           {inPlay.map((r) => (
             <li key={r.id} className={objectives[r.id] ? 'done' : ''}>

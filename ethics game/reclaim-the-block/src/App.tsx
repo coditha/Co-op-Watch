@@ -410,6 +410,7 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
     return (
       <GameOver
         won={state.phase === 'won'}
+        objectives={state.objectives}
         reason={state.lossReason}
         round={state.round}
         privacyMeter={state.privacyMeter}

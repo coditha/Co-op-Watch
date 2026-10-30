@@ -144,11 +144,13 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
     content: (
       <>
         <Row title="Clear the board">
-          Remove <strong>every device from all 4 districts</strong>. The game starts with <strong>4 devices</strong> (2 players) or <strong>8 devices</strong> (3 or 4 players).
+          Remove <strong>every device from all 4 districts</strong> and the game ends. It starts with <strong>4 devices</strong> (2 players) or <strong>8 devices</strong> (3 or 4 players).
         </Row>
-        <Row title="Finish every objective">
-          Each role in play has one objective, shown on that player's panel with a checkbox. You win when the board is clear <strong>and</strong> every objective is done.
-          If the board empties while a removal objective is open, the city redeploys a device so it can still be finished.
+        <Row title="Full Victory">
+          Each role in play has one objective, shown on that player's panel with a checkbox. Clear the board <strong>and</strong> finish every objective for a Full Victory.
+        </Row>
+        <Row title="Survived">
+          Clear the board with some objectives missed and the community still survives. Objectives are a bonus, not a requirement.
         </Row>
       </>
     ),
@@ -162,7 +164,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
           The <strong>Privacy &amp; Community Trust</strong> meter hits 0.
         </Row>
         <Row title="Out of time">
-          <strong>Round 8</strong> ends before the board is clear and all objectives are done.
+          <strong>Round 8</strong> ends before the board is clear.
         </Row>
         <Row title="The meter">
           Starts at 20 out of 30. Incident choices can raise or lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.

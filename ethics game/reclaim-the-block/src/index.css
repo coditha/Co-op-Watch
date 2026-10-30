@@ -1559,6 +1559,8 @@ input, select { font-family: inherit; }
 .gameover-title { font-family: 'Press Start 2P', monospace; font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.8; }
 .gameover-title.won { color: var(--green); text-shadow: 3px 3px 0 var(--px-dark); }
 .gameover-title.lost { color: var(--red); text-shadow: 3px 3px 0 var(--px-dark); }
+.gameover-objectives { list-style: none; padding: 0; margin: 0 0 1.25rem; text-align: left; font-size: 0.8rem; line-height: 1.7; color: var(--red); }
+.gameover-objectives li.done { color: var(--green); }
 .gameover-message { color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.9rem; }
 .gameover-stats { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
 .stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }

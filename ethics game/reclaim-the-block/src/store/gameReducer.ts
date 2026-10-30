@@ -281,25 +281,6 @@ function transferCard(state: GameState, fromPlayerId: number, toPlayerId: number
   return checkWinLoss(log(s, `${from.role.name} transferred "${card.name}" to ${to.role.name}`));
 }
 
-// If the board is empty but removal objectives are still open, the city redeploys a device
-// where each one can be completed, so a group is never stuck unable to finish.
-function redeployForObjectives(state: GameState): GameState {
-  if (!state.neighborhoods.every((n) => n.densityTrack === 0)) return state;
-  let s = state;
-  for (const p of state.players) {
-    if (s.objectives[p.role.id] !== false) continue;
-    let where: NeighborhoodId | null = null;
-    if (p.role.id === 'organizer') where = p.role.homeNeighborhood;
-    if (p.role.id === 'legal') where = s.neighborhoods.find((n) => n.id !== p.role.homeNeighborhood)!.id;
-    if (!where) continue;
-    const open = s.neighborhoods.find((n) => n.id === where)!.slots.findIndex((sl) => sl === null);
-    if (open === -1) continue;
-    s = placeDevice(s, where, open as SlotIndex, deviceForTracker(s.densityTracker), { skipMeterPenalty: true });
-    s = log(s, `The city redeploys a device in ${s.neighborhoods.find((n) => n.id === where)!.name} so the ${p.role.name}'s objective can still be completed.`);
-  }
-  return s;
-}
-
 function completeObjective(state: GameState, roleId: string): GameState {
   if (state.objectives[roleId] !== false) return state; // not in play, or already done
   return log({ ...state, objectives: { ...state.objectives, [roleId]: true } }, `Objective complete: ${OBJECTIVES[roleId as RoleId].short}`);
@@ -435,7 +416,7 @@ function applyResolvedIncidentEffect(state: GameState): GameState {
     s = shiftMeter(s, r.meterDelta, r.name);
   }
 
-  return redeployForObjectives(s);
+  return s;
 }
 
 // What the resolved incident choice will actually do right now — found by
@@ -508,8 +489,8 @@ function checkWinLoss(state: GameState): GameState {
   // genuine win. (Don't gate on the surveillance deck having been drawn from:
   // incident rounds skip that draw, which made the game unwinnable.)
   const allClear = state.neighborhoods.every((n) => n.densityTrack === 0);
-  const objectivesDone = Object.values(state.objectives).every(Boolean);
-  if (allClear && objectivesDone) {
+  // Objectives aren't required: they decide which ending the group gets (see GameOver).
+  if (allClear) {
     return { ...state, phase: 'won' };
   }
   return state;
@@ -756,7 +737,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         } else {
           s = log(s, 'Board Phase: every slot is already full, no device placed.');
         }
-        s = redeployForObjectives(s);
       }
 
       // Stay in 'board-phase' here — the device placement / meter shift above

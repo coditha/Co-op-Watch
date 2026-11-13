@@ -850,14 +850,16 @@ function GameScreen({ playerCount, onRestart, onNewGame }: GameScreenProps) {
                       }, 700);
                     }, 1500);
                   } else {
-                    // No device to place — apply the effect (e.g. a meter shift)
-                    // right away so it's visible on the meter, then pause before
-                    // advancing to the next round's dice-roll prompt.
-                    dispatch({ type: 'BOARD_PHASE' });
+                    // No device to place — the card closes first, then the effect
+                    // (e.g. a meter shift) lands so it's visible on the meter, then
+                    // a pause before the next round's dice-roll prompt.
                     setTimeout(() => {
-                      dispatch({ type: 'ADVANCE_ROUND' });
-                      setIsApplyingBoardPhase(false);
-                    }, 900);
+                      dispatch({ type: 'BOARD_PHASE' });
+                      setTimeout(() => {
+                        dispatch({ type: 'ADVANCE_ROUND' });
+                        setIsApplyingBoardPhase(false);
+                      }, 900);
+                    }, 600);
                   }
                 }}
               >

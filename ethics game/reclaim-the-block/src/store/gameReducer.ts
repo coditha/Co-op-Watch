@@ -538,6 +538,18 @@ function advanceTurn(s: GameState): GameState {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (state.phase === 'won' || state.phase === 'lost') return state;
 
+  // Safety net (the UI already hides these): player actions only happen on a player's own
+  // turn after rolling, with nothing waiting to be resolved; the board phase only runs once.
+  const PLAYER_ACTIONS = ['MOVE', 'REMOVE_DEVICE', 'TRANSFER_CARD', 'DEPOSIT_AT_CITY_HALL', 'END_TURN'];
+  if (PLAYER_ACTIONS.includes(action.type) &&
+      (state.phase !== 'player-turn' || state.pendingDiceRoll || state.pendingIncident || state.pendingDrawnCards || state.pendingDiscard)) {
+    return state;
+  }
+  if ((action.type === 'BOARD_PHASE' || action.type === 'ADVANCE_ROUND') &&
+      (state.phase !== 'board-phase' || state.pendingIncident)) {
+    return state;
+  }
+
   switch (action.type) {
 
     // ── Roll die (start of player turn) ───────────────────────────────
@@ -580,6 +592,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const n = state.neighborhoods.find((nb) => nb.id === action.neighborhoodId);
       if (!n || n.slots[action.slotIndex] === null) return state;
+      // Must be standing on one of that district's houses.
+      if (!(player.position === n.id || player.position.startsWith(`${n.id}-n`))) return state;
 
       let s = removeCardFromHand(state, player.id, action.cardIds);
       s = removeDeviceFromSlot(s, action.neighborhoodId, action.slotIndex);

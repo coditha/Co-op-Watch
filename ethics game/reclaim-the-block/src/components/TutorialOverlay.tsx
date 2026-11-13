@@ -53,15 +53,20 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
         </p>
         <div className="tut-roles">
           {ROLES.map((r) => (
-            <div key={r.id} className="tut-role" style={{ borderColor: r.colorHex }}>
-              <div className="tut-role-head" style={{ background: r.colorHex }}>
-                {r.characterImage && <img src={r.characterImage} alt="" className="tut-role-img" />}
+            <div key={r.id} className="tut-role-col">
+              <div className="tut-role" style={{ borderColor: r.colorHex }}>
+                <div className="tut-role-head" style={{ background: r.colorHex }}>
+                  {r.characterImage && <img src={r.characterImage} alt="" className="tut-role-img" />}
+                </div>
+                <div className="tut-role-body">
+                  <div className="tut-role-name" style={{ color: r.colorHex }}>{r.name}</div>
+                  <div className="tut-role-home">Home: {DISTRICT_NAMES[r.homeNeighborhood]}</div>
+                  <p className="tut-role-desc">{r.description}</p>
+                </div>
               </div>
-              <div className="tut-role-body">
-                <div className="tut-role-name" style={{ color: r.colorHex }}>{r.name}</div>
-                <div className="tut-role-home">Home: {DISTRICT_NAMES[r.homeNeighborhood]}</div>
-                <p className="tut-role-desc">{r.description}</p>
-                <p className="tut-role-desc"><strong>Objective:</strong> {OBJECTIVES[r.id].short}.</p>
+              <div className="tut-objective" style={{ borderColor: r.colorHex }}>
+                <div className="tut-objective-label" style={{ color: r.colorHex }}>Objective</div>
+                <div className="tut-objective-text">{OBJECTIVES[r.id].short}</div>
               </div>
             </div>
           ))}
@@ -86,7 +91,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
         </Row>
         <Row title="Deposit Cards: 1 action + 4 colors">
           At the Town Square, spend <strong>4 cards of different colors</strong> (one of each).
-          This clears <strong>every device</strong> in the most crowded district and raises the meter by 5.
+          This clears <strong>every device</strong> in the most crowded district and raises the meter by 5. Only <strong>one deposit per round</strong> for the whole group.
         </Row>
         <Row title="Transfer Card: 1 action">
           On the same tile as a teammate, give them 1 card. Once per round. If they already hold 7, they first choose 1 card to discard.

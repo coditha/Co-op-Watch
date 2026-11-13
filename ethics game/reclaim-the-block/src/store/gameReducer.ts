@@ -182,6 +182,7 @@ export function buildInitialState(playerCount: 2 | 3 | 4): GameState {
 
     incidentFiredThisRound: false,
     transferredThisRound: [],
+    depositedThisRound: false,
 
     gameLog: ['Game started! Good luck reclaiming the block.'],
     objectives: Object.fromEntries(roles.map((r) => [r.id, false])),
@@ -637,6 +638,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.actionsRemaining < 1) return state;
       const player = state.players[state.currentPlayerIndex];
       if (player.position !== 'city-hall') return state;
+      if (state.depositedThisRound) return state; // one deposit per round, shared by all players
 
       const cards = action.cardIds.map((id) => player.hand.find((c) => c.id === id)!).filter(Boolean);
       if (cards.length < 4) return state;
@@ -659,6 +661,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           s = removeDeviceFromSlot(s, target.id, i as SlotIndex);
         }
       }
+      s = { ...s, depositedThisRound: true };
       s = shiftMeter(s, 4, 'Town Square deposit');
       s = { ...s, densityTracker: Math.max(1, s.densityTracker - 1) };
       s = shiftMeter(s, 1, 'Density Tracker decreased');
@@ -772,6 +775,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         densityTracker: Math.min(8, state.densityTracker + 1),
         incidentFiredThisRound: false,
         transferredThisRound: [],
+        depositedThisRound: false,
         resolvedIncident: null,
       };
       s = log(s, `--- Round ${s.round} begins — ${s.players[0].role.name}, roll the dice! ---`);

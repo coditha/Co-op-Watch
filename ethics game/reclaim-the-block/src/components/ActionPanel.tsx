@@ -111,7 +111,7 @@ export default function ActionPanel({
     ? selectedDepositIds
     : pickDepositIds(player.hand);
   const canDeposit =
-    canAct && player.position === 'city-hall' &&
+    canAct && player.position === 'city-hall' && !state.depositedThisRound &&
     bestDepositIds.length >= depositRequired;
 
   const colocatedPlayers = players.filter((p) => p.id !== player.id && p.position === player.position);
@@ -155,10 +155,11 @@ export default function ActionPanel({
       id: 'deposit',
       icon: '🏛️',
       label: 'Deposit Cards',
-      sub: `${depositRequired} colors at Town Square`,
+      sub: state.depositedThisRound ? 'Already used this round' : `${depositRequired} colors at Town Square`,
       tooltip: [
         `Cost: 1 action + ${depositRequired} unique-color cards.`,
         'Must be at the Town Square.',
+        'Only one deposit per round for the whole group.',
         'Need one of each: blue · yellow · green · red.',
         'Selected cards are used first; otherwise the best set in your hand.',
         'Raises the Privacy & Community Trust Meter.',

@@ -148,6 +148,8 @@ export interface GameState {
   incidentFiredThisRound: boolean;
   // Players who have already given a card this round (Transfer Card is once per round).
   transferredThisRound: number[];
+  // Town Square deposits are limited to one per round for the whole group.
+  depositedThisRound: boolean;
 
   // Set when a device is removed or a Town Square deposit clears a neighborhood, so the UI can show a banner.
   // `id` increments each time so the same neighborhood clearing twice re-triggers it.

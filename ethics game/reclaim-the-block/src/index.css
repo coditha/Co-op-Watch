@@ -2465,6 +2465,11 @@ input, select { font-family: inherit; }
 .tut-row-body { color: var(--text-muted); }
 /* Roles: same card style as the start screen */
 .tut-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.55rem; }
+.tut-role-col { display: flex; flex-direction: column; gap: 0.4rem; }
+.tut-role-col .tut-role { flex: 1; }
+.tut-objective { border: 2px solid; background: #fffaf0; box-shadow: 3px 3px 0 var(--px-dark); padding: 0.4rem 0.55rem; }
+.tut-objective-label { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.tut-objective-text { font-size: 0.78rem; font-weight: 700; line-height: 1.35; color: var(--text); }
 .tut-role { border: 2px solid; background: #f5f0e4; box-shadow: 3px 3px 0 var(--px-dark); display: flex; flex-direction: column; }
 .tut-role-head { display: flex; justify-content: center; padding: 0.5rem; }
 .tut-role-img { width: 52px; height: 52px; object-fit: contain; image-rendering: pixelated; }

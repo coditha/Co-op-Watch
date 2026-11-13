@@ -16,6 +16,18 @@ import { getIncidentForRound } from '../data/roundConfig';
 
 const MAX_ROUNDS = 8;
 
+// Trust effects of incident answers grow as the game goes on: x1 in round 1 up to x3 in round 8.
+export function incidentTrustScale(round: number): number {
+  return 1 + (clampRound(round) - 1) * (2 / (MAX_ROUNDS - 1));
+}
+function clampRound(round: number) {
+  return Math.min(MAX_ROUNDS, Math.max(1, round));
+}
+export function scaledTrustDelta(delta: number | undefined, round: number): number | undefined {
+  if (!delta) return delta;
+  return Math.sign(delta) * Math.round(Math.abs(delta) * incidentTrustScale(round));
+}
+
 // ── Utilities ──────────────────────────────────────────────────────────────
 
 export function shuffle<T>(arr: T[]): T[] {
@@ -364,7 +376,7 @@ function resolveIncident(state: GameState, incident: IncidentCard, choiceIndex: 
       text: outcome.text,
       addTo: outcome.addTo,
       removeFrom: outcome.removeFrom,
-      meterDelta: outcome.meterDelta,
+      meterDelta: scaledTrustDelta(outcome.meterDelta, state.round),
     },
   };
   s = log(s, `${incident.name} — ${outcome.label}: ${outcome.text}`);

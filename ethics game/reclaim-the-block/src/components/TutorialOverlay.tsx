@@ -175,7 +175,7 @@ const TABS: { id: string; label: string; content: ReactNode }[] = [
           <strong>Round 8</strong> ends before the board is clear.
         </Row>
         <Row title="The meter">
-          Starts at 20 out of 30. Incident choices can raise or lower it. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
+          Starts at 20 out of 30. Incident choices can raise or lower it, and their effect gets stronger every round. Removing devices and depositing at the Town Square raise it. It pulses red at 5 or below.
         </Row>
       </>
     ),
